@@ -160,51 +160,67 @@ class DatabaseManager:
         Returns:
             List of historical data points
         """
-        # Determine which database and table to query based on parameter
-        if 'rate' in parameter_name.lower() and any(x in parameter_name.lower() for x in ['treasury', 'mortgage', 'fed', 'funds']):
-            db_name = 'market_data'
-            table = 'interest_rates'
-            param_column = 'parameter_name'
-        elif 'rent' in parameter_name.lower() or 'vacancy' in parameter_name.lower():
-            db_name = 'property_data'
-            table = 'rental_market_data'
-            param_column = 'metric_name'
-        elif 'cap' in parameter_name.lower():
-            db_name = 'market_data' 
-            table = 'cap_rates'
-            param_column = 'property_type'  # Different structure for cap rates
-        elif 'tax' in parameter_name.lower():
-            db_name = 'property_data'
-            table = 'property_tax_data'
-            param_column = None  # No parameter name column
-        elif any(x in parameter_name.lower() for x in ['unemployment', 'employment', 'gdp', 'population', 'income', 'housing']):
-            db_name = 'economic_data'
-            table = 'regional_economic_indicators'
-            param_column = 'indicator_name'
-        else:
-            # Default to market data economic indicators for national-level data
-            db_name = 'market_data'
-            table = 'economic_indicators'
-            param_column = 'indicator_name'
+        # Map parameters to database locations based on our 11 ARIMA metrics
+        param_config = {
+            # Interest rates (national, from market_data.interest_rates)
+            'treasury_10y': {'db': 'market_data', 'table': 'interest_rates', 'column': 'parameter_name'},
+            'commercial_mortgage_rate': {'db': 'market_data', 'table': 'interest_rates', 'column': 'parameter_name'},
+            'fed_funds_rate': {'db': 'market_data', 'table': 'interest_rates', 'column': 'parameter_name'},
+            
+            # Cap rates (MSA-specific, from market_data.cap_rates - use property_type = 'multifamily')
+            'cap_rate': {'db': 'market_data', 'table': 'cap_rates', 'column': 'property_type', 'value': 'multifamily'},
+            
+            # Rental market (MSA-specific, from property_data.rental_market_data)
+            'vacancy_rate': {'db': 'property_data', 'table': 'rental_market_data', 'column': 'metric_name'},
+            'rent_growth': {'db': 'property_data', 'table': 'rental_market_data', 'column': 'metric_name'},
+            
+            # Operating expenses (MSA-specific, from property_data.operating_expenses)
+            'expense_growth': {'db': 'property_data', 'table': 'operating_expenses', 'column': 'expense_growth', 'direct_column': True},
+            
+            # Lending requirements (MSA-specific, from economic_data.lending_requirements)
+            'ltv_ratio': {'db': 'economic_data', 'table': 'lending_requirements', 'column': 'metric_name'},
+            'closing_cost_pct': {'db': 'economic_data', 'table': 'lending_requirements', 'column': 'metric_name'},
+            'lender_reserves': {'db': 'economic_data', 'table': 'lending_requirements', 'column': 'metric_name'},
+            
+            # Property growth (MSA-specific, from economic_data.property_growth)
+            'property_growth': {'db': 'economic_data', 'table': 'property_growth', 'column': 'property_growth', 'direct_column': True}
+        }
         
-        # Build query with optional date filters
-        if param_column:
+        if parameter_name not in param_config:
+            raise ValueError(f"Unknown parameter: {parameter_name}. Supported parameters: {list(param_config.keys())}")
+        
+        config = param_config[parameter_name]
+        db_name = config['db']
+        table = config['table']
+        column = config['column']
+        
+        # Build query based on configuration
+        if config.get('direct_column'):
+            # For tables like property_growth where the column IS the value
             query = f"""
-                SELECT date, value, data_source, updated_at
-                FROM {table}
-                WHERE {param_column} = ? AND geographic_code = ?
-            """
-        else:
-            query = f"""
-                SELECT date, tax_rate as value, data_source, updated_at
+                SELECT date, {column} as value, data_source
                 FROM {table}
                 WHERE geographic_code = ?
             """
-        if param_column:
-            params = [parameter_name, geographic_code]
-        else:
             params = [geographic_code]
+        elif 'value' in config:
+            # For cap_rates where we filter by property_type = 'multifamily'
+            query = f"""
+                SELECT date, value, data_source
+                FROM {table}
+                WHERE {column} = ? AND geographic_code = ?
+            """
+            params = [config['value'], geographic_code]
+        else:
+            # Standard case with parameter/metric name filtering
+            query = f"""
+                SELECT date, value, data_source
+                FROM {table}
+                WHERE {column} = ? AND geographic_code = ?
+            """
+            params = [parameter_name, geographic_code]
         
+        # Add date filters if provided
         if start_date:
             query += " AND date >= ?"
             params.append(start_date.isoformat())
@@ -217,34 +233,36 @@ class DatabaseManager:
         
         return self.query_data(db_name, query, tuple(params))
     
-    def save_forecast(self, parameter_name: str, geographic_code: str,
-                     forecast_horizon_years: int, model_order: str,
-                     forecast_values: List[float], confidence_intervals: Dict[str, List[float]],
-                     model_aic: Optional[float] = None,
-                     model_performance: Optional[Dict[str, Any]] = None) -> None:
-        """Save ARIMA forecast results to cache."""
+    def save_prophet_forecast(self, parameter_name: str, geographic_code: str,
+                             forecast_horizon_years: int, forecast_values: List[float],
+                             forecast_dates: List[str], lower_bound: List[float],
+                             upper_bound: List[float], model_performance: Dict[str, Any],
+                             trend_info: Dict[str, Any], historical_data_points: int) -> None:
+        """Save Prophet forecast results to cache."""
         
         forecast_data = {
             'parameter_name': parameter_name,
             'geographic_code': geographic_code,
             'forecast_date': date.today().isoformat(),
             'forecast_horizon_years': forecast_horizon_years,
-            'model_order': model_order,
             'forecast_values': json.dumps(forecast_values),
-            'confidence_intervals': json.dumps(confidence_intervals),
-            'model_aic': model_aic,
-            'model_performance': json.dumps(model_performance) if model_performance else None
+            'forecast_dates': json.dumps(forecast_dates),
+            'lower_bound': json.dumps(lower_bound),
+            'upper_bound': json.dumps(upper_bound),
+            'model_performance': json.dumps(model_performance),
+            'trend_info': json.dumps(trend_info),
+            'historical_data_points': historical_data_points
         }
         
-        self.insert_data('forecast_cache', 'arima_forecasts', forecast_data)
+        self.insert_data('forecast_cache', 'prophet_forecasts', forecast_data)
     
-    def get_cached_forecast(self, parameter_name: str, geographic_code: str,
-                           forecast_horizon_years: int, 
-                           max_age_days: int = 30) -> Optional[Dict[str, Any]]:
-        """Retrieve cached forecast if available and not too old."""
+    def get_cached_prophet_forecast(self, parameter_name: str, geographic_code: str,
+                                   forecast_horizon_years: int, 
+                                   max_age_days: int = 30) -> Optional[Dict[str, Any]]:
+        """Retrieve cached Prophet forecast if available and not too old."""
         
         query = """
-            SELECT * FROM arima_forecasts
+            SELECT * FROM prophet_forecasts
             WHERE parameter_name = ? AND geographic_code = ? 
             AND forecast_horizon_years = ?
             AND DATE(forecast_date) >= DATE('now', '-{} days')
@@ -256,13 +274,7 @@ class DatabaseManager:
                                 (parameter_name, geographic_code, forecast_horizon_years))
         
         if results:
-            result = results[0]
-            # Deserialize JSON fields
-            result['forecast_values'] = json.loads(result['forecast_values'])
-            result['confidence_intervals'] = json.loads(result['confidence_intervals'])
-            if result['model_performance']:
-                result['model_performance'] = json.loads(result['model_performance'])
-            return result
+            return results[0]  # Return raw result - JSON parsing will be done by caller
         
         return None
     

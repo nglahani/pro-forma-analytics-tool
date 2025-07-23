@@ -77,7 +77,7 @@ class ParameterManager:
         )
         
         # Rent Growth Parameters
-        self.parameters["rent_growth_msa"] = ParameterDefinition(
+        self.parameters["rent_growth"] = ParameterDefinition(
             name="MSA Rent Growth Rate",
             parameter_type=ParameterType.RENT_GROWTH,
             description="Annual rental rate growth by MSA",
@@ -113,7 +113,7 @@ class ParameterManager:
         )
         
         # Vacancy Rate Parameters
-        self.parameters["rental_vacancy_rate"] = ParameterDefinition(
+        self.parameters["vacancy_rate"] = ParameterDefinition(
             name="Rental Vacancy Rate",
             parameter_type=ParameterType.VACANCY_RATE,
             description="Rental housing vacancy rate by MSA",
@@ -125,7 +125,7 @@ class ParameterManager:
         )
         
         # Cap Rate Parameters
-        self.parameters["multifamily_cap_rate"] = ParameterDefinition(
+        self.parameters["cap_rate"] = ParameterDefinition(
             name="Multifamily Cap Rate",
             parameter_type=ParameterType.CAP_RATE,
             description="Multifamily investment cap rates by MSA",
@@ -137,20 +137,44 @@ class ParameterManager:
         )
         
         # Property Value Growth
-        self.parameters["house_price_index"] = ParameterDefinition(
-            name="House Price Index",
+        self.parameters["property_growth"] = ParameterDefinition(
+            name="Property Value Growth",
             parameter_type=ParameterType.PROPERTY_GROWTH,
-            description="FHFA House Price Index growth by MSA",
+            description="Annual property value growth by MSA",
             unit="percentage",
             typical_range=(-10.0, 20.0),
-            data_sources=["FHFA"],
-            update_frequency=DataFrequency.QUARTERLY,
-            geographic_level="msa",
-            fred_series="HPIPONM226S"  # National, need MSA-specific
+            data_sources=["FHFA", "Local Assessors"],
+            update_frequency=DataFrequency.ANNUALLY,
+            geographic_level="msa"
+        )
+        
+        # Expense Growth (operating expenses)
+        self.parameters["expense_growth"] = ParameterDefinition(
+            name="Operating Expense Growth",
+            parameter_type=ParameterType.EXPENSE_GROWTH,
+            description="Annual operating expense growth rate",
+            unit="percentage",
+            typical_range=(1.0, 8.0),
+            data_sources=["CPI", "Property Management Data"],
+            update_frequency=DataFrequency.ANNUALLY,
+            geographic_level="msa"
+        )
+        
+        # Federal funds rate
+        self.parameters["fed_funds_rate"] = ParameterDefinition(
+            name="Federal Funds Rate",
+            parameter_type=ParameterType.INTEREST_RATE,
+            description="Federal funds effective rate",
+            unit="percentage",
+            typical_range=(0.0, 8.0),
+            data_sources=["FRED"],
+            update_frequency=DataFrequency.MONTHLY,
+            geographic_level="national",
+            fred_series="FEDFUNDS"
         )
         
         # Additional Pro Forma Parameters (typically fixed inputs, not forecasted)
-        self.parameters["ltv"] = ParameterDefinition(
+        self.parameters["ltv_ratio"] = ParameterDefinition(
             name="Loan-to-Value Ratio",
             parameter_type=ParameterType.INTEREST_RATE,  # Financing related
             description="Maximum loan-to-value ratio for financing",
@@ -158,7 +182,7 @@ class ParameterManager:
             typical_range=(0.5, 0.9),
             data_sources=["Lender Guidelines", "Market Standards"],
             update_frequency=DataFrequency.QUARTERLY,
-            geographic_level="national"
+            geographic_level="msa"
         )
         
         self.parameters["closing_cost_pct"] = ParameterDefinition(
@@ -172,15 +196,15 @@ class ParameterManager:
             geographic_level="msa"
         )
         
-        self.parameters["lender_reserve_pct"] = ParameterDefinition(
-            name="Lender Reserve Percentage",
+        self.parameters["lender_reserves"] = ParameterDefinition(
+            name="Lender Reserve Requirements",
             parameter_type=ParameterType.EXPENSE_GROWTH,
             description="Lender required reserves as percentage of loan amount",
             unit="decimal",
-            typical_range=(0.1, 0.5),
+            typical_range=(0.02, 0.1),
             data_sources=["Lender Requirements"],
             update_frequency=DataFrequency.ANNUALLY,
-            geographic_level="national"
+            geographic_level="msa"
         )
     
     def get_parameter(self, name: str) -> Optional[ParameterDefinition]:
@@ -210,16 +234,18 @@ parameters = ParameterManager()
 
 # Parameter mapping for pro forma Excel sections
 PRO_FORMA_PARAMETER_MAPPING = {
-    # From Excel Assumptions Section
-    "interest_rate": "treasury_10y",  # Base rate + spread
-    "rent_growth": "rent_growth_msa", 
-    "expense_growth": "cpi_housing",
-    "vacancy_rate": "rental_vacancy_rate",
-    "cap_rate": "multifamily_cap_rate",
-    "property_growth": "house_price_index",
-    "ltv": "ltv",
+    # From Excel Assumptions Section (matches our 11 Prophet metrics)
+    "treasury_10y": "treasury_10y",
+    "commercial_mortgage_rate": "commercial_mortgage_rate",
+    "fed_funds_rate": "fed_funds_rate",
+    "cap_rate": "cap_rate",
+    "vacancy_rate": "vacancy_rate", 
+    "rent_growth": "rent_growth",
+    "expense_growth": "expense_growth",
+    "ltv_ratio": "ltv_ratio",
     "closing_cost_pct": "closing_cost_pct",
-    "lender_reserve_pct": "lender_reserve_pct"
+    "lender_reserves": "lender_reserves",
+    "property_growth": "property_growth"
 }
 
 def get_pro_forma_parameters() -> Dict[str, ParameterDefinition]:

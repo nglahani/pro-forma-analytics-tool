@@ -5,14 +5,19 @@
 -- ARIMA FORECASTS TABLE
 -- =============================================================================
 
--- Cached ARIMA forecasts
-CREATE TABLE IF NOT EXISTS arima_forecasts (
+-- Cached Prophet forecasts (renamed from arima_forecasts)
+CREATE TABLE IF NOT EXISTS prophet_forecasts (
     parameter_name TEXT NOT NULL,
     geographic_code TEXT NOT NULL,
     forecast_date DATE NOT NULL,  -- Date forecast was generated
     forecast_horizon_years INTEGER NOT NULL,
     forecast_values TEXT NOT NULL,  -- JSON array of forecasted values
-    confidence_intervals TEXT NOT NULL,  -- JSON object with confidence bands
+    forecast_dates TEXT NOT NULL,  -- JSON array of forecast dates
+    lower_bound TEXT NOT NULL,  -- JSON array of lower confidence bounds
+    upper_bound TEXT NOT NULL,  -- JSON array of upper confidence bounds
+    model_performance TEXT NOT NULL,  -- JSON object with MAPE, RMSE, etc.
+    trend_info TEXT NOT NULL,  -- JSON object with trend analysis
+    historical_data_points INTEGER NOT NULL,
     PRIMARY KEY(parameter_name, geographic_code, forecast_date, forecast_horizon_years)
 );
 
@@ -48,8 +53,8 @@ CREATE TABLE IF NOT EXISTS monte_carlo_results (
 -- =============================================================================
 
 -- Forecast indexes
-CREATE INDEX IF NOT EXISTS idx_forecasts_param ON arima_forecasts(parameter_name);
-CREATE INDEX IF NOT EXISTS idx_forecasts_geo ON arima_forecasts(geographic_code);
+CREATE INDEX IF NOT EXISTS idx_forecasts_param ON prophet_forecasts(parameter_name);
+CREATE INDEX IF NOT EXISTS idx_forecasts_geo ON prophet_forecasts(geographic_code);
 
 -- Correlation indexes
 CREATE INDEX IF NOT EXISTS idx_correlations_geo ON parameter_correlations(geographic_code);

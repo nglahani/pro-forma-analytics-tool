@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is the **pro-forma-analytics-tool** - a real estate financial analysis project that transforms static Excel-based pro formas into data-driven forecasting using ARIMA time series analysis and Monte Carlo simulations.
+This is the **pro-forma-analytics-tool** - a real estate financial analysis project that transforms static Excel-based pro formas into data-driven forecasting using Prophet time series analysis and Monte Carlo simulations.
 
 ## Current State - PHASE 1 COMPLETED ✅
 
@@ -57,11 +57,12 @@ The repository now has a fully functional data infrastructure with:
 
 ## Development Context
 
-### 🎯 NEXT PHASE: ARIMA Forecasting
-The system is ready for implementing ARIMA time series forecasting:
-- All historical data is clean and accessible
-- Parameters are standardized across geographies
-- Database schema supports forecast caching
+### 🎯 CURRENT PHASE: Monte Carlo Simulation Engine ✅
+The system now has a fully functional Monte Carlo simulation engine:
+- Prophet forecasting integrated and working
+- Enhanced scenario analysis with growth/risk scoring
+- Parameter correlation modeling with economic relationships
+- Extreme scenario identification and market classification
 
 ### 🔧 Quick Start Commands
 ```bash
@@ -81,7 +82,7 @@ python data_manager.py setup
 - **market_data.db**: Interest rates, cap rates, economic indicators
 - **property_data.db**: Rental market, property tax, operating expenses  
 - **economic_data.db**: Regional indicators, property growth, lending requirements
-- **forecast_cache.db**: ARIMA forecasts, correlations, Monte Carlo results
+- **forecast_cache.db**: Prophet forecasts, correlations, Monte Carlo results
 
 ### Geographic Coverage
 - New York-Newark-Jersey City MSA
@@ -111,8 +112,8 @@ Currently no automated build process. The system uses:
 
 ## Next Development Priorities
 
-1. **ARIMA Implementation** - Time series forecasting for each metric
-2. **Correlation Analysis** - Cross-metric relationship modeling  
-3. **Monte Carlo Engine** - Probabilistic scenario generation
-4. **Forecast Validation** - Backtesting and accuracy metrics
+1. **Monte Carlo Visualization** - Charts and graphs for scenario analysis
+2. **Forecast Validation** - Backtesting and accuracy metrics for Prophet models
+3. **Property-Specific Analysis** - Integration with specific property data inputs
+4. **Scenario Export** - Export capabilities for analysis results
 5. **User Interface** - Web or desktop interface for scenario analysis

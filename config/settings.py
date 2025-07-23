@@ -12,17 +12,17 @@ import os
 
 @dataclass
 class ForecastSettings:
-    """Settings for ARIMA forecasting."""
+    """Settings for Prophet forecasting."""
     min_horizon_years: int = 3
     max_horizon_years: int = 10
     default_horizon_years: int = 5
-    confidence_intervals: List[float] = None
-    arima_order_range: tuple = ((0, 2), (0, 2), (0, 2))  # (p, d, q) ranges
-    seasonal_periods: int = 1  # Annual data, no seasonality
-    
-    def __post_init__(self):
-        if self.confidence_intervals is None:
-            self.confidence_intervals = [0.68, 0.95]  # 1σ and 2σ
+    confidence_interval: float = 0.95  # 95% confidence interval
+    yearly_seasonality: bool = True
+    weekly_seasonality: bool = False
+    daily_seasonality: bool = False
+    changepoint_prior_scale: float = 0.05  # Flexibility of trend changes
+    seasonality_prior_scale: float = 10.0  # Flexibility of seasonality
+    uncertainty_samples: int = 1000  # Samples for uncertainty estimation
 
 @dataclass
 class MonteCarloSettings:

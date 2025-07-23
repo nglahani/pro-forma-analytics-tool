@@ -2,28 +2,18 @@
 
 Thank you for your interest in contributing to the Pro-Forma Analytics Tool! This document provides guidelines and information for contributors.
 
-## 🤝 How to Contribute
+## How to Contribute
+- Data integration (API ingestion scripts)
+- Database schema design and improvements
+- Analytics and reporting scripts
 
-### Types of Contributions
+## Not Yet Ready
+- Web dashboard
+- REST API endpoints
+- Cloud deployment
 
-We welcome various types of contributions:
-
-- **🐛 Bug Reports**: Help us identify and fix issues
-- **✨ Feature Requests**: Suggest new functionality
-- **📝 Documentation**: Improve or add documentation
-- **💻 Code Contributions**: Submit code improvements
-- **🧪 Testing**: Help with testing and quality assurance
-- **🎨 UI/UX**: Improve user interface and experience
-- **📊 Data**: Contribute market data or economic indicators
-
-### Before You Start
-
-1. **Check Existing Issues**: Search for existing issues or pull requests
-2. **Read Documentation**: Familiarize yourself with the project structure
-3. **Set Up Development Environment**: Follow the [Development Guide](DEVELOPMENT.md)
-4. **Join Discussions**: Participate in GitHub discussions or community forums
-
-## 🚀 Getting Started
+## Roadmap
+As the project matures, contributions to web/API features will be welcomed. For now, focus on data and analytics.
 
 ### 1. Fork and Clone
 
