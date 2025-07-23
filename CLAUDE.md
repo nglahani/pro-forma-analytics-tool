@@ -117,3 +117,96 @@ Currently no automated build process. The system uses:
 3. **Property-Specific Analysis** - Integration with specific property data inputs
 4. **Scenario Export** - Export capabilities for analysis results
 5. **User Interface** - Web or desktop interface for scenario analysis
+
+---
+
+# Development Workflow - Kiro-Style Spec-Driven Development
+
+## How Kiro Works
+
+Kiro is an AI assistant that helps build features systematically through a structured spec-driven development process.
+
+### Core Philosophy
+
+Instead of jumping straight into code, Kiro guides development through three phases:
+
+1. **Requirements** - What needs to be built
+2. **Design** - How it will be built  
+3. **Tasks** - Step-by-step implementation plan
+
+This ensures every feature is well-planned before implementation begins.
+
+## The Spec Structure
+
+Each feature gets its own folder in `.kiro/specs/{feature-name}/` containing:
+
+- **`requirements.md`** - User stories and acceptance criteria
+- **`design.md`** - Technical architecture and implementation approach
+- **`tasks.md`** - Actionable coding checklist
+
+## Workflow Process
+
+### Phase 1: Requirements Gathering
+
+1. Create initial requirements based on feature idea
+2. Use user stories format: *"As a [role], I want [feature], so that [benefit]"*
+3. Include acceptance criteria in EARS format (Easy Approach to Requirements Syntax)
+   - Example: *"WHEN user clicks submit THEN system SHALL validate all fields"*
+4. Iterate until requirements are approved
+
+### Phase 2: Design Documentation
+
+1. Research and create comprehensive `design.md`
+2. Cover architecture, components, data models, error handling, testing strategy
+3. May include Mermaid diagrams for visual representation
+4. Address all requirements from the previous phase
+5. Iterate until design is approved
+
+### Phase 3: Task Planning
+
+1. Break down design into actionable coding tasks in `tasks.md`
+2. Create numbered checklist items (1.1, 1.2, etc.)
+3. Each task references specific requirements
+4. Focus only on code implementation activities
+5. Prioritize incremental, testable progress
+6. Iterate until task list is approved
+
+## Key Features
+
+- **Iterative Approval** - Explicit approval required for each document before moving to next phase
+- **Requirement Traceability** - Tasks link back to specific requirements
+- **Incremental Development** - Tasks build on each other progressively
+- **Code-Focused** - Tasks only include activities a coding agent can execute
+
+## Task Execution
+
+Once spec is complete, execute tasks by:
+
+1. Opening the `tasks.md` file
+2. Clicking "Start task" next to individual task items
+3. Implement one task at a time, stopping for review between tasks
+
+## Getting Started
+
+To begin a new feature spec:
+1. Describe your feature idea
+2. I'll guide you through the three-phase process
+3. For existing specs, I can help review, update any phase, or execute implementation tasks
+
+## Pro-Forma Analytics Specific Guidelines
+
+### Business Domain Context
+- **Real Estate Investment Analysis** - Focus on investor decision-making workflows
+- **Financial Modeling** - Emphasis on accuracy, validation, and risk assessment
+- **Data-Driven Decisions** - Replace manual assumptions with statistical forecasting
+
+### Architecture Constraints
+- **Clean Architecture** - Maintain domain/application/infrastructure separation
+- **TDD/BDD Testing** - All features must include comprehensive test coverage
+- **Prophet + Monte Carlo** - Leverage existing forecasting and simulation infrastructure
+
+### Feature Prioritization
+1. **Financial Calculation Engine** (highest priority - missing core business logic)
+2. **Investment Decision Framework** (high priority - complete user workflow)
+3. **Visualization & Reporting** (medium priority - user experience)
+4. **API & Integration** (lower priority - external access)
