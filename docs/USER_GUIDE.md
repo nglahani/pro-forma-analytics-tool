@@ -8,20 +8,20 @@ This guide covers everything you need to know to use the pro forma analytics too
 
 ## 🎯 Quick Start
 
-### **1. Immediate Testing**
+### **1. File-Based Input (Recommended)**
 ```bash
-# Test the complete system (recommended first step)
-python test_simplified_system.py
+# Edit property_input_template.json first, then run:
+python quick_analysis_workflow.py property_input_template.json
 ```
 **Expected Output:**
 ```
-[SUCCESS] All 7 data points captured!
-[SUCCESS] Property saved to database
-[SUCCESS] Generated 10 scenarios
-SYSTEM STATUS: FULLY OPERATIONAL
+[SUCCESS] Property loaded to database
+[SUCCESS] Generated 100 investment scenarios
+[BUY] - Good growth potential with moderate risk
+WORKFLOW COMPLETE - ANALYSIS SUCCESSFUL
 ```
 
-### **2. Input Your First Property**
+### **2. Interactive Console Input**
 ```bash
 # Interactive property input form
 python simplified_input_form.py
@@ -30,7 +30,7 @@ python simplified_input_form.py
 ### **3. Validate Monte Carlo Engine**
 ```bash
 # Quick validation with charts
-python monte_carlo_validator.py --mode=simple
+python simple_monte_carlo_validation.py
 ```
 
 ---
@@ -350,10 +350,10 @@ python test_simplified_system.py
 ### **Validation Commands**
 ```bash
 # Test each component individually
-python property_data.py                    # Test property data structures
-python monte_carlo_validator.py --mode=simple  # Test Monte Carlo engine
-python simplified_input_form.py            # Test user input system
-python test_simplified_system.py           # Test complete integration
+python property_data.py                        # Test property data structures
+python simple_monte_carlo_validation.py        # Test Monte Carlo engine
+python simplified_input_form.py                # Test interactive input system
+python quick_analysis_workflow.py              # Test complete file-based workflow
 ```
 
 ---
@@ -407,7 +407,7 @@ python test_simplified_system.py           # Test complete integration
 ## 💬 Support
 
 ### **Quick Help**
-1. **Run system validation**: `python test_simplified_system.py`
+1. **Run system validation**: `python quick_analysis_workflow.py property_input_template.json`
 2. **Check documentation**: This user guide covers most scenarios
 3. **Review error messages**: Most errors include helpful guidance
 4. **Test with NYC**: Use New York properties for testing (full data coverage)
@@ -422,4 +422,4 @@ python test_simplified_system.py           # Test complete integration
 
 **Ready to analyze your real estate investments?**
 
-**Start with**: `python simplified_input_form.py`
+**Start with**: `python quick_analysis_workflow.py property_input_template.json`

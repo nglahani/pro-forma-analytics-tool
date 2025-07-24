@@ -6,19 +6,19 @@ A comprehensive real estate financial analysis platform that replaces manual ass
 
 ## 🚀 Quick Start
 
-### **Option 1: Property Input System** (Your 7 Required Fields)
+### **Option 1: File-Based Input** (Recommended)
+```bash
+python quick_analysis_workflow.py property_input_template.json
+```
+
+### **Option 2: Interactive Console Input**
 ```bash
 python simplified_input_form.py
 ```
 
-### **Option 2: Monte Carlo Validation**
+### **Option 3: Monte Carlo Validation**
 ```bash
-python monte_carlo_validator.py --mode=simple
-```
-
-### **Option 3: Complete System Test**
-```bash
-python test_simplified_system.py
+python simple_monte_carlo_validation.py
 ```
 
 ---
@@ -59,8 +59,9 @@ User Input → Property Data → Monte Carlo Engine → Investment Analysis
 
 ### **Core Components**
 - **`property_data.py`** - Unified property input system
-- **`monte_carlo_validator.py`** - Consolidated validation system  
-- **`simplified_input_form.py`** - User-friendly input interface
+- **`input_file_processor.py`** - File-based input processing
+- **`quick_analysis_workflow.py`** - Complete analysis pipeline
+- **`simplified_input_form.py`** - Interactive input interface
 - **`database/`** - SQLite backend storage
 - **`src/`** - Clean architecture implementation
 
@@ -93,13 +94,13 @@ User Input → Property Data → Monte Carlo Engine → Investment Analysis
 
 ### **Quick Validation**
 ```bash
-# Test your 7 data fields + database
-python test_simplified_system.py
+# Test complete file-based workflow
+python quick_analysis_workflow.py property_input_template.json
 
 # Test Monte Carlo engine
-python monte_carlo_validator.py --mode=simple
+python simple_monte_carlo_validation.py
 
-# Test user input form
+# Test interactive input form
 python simplified_input_form.py
 ```
 
@@ -112,7 +113,7 @@ python -m pytest tests/ -v
 python -m pytest tests/integration/ -v
 
 # Monte Carlo validation with charts
-python monte_carlo_validator.py --mode=comprehensive --scenarios=500
+python simple_monte_carlo_validation.py
 ```
 
 ---
@@ -163,11 +164,15 @@ python test_simplified_system.py  # Verify installation
 
 ## 📚 Documentation
 
-- **[Architecture](ARCHITECTURE.md)** - Technical architecture and design patterns
+- **[DCF Engine Architecture](DCF_ENGINE_ARCHITECTURE.md)** - Pro Forma DCF engine design and implementation roadmap
+- **[DCF Data Structures](DCF_DATA_STRUCTURES.md)** - Complete data structure design for DCF engine implementation
+- **[Monte Carlo Parameter Mapping](MONTE_CARLO_MAPPING.md)** - Detailed mapping between Monte Carlo forecasts and Excel assumptions
+- **[Excel Pro Forma Analysis](EXCEL_PRO_FORMA_ANALYSIS.md)** - Detailed analysis of reference Excel model structure and calculations
+- **[Property Input Workflow](PROPERTY_INPUT_WORKFLOW.md)** - Complete input system guide
 - **[User Guide](USER_GUIDE.md)** - Complete user manual and workflows
-- **[API Reference](API_REFERENCE.md)** - Developer API documentation
-- **[Development Guide](DEVELOPMENT.md)** - Contributing and development setup
 - **[Database Schema](DATABASE.md)** - Database structure and operations
+- **[Contributing](CONTRIBUTING.md)** - Development and contribution guidelines
+- **[Deployment](DEPLOYMENT.md)** - Production deployment instructions
 
 ---
 
@@ -192,10 +197,10 @@ python test_simplified_system.py  # Verify installation
 ## 🚀 Getting Started Workflows
 
 ### **New User - First Property Analysis**
-1. **Collect Property Data**: `python simplified_input_form.py`
-2. **Review Analysis Results**: View generated Monte Carlo scenarios
-3. **Validate System**: `python test_simplified_system.py`
-4. **Explore Documentation**: Start with [User Guide](USER_GUIDE.md)
+1. **Edit Template**: Modify `property_input_template.json` with your property data
+2. **Run Analysis**: `python quick_analysis_workflow.py property_input_template.json`
+3. **Review Results**: View generated Monte Carlo scenarios and investment recommendations
+4. **Explore Documentation**: Start with [Property Input Workflow](PROPERTY_INPUT_WORKFLOW.md)
 
 ### **Developer - System Understanding**
 1. **Read Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md)
@@ -204,10 +209,10 @@ python test_simplified_system.py  # Verify installation
 4. **Development Setup**: [DEVELOPMENT.md](DEVELOPMENT.md)
 
 ### **Investor - Portfolio Analysis**
-1. **Input Multiple Properties**: Use input form for each property
-2. **Compare Scenarios**: Analyze risk vs growth across portfolio
-3. **Track Performance**: Monitor actual vs projected results
-4. **Market Analysis**: Use Monte Carlo validation for market timing
+1. **Create Property Files**: Use template format for each property
+2. **Batch Processing**: Run analysis workflow for multiple properties
+3. **Compare Scenarios**: Analyze risk vs growth across portfolio
+4. **Track Performance**: Monitor actual vs projected results
 
 ---
 
@@ -243,17 +248,17 @@ python test_simplified_system.py  # Verify installation
 ### **System Validation**
 ```bash
 # Verify all components working
-python test_simplified_system.py
+python quick_analysis_workflow.py property_input_template.json
 
 # Expected output:
-# [SUCCESS] All 7 data points captured!
-# [SUCCESS] Property saved to database
-# [SUCCESS] Generated 10 scenarios
-# SYSTEM STATUS: FULLY OPERATIONAL
+# [SUCCESS] Property loaded to database
+# [SUCCESS] Generated 100 investment scenarios
+# [BUY] - Good growth potential with moderate risk
+# WORKFLOW COMPLETE - ANALYSIS SUCCESSFUL
 ```
 
 ---
 
 **Ready to transform your real estate investment analysis?**
 
-**Start now**: `python simplified_input_form.py`
+**Start now**: `python quick_analysis_workflow.py property_input_template.json`
