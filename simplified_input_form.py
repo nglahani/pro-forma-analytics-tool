@@ -21,10 +21,10 @@ import uuid
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from enhanced_property_inputs import (
+from property_data import (
     SimplifiedPropertyInput, ResidentialUnits, CommercialUnits, 
     RenovationInfo, InvestorEquityStructure, RenovationStatus,
-    simplified_property_manager
+    property_manager as simplified_property_manager
 )
 from database.property_database import property_db
 
@@ -234,35 +234,10 @@ def run_monte_carlo_analysis(property_data: SimplifiedPropertyInput):
     
     try:
         # Convert to legacy PropertyInputData format for Monte Carlo engine
-        from core.property_inputs import *
         from datetime import date
         
-        # Create legacy format property
-        legacy_property = PropertyInputData(
-            property_id=property_data.property_id,
-            property_name=property_data.property_name,
-            analysis_date=property_data.analysis_date,
-            physical_info=PropertyPhysicalInfo(
-                property_type=PropertyType.MIXED_USE if property_data.is_mixed_use() else PropertyType.MULTIFAMILY,
-                property_class=PropertyClass.CLASS_B,  # Default
-                total_units=property_data.get_total_units(),
-                total_square_feet=property_data.get_total_units() * 1000,  # Estimate
-                year_built=2015  # Default
-            ),
-            financial_info=PropertyFinancialInfo(
-                purchase_price=property_data.purchase_price or property_data.get_annual_gross_rent() * 12,  # Estimate
-                down_payment_pct=property_data.equity_structure.self_cash_percentage / 100,
-                current_noi=property_data.get_annual_gross_rent() * 0.7  # Estimate 70% NOI
-            ),
-            location_info=PropertyLocationInfo(
-                address=property_data.property_address or "123 Investment St",
-                city=property_data.city or "New York",
-                state=property_data.state or "NY",
-                zip_code="10001",
-                msa_code=property_data.msa_code
-            ),
-            operating_info=PropertyOperatingInfo()
-        )
+        # Create legacy format property using conversion method
+        legacy_property = property_data.to_legacy_format()
         
         print(f"Running analysis for {property_data.msa_code}...")
         

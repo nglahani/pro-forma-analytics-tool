@@ -13,12 +13,13 @@ from datetime import date
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from enhanced_property_inputs import *
-from database.property_database import property_db
-from core.property_inputs import (
-    PropertyInputData, PropertyPhysicalInfo, PropertyFinancialInfo,
-    PropertyLocationInfo, PropertyOperatingInfo, PropertyType, PropertyClass
+from property_data import (
+    SimplifiedPropertyInput, PropertyInputData, ResidentialUnits, CommercialUnits,
+    RenovationInfo, InvestorEquityStructure, RenovationStatus,
+    PropertyPhysicalInfo, PropertyFinancialInfo, PropertyLocationInfo, 
+    PropertyOperatingInfo, PropertyType, PropertyClass, property_manager
 )
+from database.property_database import property_db
 
 def test_simplified_system():
     """Test the complete simplified system."""

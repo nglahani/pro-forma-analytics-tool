@@ -12,7 +12,7 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 import logging
 
-from enhanced_property_inputs import SimplifiedPropertyInput, simplified_property_manager
+from property_data import SimplifiedPropertyInput, property_manager as simplified_property_manager
 
 
 class PropertyDatabase:
