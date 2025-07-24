@@ -136,6 +136,30 @@ class GeographyManager:
 # Global instance for easy access
 geography = GeographyManager()
 
+# MSA mappings for user input validation (compatible with existing code)
+MSA_MAPPINGS = {
+    "35620": {
+        "name": "New York-Newark-Jersey City, NY-NJ-PA",
+        "major_cities": ["New York, NY", "Newark, NJ", "Jersey City, NJ"]
+    },
+    "31080": {
+        "name": "Los Angeles-Long Beach-Anaheim, CA", 
+        "major_cities": ["Los Angeles, CA", "Long Beach, CA", "Anaheim, CA"]
+    },
+    "16980": {
+        "name": "Chicago-Naperville-Elgin, IL-IN-WI",
+        "major_cities": ["Chicago, IL", "Naperville, IL", "Elgin, IL"]
+    },
+    "47900": {
+        "name": "Washington-Arlington-Alexandria, DC-VA-MD-WV",
+        "major_cities": ["Washington, DC", "Arlington, VA", "Alexandria, VA"]
+    },
+    "33100": {
+        "name": "Miami-Fort Lauderdale-West Palm Beach, FL",
+        "major_cities": ["Miami, FL", "Fort Lauderdale, FL", "West Palm Beach, FL"]
+    }
+}
+
 # Common geographic utility functions
 def validate_msa_code(msa_code: str) -> bool:
     """Validate MSA code format (5 digits)."""
