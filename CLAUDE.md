@@ -34,6 +34,13 @@ The repository is now **production-ready** for user input workflow implementatio
 - **Integration test suite** validating complete user workflow
 - **Serialization support** for API/UI consumption
 
+### ✅ Simplified Property Input System (NEW)
+- **7 Required Data Fields**: Residential units, renovation time, commercial units, equity share, rent rates, cash percentage
+- **Database Backend**: SQLite storage with full CRUD operations for building listings
+- **Mixed-Use Support**: Residential + commercial property combinations
+- **Pro Forma Integration**: Seamless workflow to Monte Carlo analysis
+- **Production Ready**: Complete with validation, testing, and documentation
+
 ### ✅ 11 Pro Forma Metrics Covered
 1. **Treasury 10Y Rate** - 48 records (national rates)
 2. **Commercial Mortgage Rate** - 48 records (national rates)  
