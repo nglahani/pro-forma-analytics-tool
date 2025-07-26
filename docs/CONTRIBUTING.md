@@ -2,18 +2,27 @@
 
 Thank you for your interest in contributing to the Pro-Forma Analytics Tool! This document provides guidelines and information for contributors.
 
-## How to Contribute
-- Data integration (API ingestion scripts)
-- Database schema design and improvements
-- Analytics and reporting scripts
+## 🎯 Current Project Status
 
-## Not Yet Ready
-- Web dashboard
-- REST API endpoints
-- Cloud deployment
+The DCF engine is **production-ready** with complete 4-phase workflow:
+- ✅ DCF Assumptions Service
+- ✅ Initial Numbers Service  
+- ✅ Cash Flow Projection Service
+- ✅ Financial Metrics Service
 
-## Roadmap
-As the project matures, contributions to web/API features will be welcomed. For now, focus on data and analytics.
+## 🚀 Priority Contribution Areas
+
+### High Priority
+- **Performance optimization** (IRR calculation improvements, vectorization)
+- **Additional test coverage** (edge cases, error scenarios)
+- **Advanced analytics** (sensitivity analysis, stress testing)
+- **API development** (RESTful endpoints for DCF services)
+
+### Medium Priority
+- **User interface** (web dashboard for property analysis)
+- **Export functionality** (PDF reports, Excel integration)
+- **Multi-property analysis** (portfolio optimization)
+- **Database optimization** (query performance, indexing)
 
 ### 1. Fork and Clone
 
@@ -103,10 +112,10 @@ def calculate_irr(cash_flows: List[Dict[str, float]],
 
 ### Testing Guidelines
 
-- **Unit Tests**: Write tests for all new functions
-- **Integration Tests**: Test component interactions
-- **Test Coverage**: Aim for 80%+ coverage
-- **Test Naming**: Use descriptive test names
+- **Unit Tests**: Write tests for all new functions (follow BDD/TDD practices)
+- **Integration Tests**: Test complete DCF workflow interactions
+- **Test Coverage**: Aim for 95%+ coverage on business logic
+- **Test Naming**: Use descriptive test names following "should_do_something_when_condition" pattern
 
 ```python
 # tests/test_financial_calculations.py
@@ -316,14 +325,18 @@ market_data = {
 # Run all tests
 pytest
 
-# Run specific test file
-pytest tests/test_financial_calculations.py
+# Run specific test suites
+pytest tests/unit/                    # Unit tests
+pytest tests/integration/             # Integration tests
+
+# Run complete DCF workflow test
+python tests/integration/test_complete_dcf_workflow.py
 
 # Run with coverage
 pytest --cov=src --cov-report=html
 
-# Run performance tests
-pytest tests/performance/
+# Run end-to-end demo
+python demo_end_to_end_workflow.py
 ```
 
 ### Writing Tests
