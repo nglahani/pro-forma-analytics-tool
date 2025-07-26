@@ -141,7 +141,10 @@ class FinancialMetricsService:
         annual_principal_payment = original_loan * FINANCIAL_CONSTANTS.ANNUAL_PRINCIPAL_PAYDOWN_RATE
         remaining_loan_balance = max(0, original_loan - (annual_principal_payment * 5))
         
-        # Calculate terminal value
+        # Calculate distributions based on equity structure
+        investor_share = dcf_assumptions.investor_equity_share
+        
+        # Calculate terminal value with proper distributions
         terminal_value = TerminalValue(
             year=5,
             final_noi=final_noi,
@@ -150,13 +153,19 @@ class FinancialMetricsService:
             selling_costs_rate=FINANCIAL_CONSTANTS.DEFAULT_SELLING_COSTS_RATE
         )
         
-        # Calculate distributions based on equity structure
+        # Get calculated net proceeds after __post_init__
         net_proceeds = terminal_value.net_sale_proceeds
         if net_proceeds > 0:
-            # Apply waterfall logic similar to annual distributions
-            investor_share = dcf_assumptions.investor_equity_share
-            terminal_value.investor_terminal_distribution = net_proceeds * investor_share
-            terminal_value.operator_terminal_distribution = net_proceeds * (1 - investor_share)
+            # Apply waterfall logic - recreate with distributions
+            terminal_value = TerminalValue(
+                year=5,
+                final_noi=final_noi,
+                exit_cap_rate=exit_cap_rate,
+                remaining_loan_balance=remaining_loan_balance,
+                selling_costs_rate=FINANCIAL_CONSTANTS.DEFAULT_SELLING_COSTS_RATE,
+                investor_terminal_distribution=net_proceeds * investor_share,
+                operator_terminal_distribution=net_proceeds * (1 - investor_share)
+            )
         
         return terminal_value
     

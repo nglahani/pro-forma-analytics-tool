@@ -10,7 +10,7 @@ from datetime import date
 
 from src.domain.entities.initial_numbers import InitialNumbers
 from src.domain.entities.dcf_assumptions import DCFAssumptions
-from property_data import SimplifiedPropertyInput
+from src.domain.entities.property_data import SimplifiedPropertyInput
 from core.logging_config import get_logger
 from core.exceptions import ValidationError
 from config.dcf_constants import FINANCIAL_CONSTANTS, VALIDATION_CONSTANTS

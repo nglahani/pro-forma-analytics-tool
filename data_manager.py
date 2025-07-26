@@ -14,7 +14,7 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from data.databases.database_manager import db_manager
-from collect_simplified_data import SimplifiedDataCollector
+from data.api_sources.fred_client import FredDataCollector
 from verify_pro_forma_metrics import verify_metric_coverage
 
 def initialize_system():
@@ -35,7 +35,7 @@ def collect_all_data():
     print("\nCOLLECTING DATA")
     print("=" * 40)
     
-    collector = SimplifiedDataCollector()
+    collector = FredDataCollector()
     results = collector.run_full_collection()
     
     if results['success']:

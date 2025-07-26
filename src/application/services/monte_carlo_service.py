@@ -94,7 +94,10 @@ class MonteCarloApplicationService:
             
             # Update computation time
             computation_time = time.time() - start_time
-            simulation_result = simulation_result._replace(
+            # Create new result with updated computation time since dataclass is frozen
+            from dataclasses import replace
+            simulation_result = replace(
+                simulation_result,
                 computation_time_seconds=computation_time
             )
             

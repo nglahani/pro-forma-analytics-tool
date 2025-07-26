@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 from datetime import date
 
 from src.domain.entities.dcf_assumptions import DCFAssumptions, MONTE_CARLO_PARAMETER_MAPPING, validate_monte_carlo_parameters
-from property_data import SimplifiedPropertyInput
+from src.domain.entities.property_data import SimplifiedPropertyInput
 from core.logging_config import get_logger
 from core.exceptions import ValidationError
 
