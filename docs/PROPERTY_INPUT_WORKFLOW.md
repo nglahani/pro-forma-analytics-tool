@@ -66,15 +66,6 @@ The system requires seven core data fields:
 6. Commercial rent per unit
 7. Self cash percentage
 
-#### Supported MSA Codes
-
-The system provides market analysis for the following Metropolitan Statistical Areas:
-- `35620`: New York-Newark-Jersey City MSA
-- `31080`: Los Angeles-Long Beach-Anaheim MSA
-- `16980`: Chicago-Naperville-Elgin MSA
-- `47900`: Washington-Arlington-Alexandria MSA
-- `33100`: Miami-Fort Lauderdale-West Palm Beach MSA
-
 ### Interactive Console Input
 
 The console interface provides guided data collection with validation and real-time feedback.

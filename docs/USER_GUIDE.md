@@ -1,425 +1,231 @@
 # User Guide: Pro Forma Analytics Tool
 
-> **Complete guide to using the real estate investment analysis platform**
+Complete guide to using the real estate investment analysis platform with 4-phase DCF engine and Monte Carlo simulation.
 
-This guide covers everything you need to know to use the pro forma analytics tool for real estate investment analysis.
+## Quick Start
 
----
-
-## 🎯 Quick Start
-
-### **1. File-Based Input (Recommended)**
+### Run Complete DCF Analysis
 ```bash
-# Edit property_input_template.json first, then run:
-python quick_analysis_workflow.py property_input_template.json
+# Execute the end-to-end workflow demonstration
+python demo_end_to_end_workflow.py
 ```
+
 **Expected Output:**
 ```
-[SUCCESS] Property loaded to database
-[SUCCESS] Generated 100 investment scenarios
-[BUY] - Good growth potential with moderate risk
-WORKFLOW COMPLETE - ANALYSIS SUCCESSFUL
+[PHASE 1] Creating DCF assumptions from Monte Carlo scenario...
+[PHASE 2] Calculating initial numbers and financing...
+[PHASE 3] Generating 6-year cash flow projections...
+[PHASE 4] Computing financial metrics and investment analysis...
+
+FINANCIAL RESULTS:
+NPV: $2,503,000 | IRR: 64.8% | Multiple: 9.79x
+Recommendation: STRONG_BUY | Risk Level: MODERATE
+
+SUCCESS: END-TO-END WORKFLOW TEST PASSED
 ```
 
-### **2. Interactive Console Input**
-```bash
-# Interactive property input form
-python simplified_input_form.py
-```
+This demonstration processes a $3.5M Chicago mixed-use property through all DCF phases using realistic market scenarios.
 
-### **3. Validate Monte Carlo Engine**
-```bash
-# Quick validation with charts
-python simple_monte_carlo_validation.py
-```
+## Understanding the 4-Phase DCF Workflow
 
----
+### Phase 1: DCF Assumptions
+- Converts Monte Carlo market scenarios into DCF parameters
+- Maps 11 pro forma metrics to 6-year projections
+- Applies economic correlations and market conditions
 
-## 📋 Your 7 Required Data Fields
+### Phase 2: Initial Numbers  
+- Calculates acquisition costs (purchase price, closing costs, renovation CapEx)
+- Determines financing terms (loan amounts, LTV ratios, lender reserves)
+- Projects initial rental income and operating expenses
 
-The system is designed around your specific requirements. Here's how to input each field:
+### Phase 3: Cash Flow Projections
+- Generates annual cash flows for Years 0-5
+- Models renovation periods with income interruption
+- Calculates waterfall distributions between investors and operators
 
-### **1. Number of Residential Units**
-- **What it is**: Total count of residential rental units
-- **Example**: 12 units in a multifamily building
-- **Validation**: Must be positive integer
+### Phase 4: Financial Metrics
+- Computes NPV, IRR, equity multiples, and payback periods
+- Models terminal value and exit scenarios
+- Provides investment recommendations (STRONG_BUY to STRONG_SELL)
 
-### **2. Anticipated Renovation Time**
-- **What it is**: Expected duration of renovations in months
-- **Options**: 
-  - `0` = No renovation needed
-  - `1-60` = Months of renovation work
-- **Example**: 6 months for major renovations
+## Property Input Requirements
 
-### **3. Number of Commercial Units**
-- **What it is**: Count of commercial/retail spaces
-- **Example**: 2 ground-floor retail units
-- **Note**: Enter `0` if purely residential
+The system requires 7 core data fields for property analysis:
 
-### **4. Investor Equity Share**
-- **What it is**: Percentage of ownership for investors
-- **Range**: 0-100%
-- **Example**: 75% (investors own 75%, you own 25%)
+### Required Inputs
 
-### **5. Residential Rent per Unit**
-- **What it is**: Average monthly rent per residential unit
-- **Format**: Dollar amount (e.g., $2,800)
-- **Example**: $2,500/month average across all units
+1. **Residential Units** - Total count of residential rental units
+2. **Renovation Time** - Expected duration in months (0 = no renovation)  
+3. **Commercial Units** - Count of commercial spaces (0 = residential only)
+4. **Investor Equity Share** - Percentage ownership for investors (0-100%)
+5. **Residential Rent** - Average monthly rent per residential unit
+6. **Commercial Rent** - Average monthly rent per commercial space
+7. **Self Cash Percentage** - Percentage of purchase price paid in cash
 
-### **6. Commercial Rent per Unit**
-- **What it is**: Average monthly rent per commercial space
-- **Format**: Dollar amount (e.g., $4,200)
-- **Note**: Enter $0 if no commercial units
+### Optional Inputs
+- Purchase price (enables additional financial metrics)
+- Location (city/state for MSA-specific market analysis)
+- Property name and analysis date
 
-### **7. Self Cash Percentage**
-- **What it is**: Percentage of purchase price paid in cash
-- **Range**: 0-100%
-- **Example**: 25% (25% cash, 75% financing)
+## Creating Property Analysis
 
----
+### Method 1: Using Domain Entities (Recommended)
 
-## 🏠 Property Input Workflows
-
-### **Residential-Only Property**
-```bash
-python simplified_input_form.py
-```
-**Input Example:**
-```
-Property name: Downtown Apartments
-1. Residential units: 20
-2. Renovation time: 0 (no renovation)
-3. Commercial units: 0
-4. Investor equity: 100%
-5. Residential rent: $1,800
-6. Commercial rent: $0
-7. Self cash: 20%
-```
-
-### **Mixed-Use Property**
-```bash
-python simplified_input_form.py
-```
-**Input Example:**
-```
-Property name: Main Street Mixed-Use
-1. Residential units: 8
-2. Renovation time: 4 months
-3. Commercial units: 2
-4. Investor equity: 80%
-5. Residential rent: $2,800
-6. Commercial rent: $4,200
-7. Self cash: 30%
-```
-
-### **Property with Renovation**
-```bash
-python simplified_input_form.py
-```
-**Input Example:**
-```
-Property name: Renovation Project
-1. Residential units: 15
-2. Renovation time: 8 months
-3. Commercial units: 0
-4. Investor equity: 70%
-5. Residential rent: $2,200
-6. Commercial rent: $0
-7. Self cash: 35%
-```
-
----
-
-## 📊 Understanding Your Results
-
-### **Property Metrics Calculated**
-After input, the system automatically calculates:
-
-- **Total Units**: Residential + Commercial
-- **Monthly Gross Rent**: Combined rent from all units
-- **Annual Gross Rent**: Monthly rent × 12
-- **Property Type**: Mixed-use vs. Multifamily classification
-- **Price per Unit**: If purchase price provided
-- **Cash Required**: Purchase price × Self cash percentage
-- **Gross Cap Rate**: Annual rent ÷ Purchase price
-
-### **Monte Carlo Analysis**
-The system generates investment scenarios with:
-
-- **Growth Scores**: 0.0 (low growth) to 1.0 (high growth)
-- **Risk Scores**: 0.0 (low risk) to 1.0 (high risk)
-- **Market Scenarios**: Bull, Bear, Neutral, Growth, Stress
-- **Investment Recommendations**: Based on score combinations
-
-### **Investment Recommendations**
-- **STRONG BUY**: High growth (>0.5) + Low risk (<0.5)
-- **BUY**: Good growth (>0.4) + Acceptable risk (<0.6)  
-- **CONSIDER**: Moderate growth (>0.3) + Review risk tolerance
-- **CAUTION**: Lower growth potential, consider alternatives
-
----
-
-## 🗄️ Database Operations
-
-### **View Your Properties**
 ```python
-from database.property_database import property_db
-
-# List all properties
-properties = property_db.list_properties()
-print(f"You have {len(properties)} properties")
-
-# Get database statistics
-stats = property_db.get_database_stats()
-print(f"Total properties: {stats['total_properties']}")
-print(f"Property types: {stats['property_types']}")
-```
-
-### **Retrieve Specific Property**
-```python
-# Load a property by ID
-property_data = property_db.load_property("YOUR_PROPERTY_ID")
-if property_data:
-    print(f"Loaded: {property_data.property_name}")
-    metrics = property_data.calculate_key_metrics()
-    print(f"Annual rent: ${metrics['annual_gross_rent']:,.0f}")
-```
-
-### **User Listings Management**
-```python
-# Create user listing
-listing_id = property_db.create_user_listing("your_username", property_id)
-
-# Get all your listings
-my_listings = property_db.get_user_listings("your_username")
-print(f"You have {len(my_listings)} property listings")
-```
-
----
-
-## 📈 Monte Carlo Validation
-
-### **Simple Validation**
-```bash
-python monte_carlo_validator.py --mode=simple --scenarios=100
-```
-**Use Cases:**
-- Quick system validation
-- Basic scenario analysis
-- Development testing
-
-### **Comprehensive Validation** 
-```bash
-python monte_carlo_validator.py --mode=comprehensive --scenarios=500
-```
-**Use Cases:**
-- Full market analysis
-- Investment decision making
-- Portfolio risk assessment
-
-### **Custom Analysis**
-```bash
-python monte_carlo_validator.py --mode=custom --scenarios=200 --years=10
-```
-**Use Cases:**
-- Specific investment horizons
-- Custom scenario counts
-- Specialized analysis needs
-
-### **Understanding Validation Charts**
-
-1. **Growth Score Distribution**: Shows range of growth potential
-2. **Risk Score Distribution**: Shows range of risk levels
-3. **Risk vs Growth Scatter**: Relationship between risk and return
-4. **Market Scenario Distribution**: Breakdown of market conditions
-5. **Statistical Summary**: Mean, standard deviation, correlations
-6. **Quality Checks**: Validation of scenario diversity and realism
-
----
-
-## 🔧 Advanced Usage
-
-### **Programmatic Property Creation**
-```python
-from property_data import SimplifiedPropertyInput, ResidentialUnits, CommercialUnits, RenovationInfo, InvestorEquityStructure, RenovationStatus
+from src.domain.entities.property_data import (
+    SimplifiedPropertyInput, ResidentialUnits, CommercialUnits, 
+    RenovationInfo, InvestorEquityStructure, RenovationStatus
+)
 from datetime import date
 
-# Create property programmatically
+# Create property input
 property_data = SimplifiedPropertyInput(
-    property_id="PROG_001",
-    property_name="Programmatic Property",
+    property_id="ANALYSIS_001",
+    property_name="Mixed-Use Investment",
     analysis_date=date.today(),
     residential_units=ResidentialUnits(
-        total_units=12,
-        average_rent_per_unit=2500
+        total_units=24,
+        average_rent_per_unit=2800
     ),
     commercial_units=CommercialUnits(
-        total_units=2,
-        average_rent_per_unit=4000
+        total_units=3,
+        average_rent_per_unit=4500
     ),
     renovation_info=RenovationInfo(
         status=RenovationStatus.PLANNED,
-        anticipated_duration_months=6
+        anticipated_duration_months=8
     ),
     equity_structure=InvestorEquityStructure(
-        investor_equity_share_pct=80.0,
-        self_cash_percentage=25.0
+        investor_equity_share_pct=75.0,
+        self_cash_percentage=30.0
     ),
-    city="New York",
-    state="NY",
-    msa_code="35620",
-    purchase_price=2000000
+    city="Chicago",
+    state="IL", 
+    msa_code="16980",
+    purchase_price=3500000
 )
-
-# Calculate metrics
-metrics = property_data.calculate_key_metrics()
-print(f"ROI Potential: {metrics['gross_cap_rate']*100:.1f}%")
 ```
 
-### **Batch Property Analysis**
+### Method 2: Study the Demo Implementation
+
+The `demo_end_to_end_workflow.py` file provides a complete working example:
+
+1. **Property Creation** - Shows how to construct property data with all required fields
+2. **Market Scenarios** - Demonstrates Monte Carlo scenario structure  
+3. **Service Integration** - Examples of calling each DCF phase service
+4. **Results Analysis** - How to interpret NPV, IRR, and investment recommendations
+
+## Investment Analysis Results
+
+### Financial Metrics Explained
+
+**Net Present Value (NPV)**
+- Dollar value added by the investment at specified discount rate
+- Positive NPV indicates value creation
+- Higher NPV suggests better investment opportunity
+
+**Internal Rate of Return (IRR)**  
+- Annualized return rate that makes NPV equal to zero
+- Compare against target return rates and alternative investments
+- Consider risk level when evaluating IRR attractiveness
+
+**Equity Multiple**
+- Total cash returned divided by total cash invested
+- Shows how many times initial investment is recovered
+- Accounts for both ongoing distributions and terminal sale proceeds
+
+**Investment Recommendations**
+- **STRONG_BUY**: Exceptional returns with acceptable risk
+- **BUY**: Good returns with moderate risk
+- **HOLD**: Marginal returns, consider alternatives  
+- **SELL**: Poor returns or high risk
+- **STRONG_SELL**: Significant value destruction likely
+
+### Risk Assessment
+
+**Risk Levels**
+- **LOW**: Stable returns with minimal downside
+- **MODERATE**: Balanced risk-return profile
+- **HIGH**: Significant volatility with higher return potential
+- **VERY_HIGH**: Speculative investment with extreme outcomes
+
+## Advanced Usage
+
+### Running Multiple Scenarios
+
+To analyze different market conditions, the tool can process multiple Monte Carlo scenarios:
+
 ```python
-# Analyze multiple properties
-properties = [property1, property2, property3]
-
-for prop in properties:
-    print(f"\n=== {prop.property_name} ===")
-    metrics = prop.calculate_key_metrics()
-    print(f"Units: {metrics['total_units']}")
-    print(f"Annual Rent: ${metrics['annual_gross_rent']:,.0f}")
-    print(f"Mixed Use: {metrics['is_mixed_use']}")
+# The integration tests demonstrate multi-scenario analysis
+# See: tests/integration/test_complete_dcf_workflow.py
+# Method: test_complete_dcf_workflow_multiple_scenarios()
 ```
 
-### **Export Property Data**
+### Custom Market Scenarios
+
+Create custom market assumptions by modifying scenario parameters:
+
 ```python
-# Convert to dictionary for export
-property_dict = property_data.to_dict()
-
-# Save to JSON
-import json
-with open('my_property.json', 'w') as f:
-    json.dump(property_dict, f, indent=2)
-
-# Load from JSON
-with open('my_property.json', 'r') as f:
-    loaded_dict = json.load(f)
-    restored_property = SimplifiedPropertyInput.from_dict(loaded_dict)
+custom_scenario = {
+    'scenario_id': 'CUSTOM_CONSERVATIVE',
+    'forecasted_parameters': {
+        'commercial_mortgage_rate': [0.075, 0.077, 0.079, 0.081, 0.083, 0.085],
+        'cap_rate': [0.070, 0.070, 0.070, 0.070, 0.070, 0.070],
+        'rent_growth': [0.0, 0.025, 0.028, 0.022, 0.025, 0.020],
+        # ... additional parameters
+    }
+}
 ```
 
----
+### Performance Monitoring
 
-## 🚨 Troubleshooting
+Track analysis performance and validate results:
 
-### **Common Issues**
-
-#### **"Property not saved to database"**
-**Solution:**
 ```bash
-# Check if database directory exists
-ls data/databases/
+# Run comprehensive test suite
+python -m pytest tests/ -v
 
-# Reset database if needed
-rm data/databases/property_listings.db
-python test_simplified_system.py  # Recreates database
+# Performance testing
+python tests/performance/test_irr_performance.py
+
+# System validation
+python -c "from demo_end_to_end_workflow import main; main()"
 ```
 
-#### **"Monte Carlo analysis failed"**
-**Solution:**
-```bash
-# Use NYC MSA (has full data coverage)
-# In your property input, specify:
-# City: New York
-# State: NY
-# This auto-assigns MSA code 35620
-```
+## Troubleshooting
 
-#### **"Import errors"**
-**Solution:**
-```bash
-# Run from project root directory
-cd "C:\Users\nlaha\OneDrive\Documents\Personal\Real Estate\pro-forma-analytics-tool"
-python simplified_input_form.py
-```
+### Common Issues
 
-#### **"Unicode display issues"**
-**Solution:**
-```bash
-# Use the non-Unicode test version
-python test_simplified_system.py
-```
+**Import Errors**
+- Ensure all dependencies installed: `pip install -r requirements.txt`
+- Use Python 3.8+ (tested with Python 3.13)
 
-### **Validation Commands**
-```bash
-# Test each component individually
-python property_data.py                        # Test property data structures
-python simple_monte_carlo_validation.py        # Test Monte Carlo engine
-python simplified_input_form.py                # Test interactive input system
-python quick_analysis_workflow.py              # Test complete file-based workflow
-```
+**Database Errors**  
+- Initialize databases: `python data_manager.py setup`
+- Check database permissions and file paths
 
----
+**Calculation Errors**
+- Verify all required property fields are provided
+- Check that numeric inputs are positive and realistic
+- Ensure MSA codes are valid for market analysis
 
-## 🎯 Best Practices
+### Getting Help
 
-### **Property Input**
-- **Be Realistic**: Use current market rates for rent estimates
-- **Consider Location**: Specify city/state for accurate market analysis
-- **Document Assumptions**: Use the notes field for key assumptions
-- **Regular Updates**: Re-analyze properties quarterly with updated data
+1. **Review Examples**: Start with `demo_end_to_end_workflow.py`
+2. **Check Tests**: Integration tests show various usage patterns
+3. **Read Documentation**: Architecture and technical docs in `/docs`
+4. **Validate Installation**: Run test suite to verify system functionality
 
-### **Monte Carlo Analysis**
-- **Start Simple**: Use simple mode for initial validation
-- **Scale Up**: Use comprehensive mode for investment decisions
-- **Multiple Runs**: Run analysis multiple times to verify consistency
-- **Save Results**: Export analysis results for documentation
+## Next Steps
 
-### **Database Management**
-- **Backup Regularly**: Copy `data/databases/` folder for backups
-- **Organize Properties**: Use clear, descriptive property names
-- **Track Changes**: Document major property updates and assumptions
-- **User Separation**: Use different user IDs for different investors/projects
+### For Real Estate Investors
+1. Create property data using your actual investment parameters
+2. Run analysis to get NPV, IRR, and investment recommendations  
+3. Compare results across multiple properties for portfolio optimization
+4. Use risk assessment to understand downside exposure
 
-### **Investment Analysis**
-- **Conservative Assumptions**: Use conservative rent and growth estimates
-- **Stress Testing**: Test properties under different market scenarios
-- **Portfolio Perspective**: Analyze properties as part of broader portfolio
-- **Professional Review**: Have complex analyses reviewed by real estate professionals
-
----
-
-## 📚 Additional Resources
-
-### **System Architecture**
-- See [ARCHITECTURE.md](ARCHITECTURE.md) for technical details
-- Review [API_REFERENCE.md](API_REFERENCE.md) for developer information
-
-### **Development and Testing**
-- See [DEVELOPMENT.md](DEVELOPMENT.md) for development setup
-- See [DATABASE.md](DATABASE.md) for database schema details
-
-### **Market Data Sources**
-- Federal Reserve Economic Data (FRED)
-- U.S. Census Bureau
-- Bureau of Labor Statistics
-- Local MSA economic indicators
-
----
-
-## 💬 Support
-
-### **Quick Help**
-1. **Run system validation**: `python quick_analysis_workflow.py property_input_template.json`
-2. **Check documentation**: This user guide covers most scenarios
-3. **Review error messages**: Most errors include helpful guidance
-4. **Test with NYC**: Use New York properties for testing (full data coverage)
-
-### **Expected System Performance**
-- **Property Input**: < 5 minutes for manual entry
-- **Database Operations**: < 1 second for save/load
-- **Monte Carlo Analysis**: 30-60 seconds for 100 scenarios
-- **Chart Generation**: 10-30 seconds depending on complexity
-
----
-
-**Ready to analyze your real estate investments?**
-
-**Start with**: `python quick_analysis_workflow.py property_input_template.json`
+### For Developers
+1. Review Clean Architecture implementation in `/src`
+2. Study domain entities and application services
+3. Examine test patterns for new feature development
+4. Read `CLAUDE.md` for development guidelines and standards

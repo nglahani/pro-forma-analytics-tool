@@ -8,7 +8,7 @@ import pytest
 from datetime import date
 from src.domain.entities.dcf_assumptions import DCFAssumptions, validate_monte_carlo_parameters
 from src.application.services.dcf_assumptions_service import DCFAssumptionsService
-from property_data import SimplifiedPropertyInput, ResidentialUnits, CommercialUnits, RenovationInfo, InvestorEquityStructure, RenovationStatus
+from src.domain.entities.property_data import SimplifiedPropertyInput, ResidentialUnits, CommercialUnits, RenovationInfo, InvestorEquityStructure, RenovationStatus
 from core.exceptions import ValidationError
 
 

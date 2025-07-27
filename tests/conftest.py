@@ -13,28 +13,23 @@ from pathlib import Path
 from unittest.mock import Mock, MagicMock
 import logging
 
-# Import domain entities with fallback to legacy imports
-try:
-    from src.domain.entities.forecast import (
-        ParameterId, 
-        ParameterType, 
-        DataPoint, 
-        HistoricalData,
-        ForecastResult,
-        ForecastPoint,
-        ModelPerformance
-    )
-    from src.domain.entities.monte_carlo import (
-        SimulationRequest,
-        ScenarioId,
-        ScenarioMetrics,
-        MarketScenario,
-        Scenario
-    )
-except ImportError:
-    # Fallback to legacy property inputs for core functionality
-    from core.property_inputs import PropertyInputData, PropertyType, PropertyClass
-    print("Note: Using legacy imports for core functionality testing")
+# Import domain entities
+from src.domain.entities.forecast import (
+    ParameterId, 
+    ParameterType, 
+    DataPoint, 
+    HistoricalData,
+    ForecastResult,
+    ForecastPoint,
+    ModelPerformance
+)
+from src.domain.entities.monte_carlo import (
+    SimulationRequest,
+    ScenarioId,
+    ScenarioMetrics,
+    MarketScenario,
+    Scenario
+)
 
 # Import repositories
 from src.domain.repositories.parameter_repository import (

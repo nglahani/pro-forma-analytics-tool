@@ -2,11 +2,18 @@
 
 [![Tests](https://github.com/your-org/pro-forma-analytics-tool/workflows/tests/badge.svg)](https://github.com/your-org/pro-forma-analytics-tool/actions)
 [![Code Quality](https://github.com/your-org/pro-forma-analytics-tool/workflows/quality/badge.svg)](https://github.com/your-org/pro-forma-analytics-tool/actions)
-[![Coverage](https://codecov.io/gh/your-org/pro-forma-analytics-tool/branch/main/graph/badge.svg)](https://codecov.io/gh/your-org/pro-forma-analytics-tool)
 
-A production-ready real estate DCF analysis platform with complete 4-phase workflow: Monte Carlo scenario generation → DCF assumptions mapping → initial numbers calculation → cash flow projections → financial metrics and investment recommendations.
+A production-ready real estate DCF analysis platform that transforms traditional Excel-based pro formas into sophisticated financial models using time series forecasting and Monte Carlo simulations.
 
-## 🏗️ Architecture
+## Introduction
+
+Traditional real estate financial analysis relies on static Excel spreadsheets with fixed assumptions that fail to capture market volatility and uncertainty. This tool revolutionizes multifamily real estate investment analysis by replacing static assumptions with dynamic, data-driven forecasting that provides investors with probability-based financial projections and risk-adjusted investment recommendations.
+
+The platform integrates advanced machine learning forecasting with Monte Carlo simulation to generate hundreds of market scenarios, enabling investors to understand the full range of potential outcomes rather than relying on single-point estimates. This approach provides critical insights into downside risk, upside potential, and optimal investment timing that traditional pro formas cannot capture.
+
+By leveraging historical market data and proven forecasting methodologies, investors can make more informed decisions, better understand their risk exposure, and identify opportunities that static analysis would miss. The result is a comprehensive investment analysis framework that bridges the gap between academic financial theory and practical real estate investment decision-making.
+
+## Architecture
 
 This project follows **Clean Architecture** principles with clear separation of concerns:
 
@@ -23,46 +30,51 @@ src/
 └── presentation/        # CLI, Web Interface (Future)
 ```
 
-### Key Architectural Benefits
-- ✅ **Testable**: Full dependency injection with mocked interfaces
-- ✅ **Maintainable**: Clear separation of business logic from infrastructure
-- ✅ **Scalable**: Domain-driven design with well-defined boundaries
-- ✅ **Production-Ready**: Comprehensive error handling and logging
+## Features
 
-## 🚀 Features
-
-### ✅ Complete DCF Engine (Production Ready)
+### Complete DCF Engine (Production Ready)
 - **4-Phase Workflow**: DCF Assumptions → Initial Numbers → Cash Flow Projections → Financial Metrics
 - **Investment Recommendations**: 5-tier system (STRONG_BUY to STRONG_SELL) with risk assessment
 - **Terminal Value Modeling**: Exit scenarios with cap rate analysis and debt payoff
 - **Break-even Analysis**: Comprehensive financial validation and stress testing
 
-### 📊 Prophet Forecasting Engine
-- **11 Pro Forma Parameters** forecasted using Meta's Prophet
-- **5 Major MSAs** with 15+ years of historical data
-- **Automatic Model Validation** with performance metrics
-- **Forecast Caching** for improved performance
-
-### 🎲 Monte Carlo Simulation
-- **500+ Scenario Generation** with economic correlations
-- **Market Classification** (Bull, Bear, Neutral, Growth, Stress)
-- **Risk & Growth Scoring** with composite metrics
-- **Statistical Validation**: 5/5 quality checks passed
-
-### 🏢 Pro Forma Parameters
+### Pro Forma Parameters
 1. **Interest Rates**: Treasury 10Y, Commercial Mortgage, Fed Funds
 2. **Market Metrics**: Cap Rate, Vacancy Rate
 3. **Growth Metrics**: Rent Growth, Expense Growth, Property Growth
 4. **Lending Requirements**: LTV Ratio, Closing Costs, Lender Reserves
 
-### 🌍 Geographic Coverage
-- New York-Newark-Jersey City MSA (35620)
-- Los Angeles-Long Beach-Anaheim MSA (31080)
-- Chicago-Naperville-Elgin MSA (16980)
-- Washington-Arlington-Alexandria MSA (47900)
-- Miami-Fort Lauderdale-West Palm Beach MSA (33100)
+### Prophet Forecasting Engine
 
-## 📦 Installation
+Meta's Prophet is a time series forecasting model designed for business forecasting with seasonal effects and holiday impacts. For real estate analysis, Prophet provides several critical advantages:
+
+- **Trend Detection**: Automatically identifies long-term market trends in rental rates, vacancy, and property values
+- **Seasonal Adjustments**: Captures annual cycles in real estate markets (e.g., stronger leasing seasons)
+- **Uncertainty Quantification**: Provides confidence intervals around forecasts, enabling risk assessment
+- **Missing Data Handling**: Robust performance even with incomplete historical data
+- **Non-linear Growth**: Models market inflection points and changing growth rates
+
+The tool applies Prophet forecasting to 11 key pro forma parameters, generating 6-year projections that feed directly into the DCF analysis. This approach replaces static market assumptions with dynamic forecasts that reflect actual market behavior and trends.
+
+### Monte Carlo Simulation
+
+Rather than relying on single-point estimates from forecasting models, the tool generates 500+ probabilistic scenarios using Monte Carlo simulation. This approach provides critical advantages over point estimates:
+
+- **Risk Quantification**: Understand the full range of potential outcomes, from best-case to worst-case scenarios
+- **Correlation Modeling**: Captures relationships between market variables (e.g., interest rates affecting cap rates)
+- **Stress Testing**: Evaluates investment performance under extreme market conditions
+- **Probability-Based Decisions**: Provides likelihood estimates for achieving target returns
+- **Portfolio Optimization**: Enables comparison of risk-adjusted returns across multiple investments
+
+Each simulation incorporates economic correlations between variables, ensuring realistic scenario generation that reflects how markets actually behave during different economic cycles.
+
+### Monte Carlo Integration
+- **500+ Scenario Generation** with economic correlations
+- **Market Classification** (Bull, Bear, Neutral, Growth, Stress)
+- **Risk & Growth Scoring** with composite metrics
+- **Statistical Validation**: Quality checks for scenario realism
+
+## Installation
 
 ### Prerequisites
 - Python 3.8+ (tested with Python 3.13)
@@ -88,7 +100,9 @@ python data_manager.py setup
 python demo_end_to_end_workflow.py
 ```
 
-## 🔧 Usage
+## Usage
+
+The tool provides a complete 4-phase DCF workflow accessible through Python services. To run a complete analysis, instantiate the required services and process your property through each phase. The demo workflow in `demo_end_to_end_workflow.py` provides a working example that processes a sample property through all phases, generating NPV, IRR calculations, and investment recommendations. For detailed implementation examples, refer to the test files in `tests/integration/` which demonstrate various property configurations and market scenarios.
 
 ### Complete DCF Workflow
 ```python
@@ -144,7 +158,7 @@ python demo_end_to_end_workflow.py
 # Expected output: NPV ~$2.5M, IRR ~64.8%, STRONG_BUY recommendation
 ```
 
-## 🧪 Testing
+## Testing
 
 This project follows **Test-Driven Development (TDD)** and **Behavior-Driven Development (BDD)** practices.
 
@@ -173,7 +187,7 @@ pytest -v --tb=short
 - **Integration tests**: Complete end-to-end workflow validation
 - **Overall coverage**: 95%+ target for business logic
 
-## 🛠️ Development
+## Development
 
 ### Code Quality Standards
 ```bash
@@ -190,7 +204,7 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-## 📊 Database Schema
+## Database Schema
 
 ### Core Tables
 - **`historical_data`**: Parameter historical values
@@ -204,7 +218,7 @@ pre-commit run --all-files
 - **`economic_data.db`**: Regional indicators, lending requirements
 - **`forecast_cache.db`**: Prophet forecasts, correlations, Monte Carlo results
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -216,21 +230,19 @@ pre-commit run --all-files
 8. Push to branch (`git push origin feature/amazing-feature`)
 9. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 📈 Production Status
+## Production Status
 
 **Current Version**: v1.0 - Production Ready
-- ✅ Complete 4-phase DCF engine implemented and validated
-- ✅ End-to-end workflow tested with realistic investment scenarios
-- ✅ Python 3.13 compatibility verified
-- ✅ 95%+ test coverage on core business logic
-- ✅ Clean architecture with proper dependency injection
+- Complete 4-phase DCF engine implemented and validated
+- End-to-end workflow tested with realistic investment scenarios
+- Python 3.13 compatibility verified
+- 95%+ test coverage on core business logic
+- Clean architecture with proper dependency injection
 
 **Validated Performance**: $3.5M test property analysis produces 64.8% IRR and 9.79x equity multiple with STRONG_BUY recommendation in 4-phase workflow.
-
-**Built with ❤️ using Clean Architecture & TDD/BDD Practices**

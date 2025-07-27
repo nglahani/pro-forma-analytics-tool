@@ -10,7 +10,7 @@ from datetime import date
 
 from src.application.services.dcf_assumptions_service import DCFAssumptionsService
 from src.domain.entities.dcf_assumptions import DCFAssumptions
-from property_data import SimplifiedPropertyInput, ResidentialUnits, InvestorEquityStructure, RenovationInfo, RenovationStatus
+from src.domain.entities.property_data import SimplifiedPropertyInput, ResidentialUnits, InvestorEquityStructure, RenovationInfo, RenovationStatus
 from core.exceptions import ValidationError
 
 

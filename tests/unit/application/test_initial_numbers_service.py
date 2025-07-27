@@ -11,7 +11,7 @@ from datetime import date
 from src.application.services.initial_numbers_service import InitialNumbersService
 from src.domain.entities.initial_numbers import InitialNumbers
 from src.domain.entities.dcf_assumptions import DCFAssumptions
-from property_data import SimplifiedPropertyInput, ResidentialUnits, InvestorEquityStructure, RenovationInfo, RenovationStatus
+from src.domain.entities.property_data import SimplifiedPropertyInput, ResidentialUnits, InvestorEquityStructure, RenovationInfo, RenovationStatus
 from core.exceptions import ValidationError
 
 
@@ -413,7 +413,7 @@ class TestInitialNumbersService:
         THEN it should include commercial rent in calculations
         """
         # Arrange
-        from property_data import CommercialUnits
+        from src.domain.entities.property_data import CommercialUnits
         sample_property_data.commercial_units = CommercialUnits(
             total_units=2,
             average_rent_per_unit=3000

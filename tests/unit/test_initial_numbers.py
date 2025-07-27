@@ -9,7 +9,7 @@ from datetime import date
 from src.domain.entities.initial_numbers import InitialNumbers
 from src.application.services.initial_numbers_service import InitialNumbersService
 from src.domain.entities.dcf_assumptions import DCFAssumptions
-from property_data import SimplifiedPropertyInput, ResidentialUnits, CommercialUnits, RenovationInfo, InvestorEquityStructure, RenovationStatus
+from src.domain.entities.property_data import SimplifiedPropertyInput, ResidentialUnits, CommercialUnits, RenovationInfo, InvestorEquityStructure, RenovationStatus
 from core.exceptions import ValidationError
 
 
