@@ -8,7 +8,9 @@ import pytest
 from unittest.mock import Mock, patch
 from datetime import date
 
-from src.application.services.cash_flow_projection_service import CashFlowProjectionService
+from src.application.services.cash_flow_projection_service import (
+    CashFlowProjectionService,
+)
 from src.domain.entities.cash_flow_projection import CashFlowProjection
 from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.initial_numbers import InitialNumbers
@@ -17,12 +19,12 @@ from core.exceptions import ValidationError
 
 class TestCashFlowProjectionServiceSimplified:
     """Simplified test cases for CashFlowProjectionService core functionality."""
-    
+
     @pytest.fixture
     def service(self):
         """Create service instance for testing."""
         return CashFlowProjectionService()
-    
+
     @pytest.fixture
     def sample_dcf_assumptions(self):
         """Sample DCF assumptions for testing."""
@@ -43,9 +45,9 @@ class TestCashFlowProjectionServiceSimplified:
             lender_reserves_months=6.0,
             investor_equity_share=0.80,
             preferred_return_rate=0.08,
-            self_cash_percentage=0.20
+            self_cash_percentage=0.20,
         )
-    
+
     @pytest.fixture
     def sample_initial_numbers(self):
         """Sample initial numbers for testing."""
@@ -77,14 +79,11 @@ class TestCashFlowProjectionServiceSimplified:
             replacement_reserves=3037.5,
             total_operating_expenses=53662.5,
             investor_equity_share=0.80,
-            preferred_return_rate=0.08
+            preferred_return_rate=0.08,
         )
 
     def test_calculate_cash_flow_projection_should_return_valid_projection(
-        self, 
-        service, 
-        sample_dcf_assumptions, 
-        sample_initial_numbers
+        self, service, sample_dcf_assumptions, sample_initial_numbers
     ):
         """
         GIVEN valid DCF assumptions and initial numbers
@@ -92,8 +91,10 @@ class TestCashFlowProjectionServiceSimplified:
         THEN it should return valid CashFlowProjection object
         """
         # Act
-        result = service.calculate_cash_flow_projection(sample_dcf_assumptions, sample_initial_numbers)
-        
+        result = service.calculate_cash_flow_projection(
+            sample_dcf_assumptions, sample_initial_numbers
+        )
+
         # Assert
         assert isinstance(result, CashFlowProjection)
         assert result.property_id == "test_property_123"
@@ -104,10 +105,7 @@ class TestCashFlowProjectionServiceSimplified:
         assert result.preferred_return_rate == 0.08
 
     def test_calculate_cash_flow_projection_should_have_positive_noi(
-        self, 
-        service, 
-        sample_dcf_assumptions, 
-        sample_initial_numbers
+        self, service, sample_dcf_assumptions, sample_initial_numbers
     ):
         """
         GIVEN property with rental income
@@ -115,19 +113,20 @@ class TestCashFlowProjectionServiceSimplified:
         THEN total NOI should be positive
         """
         # Act
-        result = service.calculate_cash_flow_projection(sample_dcf_assumptions, sample_initial_numbers)
-        
+        result = service.calculate_cash_flow_projection(
+            sample_dcf_assumptions, sample_initial_numbers
+        )
+
         # Assert
         assert result.total_noi > 0
         # Most years should have positive NOI (except maybe Year 0)
-        positive_noi_years = sum(1 for cf in result.annual_cash_flows if cf.net_operating_income > 0)
+        positive_noi_years = sum(
+            1 for cf in result.annual_cash_flows if cf.net_operating_income > 0
+        )
         assert positive_noi_years >= 4  # At least 4 out of 6 years should be positive
 
     def test_calculate_cash_flow_projection_should_have_investor_distributions(
-        self, 
-        service, 
-        sample_dcf_assumptions, 
-        sample_initial_numbers
+        self, service, sample_dcf_assumptions, sample_initial_numbers
     ):
         """
         GIVEN profitable property investment
@@ -135,18 +134,19 @@ class TestCashFlowProjectionServiceSimplified:
         THEN there should be distributions to investors
         """
         # Act
-        result = service.calculate_cash_flow_projection(sample_dcf_assumptions, sample_initial_numbers)
-        
+        result = service.calculate_cash_flow_projection(
+            sample_dcf_assumptions, sample_initial_numbers
+        )
+
         # Assert
         assert result.total_investor_distributions > 0
         # Should have reasonable distributions
-        assert result.total_investor_distributions > 100000  # At least $100K over 5 years
+        assert (
+            result.total_investor_distributions > 100000
+        )  # At least $100K over 5 years
 
     def test_get_projection_summary_should_return_key_metrics(
-        self, 
-        service, 
-        sample_dcf_assumptions, 
-        sample_initial_numbers
+        self, service, sample_dcf_assumptions, sample_initial_numbers
     ):
         """
         GIVEN calculated cash flow projection
@@ -154,23 +154,22 @@ class TestCashFlowProjectionServiceSimplified:
         THEN it should return dictionary with key metrics
         """
         # Arrange
-        projection = service.calculate_cash_flow_projection(sample_dcf_assumptions, sample_initial_numbers)
-        
+        projection = service.calculate_cash_flow_projection(
+            sample_dcf_assumptions, sample_initial_numbers
+        )
+
         # Act
         summary = service.get_projection_summary(projection)
-        
+
         # Assert
         assert isinstance(summary, dict)
-        assert 'property_id' in summary
-        assert 'scenario_id' in summary
+        assert "property_id" in summary
+        assert "scenario_id" in summary
         # Should have some meaningful financial metrics (flexibility for different implementations)
         assert len(summary) >= 2  # At least property_id, scenario_id, and some metrics
 
     def test_validate_cash_flow_projection_should_return_issue_list(
-        self, 
-        service, 
-        sample_dcf_assumptions, 
-        sample_initial_numbers
+        self, service, sample_dcf_assumptions, sample_initial_numbers
     ):
         """
         GIVEN cash flow projection
@@ -178,20 +177,19 @@ class TestCashFlowProjectionServiceSimplified:
         THEN it should return list of issues (may be empty)
         """
         # Arrange
-        projection = service.calculate_cash_flow_projection(sample_dcf_assumptions, sample_initial_numbers)
-        
+        projection = service.calculate_cash_flow_projection(
+            sample_dcf_assumptions, sample_initial_numbers
+        )
+
         # Act
         issues = service.validate_cash_flow_projection(projection)
-        
+
         # Assert
         assert isinstance(issues, list)
         # With reasonable assumptions, should have minimal issues
 
     def test_calculate_cash_flow_projection_with_invalid_inputs_should_raise_validation_error(
-        self, 
-        service, 
-        sample_dcf_assumptions, 
-        sample_initial_numbers
+        self, service, sample_dcf_assumptions, sample_initial_numbers
     ):
         """
         GIVEN invalid initial numbers
@@ -201,18 +199,18 @@ class TestCashFlowProjectionServiceSimplified:
         # Arrange
         invalid_numbers = sample_initial_numbers
         invalid_numbers.post_renovation_annual_rent = -1000  # Invalid negative rent
-        
-        # Act & Assert
-        with pytest.raises(ValidationError, match="Cash flow projection calculation failed"):
-            service.calculate_cash_flow_projection(sample_dcf_assumptions, invalid_numbers)
 
-    @patch('src.application.services.cash_flow_projection_service.get_logger')
+        # Act & Assert
+        with pytest.raises(
+            ValidationError, match="Cash flow projection calculation failed"
+        ):
+            service.calculate_cash_flow_projection(
+                sample_dcf_assumptions, invalid_numbers
+            )
+
+    @patch("src.application.services.cash_flow_projection_service.get_logger")
     def test_calculate_cash_flow_projection_should_log_success(
-        self, 
-        mock_logger, 
-        service, 
-        sample_dcf_assumptions, 
-        sample_initial_numbers
+        self, mock_logger, service, sample_dcf_assumptions, sample_initial_numbers
     ):
         """
         GIVEN valid inputs
@@ -223,12 +221,19 @@ class TestCashFlowProjectionServiceSimplified:
         mock_logger_instance = Mock()
         mock_logger.return_value = mock_logger_instance
         service.logger = mock_logger_instance
-        
+
         # Act
-        service.calculate_cash_flow_projection(sample_dcf_assumptions, sample_initial_numbers)
-        
+        service.calculate_cash_flow_projection(
+            sample_dcf_assumptions, sample_initial_numbers
+        )
+
         # Assert
         mock_logger_instance.info.assert_called()
-        logged_messages = [call[0][0] for call in mock_logger_instance.info.call_args_list]
+        logged_messages = [
+            call[0][0] for call in mock_logger_instance.info.call_args_list
+        ]
         assert any("Calculating cash flow projection" in msg for msg in logged_messages)
-        assert any("Successfully calculated cash flow projection" in msg for msg in logged_messages)
+        assert any(
+            "Successfully calculated cash flow projection" in msg
+            for msg in logged_messages
+        )

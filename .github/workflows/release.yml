@@ -1,0 +1,176 @@
+name: Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+
+jobs:
+  pre-release-validation:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Run comprehensive test suite
+      run: |
+        echo "Running complete test suite for release validation..."
+        pytest tests/ --cov=src --cov=core --cov=monte_carlo --cov-fail-under=95 -v
+    
+    - name: Validate DCF workflow
+      run: |
+        echo "Validating complete DCF workflow..."
+        python demo_end_to_end_workflow.py
+    
+    - name: Performance regression check
+      run: |
+        echo "Checking for performance regressions..."
+        python tests/performance/test_irr_performance.py
+
+  build-and-package:
+    needs: pre-release-validation
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build setuptools wheel twine
+    
+    - name: Build package
+      run: |
+        echo "Building Python package..."
+        python -m build
+    
+    - name: Validate package
+      run: |
+        echo "Validating package contents..."
+        twine check dist/*
+    
+    - name: Store build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-dist
+        path: dist/
+
+  create-release:
+    needs: build-and-package
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: release-dist
+        path: dist/
+    
+    - name: Extract version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+    
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        echo "Generating release notes..."
+        python scripts/generate_release_notes.py ${{ steps.get_version.outputs.VERSION }} > release_notes.md
+    
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: Pro-Forma Analytics Tool ${{ steps.get_version.outputs.VERSION }}
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+    
+    - name: Upload release assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/
+        asset_name: pro-forma-analytics-tool-${{ steps.get_version.outputs.VERSION }}.tar.gz
+        asset_content_type: application/gzip
+
+  deploy-to-pypi:
+    needs: create-release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: release-dist
+        path: dist/
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install twine
+      run: pip install twine
+    
+    - name: Deploy to Test PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      run: |
+        echo "Deploying to Test PyPI..."
+        twine upload --repository testpypi dist/* || true
+    
+    - name: Deploy to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        echo "Deploying to PyPI..."
+        twine upload dist/*
+
+  post-release-validation:
+    needs: deploy-to-pypi
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Test PyPI installation
+      run: |
+        sleep 60  # Wait for PyPI propagation
+        pip install pro-forma-analytics-tool
+        python -c "from src.domain.entities.property_data import SimplifiedPropertyInput; print('Package installed successfully')"
+    
+    - name: Notify release completion
+      run: |
+        echo "Release ${{ github.ref_name }} completed successfully!"
+        echo "Package is now available on PyPI"

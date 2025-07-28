@@ -1,0 +1,160 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.13']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov black flake8 mypy isort
+    
+    - name: Code formatting check
+      run: |
+        echo "Checking code formatting with Black..."
+        black --check --diff src/ tests/
+    
+    - name: Import sorting check
+      run: |
+        echo "Checking import sorting with isort..."
+        isort --check-only --diff src/ tests/
+    
+    - name: Linting with flake8
+      run: |
+        echo "Running flake8 linting..."
+        flake8 src/ tests/ --max-line-length=88 --extend-ignore=E203,W503
+    
+    - name: Type checking with mypy
+      run: |
+        echo "Running mypy type checking..."
+        mypy src/ --ignore-missing-imports
+    
+    - name: Run unit tests with coverage
+      run: |
+        echo "Running unit tests..."
+        pytest tests/unit/ --cov=src --cov=core --cov=monte_carlo --cov-report=xml --cov-report=term-missing -v
+    
+    - name: Run integration tests
+      run: |
+        echo "Running integration tests..."
+        pytest tests/integration/ -v --tb=short
+    
+    - name: Run performance tests
+      run: |
+        echo "Running performance tests..."
+        pytest tests/performance/ -v
+    
+    - name: Validate end-to-end DCF workflow
+      run: |
+        echo "Validating complete DCF workflow..."
+        python demo_end_to_end_workflow.py
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  quality-gates:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Check test coverage threshold
+      run: |
+        echo "Enforcing 95% test coverage threshold..."
+        pytest tests/unit/ tests/integration/ --cov=src --cov=core --cov=monte_carlo --cov-fail-under=95
+    
+    - name: Validate architecture compliance
+      run: |
+        echo "Validating Clean Architecture compliance..."
+        python scripts/validate_architecture.py
+    
+    - name: Check for security vulnerabilities
+      run: |
+        pip install safety bandit
+        echo "Checking for known security vulnerabilities..."
+        safety check
+        echo "Running security linting..."
+        bandit -r src/ -f json -o bandit-report.json || true
+    
+    - name: Validate documentation examples
+      run: |
+        echo "Validating that documentation examples execute correctly..."
+        python scripts/validate_docs.py
+
+  build-validation:
+    needs: [test, quality-gates]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build setuptools wheel
+    
+    - name: Build package
+      run: |
+        echo "Building Python package..."
+        python -m build
+    
+    - name: Validate package contents
+      run: |
+        pip install twine
+        echo "Validating package contents..."
+        twine check dist/*
+    
+    - name: Store build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist-files
+        path: dist/

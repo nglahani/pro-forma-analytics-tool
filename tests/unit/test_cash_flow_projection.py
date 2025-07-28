@@ -6,8 +6,14 @@ Tests the calculation of annual cash flows and waterfall distributions.
 
 import pytest
 from datetime import date
-from src.domain.entities.cash_flow_projection import CashFlowProjection, AnnualCashFlow, WaterfallDistribution
-from src.application.services.cash_flow_projection_service import CashFlowProjectionService
+from src.domain.entities.cash_flow_projection import (
+    CashFlowProjection,
+    AnnualCashFlow,
+    WaterfallDistribution,
+)
+from src.application.services.cash_flow_projection_service import (
+    CashFlowProjectionService,
+)
 from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.initial_numbers import InitialNumbers
 from core.exceptions import ValidationError
@@ -15,7 +21,7 @@ from core.exceptions import ValidationError
 
 class TestAnnualCashFlow:
     """Test Annual Cash Flow entity."""
-    
+
     def test_annual_cash_flow_creation(self):
         """Test basic annual cash flow creation."""
         cash_flow = AnnualCashFlow(
@@ -35,14 +41,14 @@ class TestAnnualCashFlow:
             annual_debt_service=40000,
             before_tax_cash_flow=28500,
             capital_expenditures=0,
-            net_cash_flow=28500
+            net_cash_flow=28500,
         )
-        
+
         assert cash_flow.year == 1
         assert cash_flow.gross_rental_income == 100000
         assert cash_flow.net_operating_income == 68500
         assert cash_flow.net_cash_flow == 28500
-    
+
     def test_income_calculation_validation(self):
         """Test validation of income calculations."""
         with pytest.raises(ValidationError):
@@ -56,9 +62,9 @@ class TestAnnualCashFlow:
                 net_operating_income=65000,
                 annual_debt_service=40000,
                 before_tax_cash_flow=25000,
-                net_cash_flow=25000
+                net_cash_flow=25000,
             )
-    
+
     def test_expense_calculation_validation(self):
         """Test validation of expense calculations."""
         with pytest.raises(ValidationError):
@@ -79,9 +85,9 @@ class TestAnnualCashFlow:
                 net_operating_income=65000,
                 annual_debt_service=40000,
                 before_tax_cash_flow=25000,
-                net_cash_flow=25000
+                net_cash_flow=25000,
             )
-    
+
     def test_invalid_year(self):
         """Test validation of invalid year."""
         with pytest.raises(ValidationError):
@@ -94,13 +100,13 @@ class TestAnnualCashFlow:
                 net_operating_income=70000,
                 annual_debt_service=40000,
                 before_tax_cash_flow=30000,
-                net_cash_flow=30000
+                net_cash_flow=30000,
             )
 
 
 class TestWaterfallDistribution:
     """Test Waterfall Distribution entity."""
-    
+
     def test_waterfall_distribution_creation(self):
         """Test basic waterfall distribution creation."""
         distribution = WaterfallDistribution(
@@ -113,14 +119,14 @@ class TestWaterfallDistribution:
             investor_cash_distribution=22000,
             operator_cash_distribution=3000,
             total_cash_distributed=25000,
-            remaining_cash=0
+            remaining_cash=0,
         )
-        
+
         assert distribution.year == 1
         assert distribution.available_cash == 25000
         assert distribution.total_cash_distributed == 25000
         assert distribution.remaining_cash == 0
-    
+
     def test_distribution_calculation_validation(self):
         """Test validation of distribution calculations."""
         with pytest.raises(ValidationError):
@@ -135,9 +141,9 @@ class TestWaterfallDistribution:
                 investor_cash_distribution=20000,
                 operator_cash_distribution=3000,
                 total_cash_distributed=25000,  # Should be 23000
-                remaining_cash=2000
+                remaining_cash=2000,
             )
-    
+
     def test_negative_amounts_validation(self):
         """Test validation of negative amounts."""
         with pytest.raises(ValidationError):
@@ -151,13 +157,13 @@ class TestWaterfallDistribution:
                 investor_cash_distribution=0,
                 operator_cash_distribution=0,
                 total_cash_distributed=0,
-                remaining_cash=0
+                remaining_cash=0,
             )
 
 
 class TestCashFlowProjection:
     """Test Cash Flow Projection entity."""
-    
+
     def create_sample_cash_flows(self) -> list:
         """Create sample cash flows for testing."""
         cash_flows = []
@@ -181,28 +187,36 @@ class TestCashFlowProjection:
                     annual_debt_service=0,
                     before_tax_cash_flow=0,
                     capital_expenditures=100000,
-                    net_cash_flow=-100000
+                    net_cash_flow=-100000,
                 )
             else:
                 # Years 1-5: Operating cash flows
-                gross_income = 100000 * (1.03 ** year)
-                vacancy = 5000 * (1.03 ** year)
+                gross_income = 100000 * (1.03**year)
+                vacancy = 5000 * (1.03**year)
                 effective_income = gross_income - vacancy
-                
+
                 # Individual expense components
-                property_taxes = 12000 * (1.02 ** year)
-                insurance = 2000 * (1.02 ** year)
-                repairs_maintenance = 3000 * (1.02 ** year)
-                property_management = 5000 * (1.02 ** year)
-                admin_expenses = 1000 * (1.02 ** year)
-                contracting = 1500 * (1.02 ** year)
-                replacement_reserves = 1500 * (1.02 ** year)
-                total_expenses = property_taxes + insurance + repairs_maintenance + property_management + admin_expenses + contracting + replacement_reserves
-                
+                property_taxes = 12000 * (1.02**year)
+                insurance = 2000 * (1.02**year)
+                repairs_maintenance = 3000 * (1.02**year)
+                property_management = 5000 * (1.02**year)
+                admin_expenses = 1000 * (1.02**year)
+                contracting = 1500 * (1.02**year)
+                replacement_reserves = 1500 * (1.02**year)
+                total_expenses = (
+                    property_taxes
+                    + insurance
+                    + repairs_maintenance
+                    + property_management
+                    + admin_expenses
+                    + contracting
+                    + replacement_reserves
+                )
+
                 noi = effective_income - total_expenses
                 debt_service = 40000
                 btcf = noi - debt_service
-                
+
                 cash_flow = AnnualCashFlow(
                     year=year,
                     gross_rental_income=gross_income,
@@ -220,17 +234,17 @@ class TestCashFlowProjection:
                     annual_debt_service=debt_service,
                     before_tax_cash_flow=btcf,
                     capital_expenditures=0,
-                    net_cash_flow=btcf
+                    net_cash_flow=btcf,
                 )
             cash_flows.append(cash_flow)
-        
+
         return cash_flows
-    
+
     def create_sample_distributions(self) -> list:
         """Create sample waterfall distributions for testing."""
         distributions = []
         cumulative_unpaid = 0.0
-        
+
         for year in range(6):
             if year == 0:
                 distribution = WaterfallDistribution(
@@ -243,125 +257,129 @@ class TestCashFlowProjection:
                     investor_cash_distribution=0,
                     operator_cash_distribution=0,
                     total_cash_distributed=0,
-                    remaining_cash=0
+                    remaining_cash=0,
                 )
             else:
-                available_cash = 30000 * (1.05 ** year)
+                available_cash = 30000 * (1.05**year)
                 preferred_due = 12000
                 preferred_paid = min(available_cash, preferred_due + cumulative_unpaid)
                 remaining = available_cash - preferred_paid
-                
+
                 distribution = WaterfallDistribution(
                     year=year,
                     available_cash=available_cash,
                     investor_preferred_return_due=preferred_due,
                     investor_preferred_return_paid=preferred_paid,
-                    investor_preferred_return_accrued=max(0, preferred_due + cumulative_unpaid - preferred_paid),
-                    cumulative_unpaid_preferred=max(0, cumulative_unpaid + preferred_due - preferred_paid),
+                    investor_preferred_return_accrued=max(
+                        0, preferred_due + cumulative_unpaid - preferred_paid
+                    ),
+                    cumulative_unpaid_preferred=max(
+                        0, cumulative_unpaid + preferred_due - preferred_paid
+                    ),
                     investor_cash_distribution=preferred_paid + remaining * 0.8,
                     operator_cash_distribution=remaining * 0.2,
                     total_cash_distributed=available_cash,
-                    remaining_cash=0
+                    remaining_cash=0,
                 )
                 cumulative_unpaid = distribution.cumulative_unpaid_preferred
-            
+
             distributions.append(distribution)
-        
+
         return distributions
-    
+
     def test_cash_flow_projection_creation(self):
         """Test basic cash flow projection creation."""
         cash_flows = self.create_sample_cash_flows()
         distributions = self.create_sample_distributions()
-        
+
         projection = CashFlowProjection(
             property_id="TEST_PROP_001",
             scenario_id="TEST_SCENARIO_001",
             annual_cash_flows=cash_flows,
             waterfall_distributions=distributions,
             investor_equity_share=0.8,
-            preferred_return_rate=0.06
+            preferred_return_rate=0.06,
         )
-        
+
         assert projection.property_id == "TEST_PROP_001"
         assert projection.scenario_id == "TEST_SCENARIO_001"
         assert len(projection.annual_cash_flows) == 6
         assert len(projection.waterfall_distributions) == 6
         assert projection.investor_equity_share == 0.8
-    
+
     def test_get_cash_flow_by_year(self):
         """Test getting cash flow for specific year."""
         cash_flows = self.create_sample_cash_flows()
         distributions = self.create_sample_distributions()
-        
+
         projection = CashFlowProjection(
             property_id="TEST_PROP_001",
             scenario_id="TEST_SCENARIO_001",
             annual_cash_flows=cash_flows,
             waterfall_distributions=distributions,
             investor_equity_share=0.8,
-            preferred_return_rate=0.06
+            preferred_return_rate=0.06,
         )
-        
+
         year_1_cf = projection.get_cash_flow_by_year(1)
         assert year_1_cf is not None
         assert year_1_cf.year == 1
-        
+
         # Test invalid year
         invalid_cf = projection.get_cash_flow_by_year(10)
         assert invalid_cf is None
-    
+
     def test_performance_metrics(self):
         """Test performance metrics calculation."""
         cash_flows = self.create_sample_cash_flows()
         distributions = self.create_sample_distributions()
-        
+
         projection = CashFlowProjection(
             property_id="TEST_PROP_001",
             scenario_id="TEST_SCENARIO_001",
             annual_cash_flows=cash_flows,
             waterfall_distributions=distributions,
             investor_equity_share=0.8,
-            preferred_return_rate=0.06
+            preferred_return_rate=0.06,
         )
-        
+
         metrics = projection.get_performance_metrics()
-        
-        assert 'average_annual_noi' in metrics
-        assert 'average_annual_cash_flow' in metrics
-        assert 'total_investor_distributions' in metrics
-        assert metrics['years_projected'] == 6
-    
+
+        assert "average_annual_noi" in metrics
+        assert "average_annual_cash_flow" in metrics
+        assert "total_investor_distributions" in metrics
+        assert metrics["years_projected"] == 6
+
     def test_serialization(self):
         """Test to_dict and from_dict serialization."""
         cash_flows = self.create_sample_cash_flows()
         distributions = self.create_sample_distributions()
-        
+
         original = CashFlowProjection(
             property_id="TEST_PROP_001",
             scenario_id="TEST_SCENARIO_001",
             annual_cash_flows=cash_flows,
             waterfall_distributions=distributions,
             investor_equity_share=0.8,
-            preferred_return_rate=0.06
+            preferred_return_rate=0.06,
         )
-        
+
         # Serialize
         data_dict = original.to_dict()
-        
+
         # Deserialize
         restored = CashFlowProjection.from_dict(data_dict)
-        
+
         assert restored.property_id == original.property_id
         assert restored.scenario_id == original.scenario_id
         assert len(restored.annual_cash_flows) == len(original.annual_cash_flows)
         assert restored.investor_equity_share == original.investor_equity_share
-    
+
     def test_validation_errors(self):
         """Test validation of invalid projections."""
         cash_flows = self.create_sample_cash_flows()
         distributions = self.create_sample_distributions()
-        
+
         with pytest.raises(ValidationError):
             # Invalid investor equity share
             CashFlowProjection(
@@ -370,13 +388,13 @@ class TestCashFlowProjection:
                 annual_cash_flows=cash_flows,
                 waterfall_distributions=distributions,
                 investor_equity_share=1.5,  # Invalid: > 100%
-                preferred_return_rate=0.06
+                preferred_return_rate=0.06,
             )
 
 
 class TestCashFlowProjectionService:
     """Test Cash Flow Projection Service."""
-    
+
     def create_sample_dcf_assumptions(self) -> DCFAssumptions:
         """Create sample DCF assumptions for testing."""
         return DCFAssumptions(
@@ -396,9 +414,9 @@ class TestCashFlowProjectionService:
             lender_reserves_months=3.0,
             investor_equity_share=0.75,
             preferred_return_rate=0.06,
-            self_cash_percentage=0.30
+            self_cash_percentage=0.30,
         )
-    
+
     def create_sample_initial_numbers(self) -> InitialNumbers:
         """Create sample initial numbers for testing."""
         return InitialNumbers(
@@ -428,95 +446,113 @@ class TestCashFlowProjectionService:
             replacement_reserves=1350,
             total_operating_expenses=23850,
             investor_equity_share=0.75,
-            preferred_return_rate=0.06
+            preferred_return_rate=0.06,
         )
-    
+
     def test_calculate_cash_flow_projection(self):
         """Test calculating complete cash flow projection."""
         service = CashFlowProjectionService()
         dcf_assumptions = self.create_sample_dcf_assumptions()
         initial_numbers = self.create_sample_initial_numbers()
-        
-        projection = service.calculate_cash_flow_projection(dcf_assumptions, initial_numbers)
-        
+
+        projection = service.calculate_cash_flow_projection(
+            dcf_assumptions, initial_numbers
+        )
+
         assert projection.property_id == "TEST_PROP_001"
         assert projection.scenario_id == "test_scenario_001"
         assert len(projection.annual_cash_flows) == 6
         assert len(projection.waterfall_distributions) == 6
-        
+
         # Check Year 0 (renovation year)
         year_0_cf = projection.get_cash_flow_by_year(0)
         assert year_0_cf.gross_rental_income == 0
         assert year_0_cf.capital_expenditures == 100000
-        
+
         # Check Year 1 (first operational year)
         year_1_cf = projection.get_cash_flow_by_year(1)
         assert year_1_cf.gross_rental_income > 0
         assert year_1_cf.net_operating_income > 0
-    
+
     def test_waterfall_distribution_calculation(self):
         """Test waterfall distribution calculations."""
         service = CashFlowProjectionService()
         dcf_assumptions = self.create_sample_dcf_assumptions()
         initial_numbers = self.create_sample_initial_numbers()
-        
-        projection = service.calculate_cash_flow_projection(dcf_assumptions, initial_numbers)
-        
+
+        projection = service.calculate_cash_flow_projection(
+            dcf_assumptions, initial_numbers
+        )
+
         # Check Year 1 distribution
         year_1_dist = projection.get_distribution_by_year(1)
         assert year_1_dist.investor_preferred_return_due > 0
         assert year_1_dist.available_cash >= 0
-        
+
         # Check that distributions are reasonable
-        total_investor = sum(d.investor_cash_distribution for d in projection.waterfall_distributions)
-        total_operator = sum(d.operator_cash_distribution for d in projection.waterfall_distributions)
-        
+        total_investor = sum(
+            d.investor_cash_distribution for d in projection.waterfall_distributions
+        )
+        total_operator = sum(
+            d.operator_cash_distribution for d in projection.waterfall_distributions
+        )
+
         assert total_investor > 0
         assert total_operator >= 0  # Could be 0 if no excess cash
-    
+
     def test_projection_validation(self):
         """Test validation of cash flow projections."""
         service = CashFlowProjectionService()
         dcf_assumptions = self.create_sample_dcf_assumptions()
         initial_numbers = self.create_sample_initial_numbers()
-        
-        projection = service.calculate_cash_flow_projection(dcf_assumptions, initial_numbers)
+
+        projection = service.calculate_cash_flow_projection(
+            dcf_assumptions, initial_numbers
+        )
         issues = service.validate_cash_flow_projection(projection)
-        
+
         # Should have minimal issues for reasonable inputs
-        major_issues = [issue for issue in issues if 'negative' in issue.lower() or 'extreme' in issue.lower()]
+        major_issues = [
+            issue
+            for issue in issues
+            if "negative" in issue.lower() or "extreme" in issue.lower()
+        ]
         assert len(major_issues) == 0
-    
+
     def test_projection_summary(self):
         """Test getting projection summary."""
         service = CashFlowProjectionService()
         dcf_assumptions = self.create_sample_dcf_assumptions()
         initial_numbers = self.create_sample_initial_numbers()
-        
-        projection = service.calculate_cash_flow_projection(dcf_assumptions, initial_numbers)
+
+        projection = service.calculate_cash_flow_projection(
+            dcf_assumptions, initial_numbers
+        )
         summary = service.get_projection_summary(projection)
-        
-        assert 'property_id' in summary
-        assert 'annual_summary' in summary
-        assert 'performance_metrics' in summary
-        assert 'key_totals' in summary
-        
+
+        assert "property_id" in summary
+        assert "annual_summary" in summary
+        assert "performance_metrics" in summary
+        assert "key_totals" in summary
+
         # Check annual summary has 6 years
-        assert len(summary['annual_summary']) == 6
-    
+        assert len(summary["annual_summary"]) == 6
+
     def test_annual_returns_calculation(self):
         """Test annual returns calculation."""
         service = CashFlowProjectionService()
         dcf_assumptions = self.create_sample_dcf_assumptions()
         initial_numbers = self.create_sample_initial_numbers()
-        
-        projection = service.calculate_cash_flow_projection(dcf_assumptions, initial_numbers)
+
+        projection = service.calculate_cash_flow_projection(
+            dcf_assumptions, initial_numbers
+        )
         annual_returns = service.calculate_annual_returns(projection)
-        
+
         # Should have returns for Years 1-5
         assert len(annual_returns) == 5
-        
+
         for year in range(1, 6):
             assert year in annual_returns
-            assert 'noi' in annual_returns[year]
-            assert 'investor_distribution' in annual_returns[year]
+            assert "noi" in annual_returns[year]
+            assert "investor_distribution" in annual_returns[year]
