@@ -5,13 +5,13 @@ Consolidates all property input functionality into a single, comprehensive modul
 Supports both legacy PropertyInputData and simplified user input requirements.
 """
 
+import uuid
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any, Union
 from datetime import date, datetime
 from enum import Enum
-import uuid
+from typing import Any, Dict, List, Optional, Union
 
-from core.exceptions import ValidationError, PropertyDataError
+from core.exceptions import PropertyDataError, ValidationError
 from core.logging_config import get_logger
 
 logger = get_logger(__name__)

@@ -4,17 +4,18 @@ Unit Tests for Cash Flow Projection Service (Simplified)
 Core functionality tests for the cash flow projection service.
 """
 
-import pytest
-from unittest.mock import Mock, patch
 from datetime import date
+from unittest.mock import Mock, patch
 
+import pytest
+
+from core.exceptions import ValidationError
 from src.application.services.cash_flow_projection_service import (
     CashFlowProjectionService,
 )
 from src.domain.entities.cash_flow_projection import CashFlowProjection
 from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.initial_numbers import InitialNumbers
-from core.exceptions import ValidationError
 
 
 class TestCashFlowProjectionServiceSimplified:

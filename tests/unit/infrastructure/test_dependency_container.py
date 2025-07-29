@@ -4,10 +4,11 @@ Unit Tests for Dependency Injection Container
 Tests the infrastructure layer dependency injection container.
 """
 
-import pytest
 import logging
 from abc import ABC, abstractmethod
 from typing import Optional
+
+import pytest
 
 from src.infrastructure.container import (
     DependencyContainer,

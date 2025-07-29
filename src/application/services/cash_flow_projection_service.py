@@ -5,18 +5,18 @@ Application service that calculates Years 0-5 cash flow projections
 from DCF assumptions and initial numbers.
 """
 
-from typing import Dict, Any, List, Optional
 from datetime import date
+from typing import Any, Dict, List, Optional
 
+from core.exceptions import ValidationError
+from core.logging_config import get_logger
 from src.domain.entities.cash_flow_projection import (
-    CashFlowProjection,
     AnnualCashFlow,
+    CashFlowProjection,
     WaterfallDistribution,
 )
 from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.initial_numbers import InitialNumbers
-from core.logging_config import get_logger
-from core.exceptions import ValidationError
 
 
 class CashFlowProjectionService:

@@ -4,22 +4,23 @@ Unit Tests for Monte Carlo Service
 Tests the Monte Carlo application service following BDD/TDD principles.
 """
 
-import pytest
-from unittest.mock import Mock, patch
 from datetime import date
+from unittest.mock import Mock, patch
 
+import pytest
+
+from core.exceptions import ValidationError
 from src.application.services.monte_carlo_service import MonteCarloApplicationService
 from src.domain.entities.monte_carlo import (
-    SimulationRequest,
-    SimulationResult,
     CorrelationMatrix,
-    SimulationSummary,
     MarketScenario,
     Scenario,
     ScenarioId,
     ScenarioMetrics,
+    SimulationRequest,
+    SimulationResult,
+    SimulationSummary,
 )
-from core.exceptions import ValidationError
 
 
 class TestMonteCarloApplicationService:
@@ -195,7 +196,7 @@ class TestMonteCarloApplicationService:
         # Assert - Check that save_simulation_result was called (ignore timing-dependent fields)
         mock_simulation_repository.save_simulation_result.assert_called_once()
         saved_result = mock_simulation_repository.save_simulation_result.call_args[0][0]
-        
+
         # Verify key fields match
         assert saved_result.simulation_id == simulation_result.simulation_id
         assert saved_result.request == simulation_result.request

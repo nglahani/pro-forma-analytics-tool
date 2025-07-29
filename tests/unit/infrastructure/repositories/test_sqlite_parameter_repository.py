@@ -4,25 +4,26 @@ Unit Tests for SQLite Parameter Repository
 Tests the infrastructure layer implementation of parameter repository.
 """
 
-import pytest
-import tempfile
 import os
+import tempfile
 from datetime import date, datetime
 from pathlib import Path
 
-from src.infrastructure.repositories.sqlite_parameter_repository import (
-    SQLiteParameterRepository,
-    SQLiteForecastRepository,
-    SQLiteCorrelationRepository,
-)
+import pytest
+
 from src.domain.entities.forecast import (
+    DataPoint,
+    ForecastPoint,
+    ForecastResult,
+    HistoricalData,
+    ModelPerformance,
     ParameterId,
     ParameterType,
-    HistoricalData,
-    DataPoint,
-    ForecastResult,
-    ForecastPoint,
-    ModelPerformance,
+)
+from src.infrastructure.repositories.sqlite_parameter_repository import (
+    SQLiteCorrelationRepository,
+    SQLiteForecastRepository,
+    SQLiteParameterRepository,
 )
 
 
@@ -39,6 +40,7 @@ class TestSQLiteParameterRepository:
         if os.path.exists(db_path):
             import gc
             import time
+
             gc.collect()  # Force garbage collection to close connections
             time.sleep(0.1)  # Brief pause for Windows
             try:
@@ -279,6 +281,7 @@ class TestSQLiteForecastRepository:
         if os.path.exists(db_path):
             import gc
             import time
+
             gc.collect()  # Force garbage collection to close connections
             time.sleep(0.1)  # Brief pause for Windows
             try:
@@ -472,6 +475,7 @@ class TestSQLiteCorrelationRepository:
         if os.path.exists(db_path):
             import gc
             import time
+
             gc.collect()  # Force garbage collection to close connections
             time.sleep(0.1)  # Brief pause for Windows
             try:
@@ -581,9 +585,9 @@ class TestSQLiteCorrelationRepository:
         # Act - request with different parameter order
         shuffled_params = ["rent_growth", "cap_rate", "vacancy_rate"]
         result = repository.get_correlation_matrix(
-            sample_correlation_data["geographic_code"], 
+            sample_correlation_data["geographic_code"],
             shuffled_params,
-            max_age_days=500  # Accommodate old test data
+            max_age_days=500,  # Accommodate old test data
         )
 
         # Assert
@@ -616,9 +620,9 @@ class TestSQLiteCorrelationRepository:
 
         # Assert
         retrieved_data = repository.get_correlation_matrix(
-            updated_data["geographic_code"], 
+            updated_data["geographic_code"],
             updated_data["parameter_names"],
-            max_age_days=500  # Accommodate test data
+            max_age_days=500,  # Accommodate test data
         )
 
         assert retrieved_data is not None

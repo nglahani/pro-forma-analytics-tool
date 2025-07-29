@@ -6,12 +6,12 @@ Abstracts data access for simulation results and related data.
 
 from abc import ABC, abstractmethod
 from datetime import date
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
 from ..entities.monte_carlo import (
-    SimulationResult,
-    SimulationRequest,
     CorrelationMatrix,
+    SimulationRequest,
+    SimulationResult,
 )
 
 

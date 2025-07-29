@@ -4,24 +4,25 @@ Unit Tests for Financial Metrics Service
 Tests the financial metrics calculation service following BDD/TDD principles.
 """
 
-import pytest
-from unittest.mock import Mock, patch
 from datetime import date
+from unittest.mock import Mock, patch
 
+import pytest
+
+from core.exceptions import ValidationError
 from src.application.services.financial_metrics_service import FinancialMetricsService
+from src.domain.entities.cash_flow_projection import (
+    AnnualCashFlow,
+    CashFlowProjection,
+    WaterfallDistribution,
+)
+from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.financial_metrics import (
     FinancialMetrics,
     InvestmentRecommendation,
     RiskLevel,
 )
-from src.domain.entities.cash_flow_projection import (
-    CashFlowProjection,
-    AnnualCashFlow,
-    WaterfallDistribution,
-)
-from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.initial_numbers import InitialNumbers
-from core.exceptions import ValidationError
 
 
 class TestFinancialMetricsService:
@@ -351,7 +352,7 @@ class TestFinancialMetricsService:
         assert "profitability_analysis" in summary
         assert "risk_analysis" in summary
         assert "investment_recommendation" in summary
-        
+
         # Check investment summary contains expected fields
         investment_summary = summary["investment_summary"]
         assert "property_id" in investment_summary

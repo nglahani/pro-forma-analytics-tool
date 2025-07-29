@@ -4,9 +4,9 @@ Dependency Injection Container
 Implements IoC container for clean architecture dependency management.
 """
 
-from typing import Dict, Type, Any, Optional, Callable
 import logging
 from pathlib import Path
+from typing import Any, Callable, Dict, Optional, Type
 
 
 class DependencyContainer:
@@ -158,10 +158,13 @@ class DependencyContainer:
                 )
 
             param_type = param.annotation
-            
+
             # Skip primitive types with default values (str, int, float, bool, etc.)
             primitive_types = (str, int, float, bool, bytes, list, dict, tuple, set)
-            if param.default != inspect.Parameter.empty and param_type in primitive_types:
+            if (
+                param.default != inspect.Parameter.empty
+                and param_type in primitive_types
+            ):
                 continue
 
             # Handle Optional types

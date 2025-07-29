@@ -5,27 +5,28 @@ Application service that calculates comprehensive financial metrics including
 NPV, IRR, and investment recommendations from cash flow projections.
 """
 
-import numpy as np
-from typing import Dict, Any, List, Optional, Tuple
 from datetime import date
+from typing import Any, Dict, List, Optional, Tuple
 
-from src.domain.entities.financial_metrics import (
-    FinancialMetrics,
-    TerminalValue,
-    CashFlowSummary,
-    InvestmentRecommendation,
-    RiskLevel,
-)
-from src.domain.entities.cash_flow_projection import CashFlowProjection
-from src.domain.entities.dcf_assumptions import DCFAssumptions
-from src.domain.entities.initial_numbers import InitialNumbers
-from core.logging_config import get_logger
-from core.exceptions import ValidationError
+import numpy as np
+
 from config.dcf_constants import (
     FINANCIAL_CONSTANTS,
-    RISK_THRESHOLDS,
     INVESTMENT_THRESHOLDS,
+    RISK_THRESHOLDS,
 )
+from core.exceptions import ValidationError
+from core.logging_config import get_logger
+from src.domain.entities.cash_flow_projection import CashFlowProjection
+from src.domain.entities.dcf_assumptions import DCFAssumptions
+from src.domain.entities.financial_metrics import (
+    CashFlowSummary,
+    FinancialMetrics,
+    InvestmentRecommendation,
+    RiskLevel,
+    TerminalValue,
+)
+from src.domain.entities.initial_numbers import InitialNumbers
 
 
 class FinancialMetricsService:

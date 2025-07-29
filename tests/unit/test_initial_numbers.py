@@ -4,20 +4,22 @@ Unit tests for Initial Numbers functionality.
 Tests the calculation of acquisition costs, financing, and initial investment numbers.
 """
 
-import pytest
 from datetime import date
-from src.domain.entities.initial_numbers import InitialNumbers
+
+import pytest
+
+from core.exceptions import ValidationError
 from src.application.services.initial_numbers_service import InitialNumbersService
 from src.domain.entities.dcf_assumptions import DCFAssumptions
+from src.domain.entities.initial_numbers import InitialNumbers
 from src.domain.entities.property_data import (
-    SimplifiedPropertyInput,
-    ResidentialUnits,
     CommercialUnits,
-    RenovationInfo,
     InvestorEquityStructure,
+    RenovationInfo,
     RenovationStatus,
+    ResidentialUnits,
+    SimplifiedPropertyInput,
 )
-from core.exceptions import ValidationError
 
 
 class TestInitialNumbers:

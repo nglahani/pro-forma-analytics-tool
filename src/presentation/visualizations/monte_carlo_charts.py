@@ -5,15 +5,16 @@ Provides comprehensive charts and graphs for validating Monte Carlo simulation r
 Includes both statistical validation and business-focused analysis visualizations.
 """
 
-import matplotlib.pyplot as plt
+import logging
+from datetime import date, datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from datetime import date, datetime
-from typing import List, Dict, Optional, Tuple, Any
 import seaborn as sns
-from pathlib import Path
-import logging
 
 # Set style for professional charts
 plt.style.use("seaborn-v0_8-whitegrid")
@@ -21,11 +22,11 @@ sns.set_palette("husl")
 
 # Assuming these imports will work with the existing structure
 try:
-    from monte_carlo.simulation_engine import MonteCarloResults, MonteCarloScenario
     from core.logging_config import get_logger
+    from monte_carlo.simulation_engine import MonteCarloResults, MonteCarloScenario
 except ImportError:
     # Fallback for when clean architecture is fully implemented
-    from ...domain.entities.monte_carlo import SimulationResult, Scenario
+    from ...domain.entities.monte_carlo import Scenario, SimulationResult
 
     MonteCarloResults = SimulationResult
     MonteCarloScenario = Scenario

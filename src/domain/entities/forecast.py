@@ -4,11 +4,11 @@ Domain Entities for Forecasting
 Clean architecture implementation of core business entities.
 """
 
+import uuid
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import List, Dict, Optional, Any
 from enum import Enum
-import uuid
+from typing import Any, Dict, List, Optional
 
 
 class ParameterType(Enum):

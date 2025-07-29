@@ -4,21 +4,22 @@ Unit Tests for Initial Numbers Service
 Tests the initial numbers calculation service following BDD/TDD principles.
 """
 
-import pytest
-from unittest.mock import Mock, patch
 from datetime import date
+from unittest.mock import Mock, patch
 
+import pytest
+
+from core.exceptions import ValidationError
 from src.application.services.initial_numbers_service import InitialNumbersService
-from src.domain.entities.initial_numbers import InitialNumbers
 from src.domain.entities.dcf_assumptions import DCFAssumptions
+from src.domain.entities.initial_numbers import InitialNumbers
 from src.domain.entities.property_data import (
-    SimplifiedPropertyInput,
-    ResidentialUnits,
     InvestorEquityStructure,
     RenovationInfo,
     RenovationStatus,
+    ResidentialUnits,
+    SimplifiedPropertyInput,
 )
-from core.exceptions import ValidationError
 
 
 class TestInitialNumbersService:

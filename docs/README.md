@@ -13,8 +13,7 @@ This folder contains detailed technical documentation for developers, users, and
 - **[PROPERTY_INPUT_WORKFLOW.md](PROPERTY_INPUT_WORKFLOW.md)** - Property data input system guide
 
 ### Technical Documentation  
-- **[DCF_ENGINE_ARCHITECTURE.md](DCF_ENGINE_ARCHITECTURE.md)** - DCF engine design and implementation
-- **[DCF_DATA_STRUCTURES.md](DCF_DATA_STRUCTURES.md)** - Data structure specifications for DCF implementation
+- **[DCF_IMPLEMENTATION.md](DCF_IMPLEMENTATION.md)** - Complete DCF engine implementation guide with architecture and data structures
 - **[DATABASE.md](DATABASE.md)** - Database schema and data management
 - **[MONTE_CARLO_MAPPING.md](MONTE_CARLO_MAPPING.md)** - Monte Carlo to DCF parameter mapping
 
@@ -29,4 +28,4 @@ This folder contains detailed technical documentation for developers, users, and
 
 For new users, start with [USER_GUIDE.md](USER_GUIDE.md) for practical usage instructions.
 
-For developers, begin with [DCF_ENGINE_ARCHITECTURE.md](DCF_ENGINE_ARCHITECTURE.md) to understand the system design.
+For developers, begin with [DCF_IMPLEMENTATION.md](DCF_IMPLEMENTATION.md) to understand the system design.

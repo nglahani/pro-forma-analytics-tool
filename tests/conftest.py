@@ -5,44 +5,45 @@ Provides shared test fixtures and configuration for the test suite.
 Implements BDD/TDD best practices with proper test isolation.
 """
 
-import pytest
-import tempfile
+import logging
 import sqlite3
+import tempfile
 from datetime import date, datetime
 from pathlib import Path
-from unittest.mock import Mock, MagicMock
-import logging
+from unittest.mock import MagicMock, Mock
+
+import pytest
 
 # Import domain entities
 from src.domain.entities.forecast import (
+    DataPoint,
+    ForecastPoint,
+    ForecastResult,
+    HistoricalData,
+    ModelPerformance,
     ParameterId,
     ParameterType,
-    DataPoint,
-    HistoricalData,
-    ForecastResult,
-    ForecastPoint,
-    ModelPerformance,
 )
 from src.domain.entities.monte_carlo import (
-    SimulationRequest,
-    ScenarioId,
-    ScenarioMetrics,
     MarketScenario,
     Scenario,
+    ScenarioId,
+    ScenarioMetrics,
+    SimulationRequest,
 )
 
 # Import repositories
 from src.domain.repositories.parameter_repository import (
-    ParameterRepository,
     ForecastRepository,
+    ParameterRepository,
 )
 from src.domain.repositories.simulation_repository import SimulationRepository
 
 # Import infrastructure
 from src.infrastructure.container import DependencyContainer
 from src.infrastructure.repositories.sqlite_parameter_repository import (
-    SQLiteParameterRepository,
     SQLiteForecastRepository,
+    SQLiteParameterRepository,
 )
 
 

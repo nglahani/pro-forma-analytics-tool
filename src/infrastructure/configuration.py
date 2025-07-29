@@ -9,22 +9,21 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from .container import DependencyContainer
-from .repositories.sqlite_parameter_repository import (
-    SQLiteParameterRepository,
-    SQLiteForecastRepository,
-    SQLiteCorrelationRepository,
-)
-from .repositories.sqlite_simulation_repository import SQLiteSimulationRepository
+from config.settings import settings
 
 from ..domain.repositories.parameter_repository import (
-    ParameterRepository,
-    ForecastRepository,
     CorrelationRepository,
+    ForecastRepository,
+    ParameterRepository,
 )
 from ..domain.repositories.simulation_repository import SimulationRepository
-
-from config.settings import settings
+from .container import DependencyContainer
+from .repositories.sqlite_parameter_repository import (
+    SQLiteCorrelationRepository,
+    SQLiteForecastRepository,
+    SQLiteParameterRepository,
+)
+from .repositories.sqlite_simulation_repository import SQLiteSimulationRepository
 
 
 def configure_repositories(container: DependencyContainer) -> None:
@@ -75,13 +74,13 @@ def configure_application_services(container: DependencyContainer) -> None:
         container: The dependency injection container to configure
     """
     # Import application services
-    from ..application.services.forecasting_service import ForecastingApplicationService
-    from ..application.services.dcf_assumptions_service import DCFAssumptionsService
-    from ..application.services.initial_numbers_service import InitialNumbersService
     from ..application.services.cash_flow_projection_service import (
         CashFlowProjectionService,
     )
+    from ..application.services.dcf_assumptions_service import DCFAssumptionsService
     from ..application.services.financial_metrics_service import FinancialMetricsService
+    from ..application.services.forecasting_service import ForecastingApplicationService
+    from ..application.services.initial_numbers_service import InitialNumbersService
     from ..application.services.monte_carlo_service import MonteCarloApplicationService
 
     # Register application services as singletons

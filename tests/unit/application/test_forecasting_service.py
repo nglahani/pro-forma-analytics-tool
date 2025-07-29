@@ -4,22 +4,23 @@ Unit Tests for Forecasting Application Service
 Tests the application service layer following BDD/TDD principles.
 """
 
-import pytest
-from unittest.mock import Mock, patch
 from datetime import date, datetime
+from unittest.mock import Mock, patch
+
+import pytest
 
 from src.application.services.forecasting_service import (
-    ForecastingApplicationService,
-    ForecastError,
     DataNotFoundError,
+    ForecastError,
+    ForecastingApplicationService,
 )
 from src.domain.entities.forecast import (
-    ParameterId,
-    ParameterType,
+    DataPoint,
     ForecastRequest,
     ForecastResult,
-    DataPoint,
     HistoricalData,
+    ParameterId,
+    ParameterType,
 )
 
 

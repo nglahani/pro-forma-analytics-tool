@@ -5,22 +5,22 @@ Concrete implementation of simulation repository using SQLite database
 for Monte Carlo simulation data persistence.
 """
 
-import sqlite3
 import json
-from datetime import date, datetime
-from typing import List, Optional, Dict, Any
-from dataclasses import asdict
 import logging
+import sqlite3
+from dataclasses import asdict
+from datetime import date, datetime
+from typing import Any, Dict, List, Optional
 
 from ...domain.entities.monte_carlo import (
-    SimulationResult,
-    SimulationRequest,
+    CorrelationMatrix,
+    MarketScenario,
     Scenario,
     ScenarioId,
     ScenarioMetrics,
-    MarketScenario,
+    SimulationRequest,
+    SimulationResult,
     SimulationSummary,
-    CorrelationMatrix,
 )
 from ...domain.repositories.simulation_repository import SimulationRepository
 

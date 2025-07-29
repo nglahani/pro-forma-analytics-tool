@@ -4,20 +4,21 @@ Unit Tests for DCF Assumptions Service
 Tests the DCF assumptions service layer following BDD/TDD principles.
 """
 
-import pytest
-from unittest.mock import Mock, patch
 from datetime import date
+from unittest.mock import Mock, patch
 
+import pytest
+
+from core.exceptions import ValidationError
 from src.application.services.dcf_assumptions_service import DCFAssumptionsService
 from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.property_data import (
-    SimplifiedPropertyInput,
-    ResidentialUnits,
     InvestorEquityStructure,
     RenovationInfo,
     RenovationStatus,
+    ResidentialUnits,
+    SimplifiedPropertyInput,
 )
-from core.exceptions import ValidationError
 
 
 class TestDCFAssumptionsService:

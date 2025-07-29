@@ -4,24 +4,26 @@ Unit tests for Financial Metrics functionality.
 Tests the calculation of NPV, IRR, and investment recommendations.
 """
 
-import pytest
 from datetime import date
-from src.domain.entities.financial_metrics import (
-    FinancialMetrics,
-    TerminalValue,
-    CashFlowSummary,
-    InvestmentRecommendation,
-    RiskLevel,
-)
+
+import pytest
+
+from core.exceptions import ValidationError
 from src.application.services.financial_metrics_service import FinancialMetricsService
 from src.domain.entities.cash_flow_projection import (
-    CashFlowProjection,
     AnnualCashFlow,
+    CashFlowProjection,
     WaterfallDistribution,
 )
 from src.domain.entities.dcf_assumptions import DCFAssumptions
+from src.domain.entities.financial_metrics import (
+    CashFlowSummary,
+    FinancialMetrics,
+    InvestmentRecommendation,
+    RiskLevel,
+    TerminalValue,
+)
 from src.domain.entities.initial_numbers import InitialNumbers
-from core.exceptions import ValidationError
 
 
 class TestTerminalValue:

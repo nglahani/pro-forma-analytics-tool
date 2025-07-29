@@ -4,19 +4,21 @@ Unit tests for Cash Flow Projection functionality.
 Tests the calculation of annual cash flows and waterfall distributions.
 """
 
-import pytest
 from datetime import date
-from src.domain.entities.cash_flow_projection import (
-    CashFlowProjection,
-    AnnualCashFlow,
-    WaterfallDistribution,
-)
+
+import pytest
+
+from core.exceptions import ValidationError
 from src.application.services.cash_flow_projection_service import (
     CashFlowProjectionService,
 )
+from src.domain.entities.cash_flow_projection import (
+    AnnualCashFlow,
+    CashFlowProjection,
+    WaterfallDistribution,
+)
 from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.initial_numbers import InitialNumbers
-from core.exceptions import ValidationError
 
 
 class TestAnnualCashFlow:

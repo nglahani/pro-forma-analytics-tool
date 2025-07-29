@@ -4,23 +4,24 @@ Unit Tests for Infrastructure Configuration
 Tests the dependency injection configuration for repositories and services.
 """
 
-import pytest
-import tempfile
 import os
+import tempfile
 from pathlib import Path
 
+import pytest
+
+from src.domain.repositories.parameter_repository import (
+    CorrelationRepository,
+    ForecastRepository,
+    ParameterRepository,
+)
+from src.domain.repositories.simulation_repository import SimulationRepository
 from src.infrastructure.configuration import (
     configure_repositories,
     configure_test_container,
     get_configured_container,
 )
 from src.infrastructure.container import DependencyContainer, create_container
-from src.domain.repositories.parameter_repository import (
-    ParameterRepository,
-    ForecastRepository,
-    CorrelationRepository,
-)
-from src.domain.repositories.simulation_repository import SimulationRepository
 
 
 class TestInfrastructureConfiguration:

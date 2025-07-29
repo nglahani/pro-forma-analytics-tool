@@ -6,8 +6,8 @@ Corresponds to "Initial Numbers" section in Excel pro forma.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional
 from datetime import date
+from typing import Any, Dict, Optional
 
 from core.exceptions import ValidationError
 

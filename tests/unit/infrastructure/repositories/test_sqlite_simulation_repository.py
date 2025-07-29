@@ -4,24 +4,25 @@ Unit Tests for SQLite Simulation Repository
 Tests the infrastructure layer implementation of simulation repository.
 """
 
-import pytest
-import tempfile
 import os
+import tempfile
 from datetime import date, datetime
 from pathlib import Path
 
-from src.infrastructure.repositories.sqlite_simulation_repository import (
-    SQLiteSimulationRepository,
-)
+import pytest
+
 from src.domain.entities.monte_carlo import (
-    SimulationResult,
-    SimulationRequest,
+    CorrelationMatrix,
+    MarketScenario,
     Scenario,
     ScenarioId,
     ScenarioMetrics,
-    MarketScenario,
+    SimulationRequest,
+    SimulationResult,
     SimulationSummary,
-    CorrelationMatrix,
+)
+from src.infrastructure.repositories.sqlite_simulation_repository import (
+    SQLiteSimulationRepository,
 )
 
 
@@ -38,6 +39,7 @@ class TestSQLiteSimulationRepository:
         if os.path.exists(db_path):
             import gc
             import time
+
             gc.collect()  # Force garbage collection to close connections
             time.sleep(0.1)  # Brief pause for Windows
             try:

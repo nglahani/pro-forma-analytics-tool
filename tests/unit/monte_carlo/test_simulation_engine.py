@@ -4,24 +4,25 @@ Unit Tests for Monte Carlo Simulation Engine
 Tests the monte_carlo.simulation_engine module following BDD/TDD principles.
 """
 
-import pytest
-import numpy as np
-from unittest.mock import Mock, patch
 from datetime import date
+from unittest.mock import Mock, patch
 
+import numpy as np
+import pytest
+
+from core.exceptions import DataNotFoundError, MonteCarloError
 from monte_carlo.simulation_engine import (
     MonteCarloEngine,
-    MonteCarloScenario,
     MonteCarloResults,
+    MonteCarloScenario,
 )
 from src.domain.entities.property_data import (
-    SimplifiedPropertyInput,
-    ResidentialUnits,
-    RenovationInfo,
     InvestorEquityStructure,
+    RenovationInfo,
     RenovationStatus,
+    ResidentialUnits,
+    SimplifiedPropertyInput,
 )
-from core.exceptions import MonteCarloError, DataNotFoundError
 
 
 class TestMonteCarloEngine:
@@ -157,10 +158,11 @@ class TestMonteCarloEngine:
         WHEN loading forecasts for MSA
         THEN it should return all 11 parameters
         """
+
         # Arrange
         def mock_forecast_data(param_name, geo_code, horizon_years, max_age_days):
             data = sample_forecast_data[param_name]
-            dates_json = '[' + ', '.join(f'"{d}"' for d in data["dates"]) + ']'
+            dates_json = "[" + ", ".join(f'"{d}"' for d in data["dates"]) + "]"
             return {
                 "forecast_values": f'[{", ".join(map(str, data["values"]))}]',
                 "lower_bound": f'[{", ".join(map(str, data["lower_bound"]))}]',
@@ -169,7 +171,7 @@ class TestMonteCarloEngine:
                 "model_performance": f'{{"mape": {data["performance"]["mape"]}}}',
                 "trend_info": f'{{"trend": "{data["trend_info"]["trend"]}"}}',
             }
-        
+
         mock_db_manager.get_cached_prophet_forecast.side_effect = mock_forecast_data
 
         # Act
@@ -233,7 +235,7 @@ class TestMonteCarloEngine:
         # After positive definite adjustment, diagonal values may be slightly > 1
         assert np.all(np.diag(correlation_matrix) >= 1.0)  # Diagonal should be >= 1
         assert np.all(np.diag(correlation_matrix) <= 1.1)  # But not too much higher
-        
+
         # Check that all eigenvalues are positive (positive definite)
         eigenvals = np.linalg.eigvals(correlation_matrix)
         assert np.all(eigenvals > 0)
@@ -254,10 +256,11 @@ class TestMonteCarloEngine:
         WHEN generating Monte Carlo scenarios
         THEN it should return valid MonteCarloResults
         """
+
         # Arrange
         def mock_forecast_data(param_name, geo_code, horizon_years, max_age_days):
             data = sample_forecast_data[param_name]
-            dates_json = '[' + ', '.join(f'"{d}"' for d in data["dates"]) + ']'
+            dates_json = "[" + ", ".join(f'"{d}"' for d in data["dates"]) + "]"
             return {
                 "forecast_values": f'[{", ".join(map(str, data["values"]))}]',
                 "lower_bound": f'[{", ".join(map(str, data["lower_bound"]))}]',
@@ -266,12 +269,15 @@ class TestMonteCarloEngine:
                 "model_performance": f'{{"mape": {data["performance"]["mape"]}}}',
                 "trend_info": f'{{"trend": "{data["trend_info"]["trend"]}"}}',
             }
-        
+
         mock_db_manager.get_cached_prophet_forecast.side_effect = mock_forecast_data
 
         # Act
         results = engine.generate_scenarios(
-            sample_property_data, num_scenarios=10, horizon_years=5, use_correlations=True
+            sample_property_data,
+            num_scenarios=10,
+            horizon_years=5,
+            use_correlations=True,
         )
 
         # Assert
@@ -314,10 +320,11 @@ class TestMonteCarloEngine:
         WHEN generating Monte Carlo scenarios
         THEN it should generate independent scenarios
         """
+
         # Arrange
         def mock_forecast_data(param_name, geo_code, horizon_years, max_age_days):
             data = sample_forecast_data[param_name]
-            dates_json = '[' + ', '.join(f'"{d}"' for d in data["dates"]) + ']'
+            dates_json = "[" + ", ".join(f'"{d}"' for d in data["dates"]) + "]"
             return {
                 "forecast_values": f'[{", ".join(map(str, data["values"]))}]',
                 "lower_bound": f'[{", ".join(map(str, data["lower_bound"]))}]',
@@ -326,7 +333,7 @@ class TestMonteCarloEngine:
                 "model_performance": f'{{"mape": {data["performance"]["mape"]}}}',
                 "trend_info": f'{{"trend": "{data["trend_info"]["trend"]}"}}',
             }
-        
+
         mock_db_manager.get_cached_prophet_forecast.side_effect = mock_forecast_data
 
         # Act
@@ -370,13 +377,13 @@ class TestMonteCarloEngine:
             "commercial_mortgage_rate": [0.08, 0.08, 0.08, 0.08, 0.08],
             "ltv_ratio": [0.65, 0.65, 0.65, 0.65, 0.65],  # Tight lending
         }
-        
+
         # Debug the scores
         growth_score = engine._calculate_growth_score(bear_scenario)
         risk_score = engine._calculate_risk_score(bear_scenario)
-        
+
         classification = engine._classify_market_scenario(bear_scenario)
-        
+
         # Verify that we get the expected classification logic
         # Low growth (<0.4) and high risk (>0.6) should be bear_market
         if growth_score < 0.4 and risk_score > 0.6:
@@ -384,7 +391,7 @@ class TestMonteCarloEngine:
         elif risk_score > 0.7:
             assert classification == "stress_market"
         else:
-            # If the logic classifies it as neutral, that's also acceptable 
+            # If the logic classifies it as neutral, that's also acceptable
             # given the thresholds
             assert classification in ["bear_market", "stress_market", "neutral_market"]
 

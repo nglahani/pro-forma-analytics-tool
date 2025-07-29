@@ -129,33 +129,42 @@ class DocumentationValidator:
     
     def _test_code_block(self, code_block: str) -> Tuple[bool, str]:
         """Test if a code block executes without errors."""
+        temp_file = None
         try:
             with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-                # Add project root to path
-                f.write(f"import sys\nsys.path.insert(0, '{self.project_root}')\n")
+                temp_file = f.name
+                # Add project root to path (use forward slashes for cross-platform compatibility)
+                project_path = str(self.project_root).replace('\\', '/')
+                f.write(f"import sys\nsys.path.insert(0, r'{project_path}')\n")
                 f.write(code_block)
                 f.flush()
                 
-                # Run the code
-                result = subprocess.run(
-                    [sys.executable, f.name],
-                    capture_output=True,
-                    text=True,
-                    timeout=30,
-                    cwd=self.project_root
-                )
-                
-                os.unlink(f.name)
-                
-                if result.returncode != 0:
-                    return False, result.stderr.strip()
-                
-                return True, ""
+            # Run the code
+            result = subprocess.run(
+                [sys.executable, temp_file],
+                capture_output=True,
+                text=True,
+                timeout=30,
+                cwd=self.project_root
+            )
+            
+            if result.returncode != 0:
+                return False, result.stderr.strip()
+            
+            return True, ""
         
         except subprocess.TimeoutExpired:
             return False, "Code execution timed out"
         except Exception as e:
             return False, str(e)
+        finally:
+            # Clean up temp file
+            if temp_file and os.path.exists(temp_file):
+                try:
+                    os.unlink(temp_file)
+                except (OSError, PermissionError):
+                    # File might be locked on Windows, ignore cleanup error
+                    pass
     
     def _is_internal_link(self, url: str) -> bool:
         """Check if a link is internal to the project."""

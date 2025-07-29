@@ -4,13 +4,13 @@ Domain Entities for Monte Carlo Simulation
 Clean architecture implementation of Monte Carlo simulation entities.
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Dict, List, Optional, Any
 from enum import Enum
-import uuid
+from typing import Any, Dict, List, Optional
 
-from .forecast import ParameterId, ForecastResult
+from .forecast import ForecastResult, ParameterId
 
 
 class MarketScenario(Enum):

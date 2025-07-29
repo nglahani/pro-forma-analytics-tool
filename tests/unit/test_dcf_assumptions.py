@@ -4,22 +4,24 @@ Unit tests for DCF Assumptions functionality.
 Tests the conversion of Monte Carlo scenarios to DCF assumptions.
 """
 
-import pytest
 from datetime import date
+
+import pytest
+
+from core.exceptions import ValidationError
+from src.application.services.dcf_assumptions_service import DCFAssumptionsService
 from src.domain.entities.dcf_assumptions import (
     DCFAssumptions,
     validate_monte_carlo_parameters,
 )
-from src.application.services.dcf_assumptions_service import DCFAssumptionsService
 from src.domain.entities.property_data import (
-    SimplifiedPropertyInput,
-    ResidentialUnits,
     CommercialUnits,
-    RenovationInfo,
     InvestorEquityStructure,
+    RenovationInfo,
     RenovationStatus,
+    ResidentialUnits,
+    SimplifiedPropertyInput,
 )
-from core.exceptions import ValidationError
 
 
 class TestDCFAssumptions:
