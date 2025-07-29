@@ -1,0 +1,4 @@
+Data Category,Geographic Level,Records,Date Range,Parameters,Data Source
+Interest Rates,National,64,2010-01-01 to 2025-04-01,"treasury_10y, fed_funds_rate",FRED
+Cap Rates,MSA (NC),164,2015-01-01 to 2025-01-01,"cap_rate for MSAs: 16740, 20500, 24660, 39580",Enhanced Real Estate
+Vacancy Rates,MSA (NC),21,2020-01-01 to 2025-01-01,vacancy_rate for MSAs: 16740,Enhanced Real Estate

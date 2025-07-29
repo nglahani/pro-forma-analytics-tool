@@ -9,6 +9,7 @@ from typing import Dict, Any, List
 from dataclasses import dataclass
 from pathlib import Path
 import os
+import json
 
 @dataclass
 class ForecastSettings:
@@ -61,8 +62,21 @@ class APISettings:
     cache_duration_hours: int = 24
     
     def __post_init__(self):
-        # Try to load API key from environment
+        # Try to load API key from multiple sources (priority order)
+        # 1. Environment variable (highest priority)
         self.fred_api_key = os.getenv("FRED_API_KEY", self.fred_api_key)
+        
+        # 2. Configuration file (if environment variable not set)
+        if not self.fred_api_key:
+            try:
+                config_path = Path(__file__).parent / "api_keys.json"
+                if config_path.exists():
+                    with open(config_path, 'r') as f:
+                        config = json.load(f)
+                        self.fred_api_key = config.get("fred_api_key", "")
+            except Exception as e:
+                # Fail silently and use empty key (will be handled by collectors)
+                pass
 
 @dataclass
 class UpdateSchedule:

@@ -1,0 +1,42 @@
+# Systemd service file for Pro Forma Data Updater
+# Copy this to /etc/systemd/system/ on Linux systems
+#
+# Installation instructions:
+# 1. Copy this file to /etc/systemd/system/proforma-data-updater.service
+# 2. Update the paths and environment variables below
+# 3. sudo systemctl daemon-reload
+# 4. sudo systemctl enable proforma-data-updater.service
+# 5. sudo systemctl start proforma-data-updater.service
+
+[Unit]
+Description=Pro Forma Analytics Data Updater
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=your-username
+Group=your-group
+WorkingDirectory=/path/to/pro-forma-analytics-tool
+ExecStart=/usr/bin/python3 scripts/manage_scheduler.py start
+Restart=always
+RestartSec=30
+
+# Environment variables
+Environment=FRED_API_KEY=your_fred_api_key_here
+Environment=PYTHONPATH=/path/to/pro-forma-analytics-tool
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=proforma-updater
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/path/to/pro-forma-analytics-tool/data
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,160 @@
+{
+  "scheduled_updates": {
+    "treasury_10y": {
+      "geographic_codes": [
+        "NATIONAL"
+      ],
+      "frequency": "weekly",
+      "time_of_day": "02:00",
+      "enabled": true,
+      "last_update": "2025-07-28T14:50:31.236944",
+      "update_count": 1,
+      "error_count": 0,
+      "last_error": null
+    },
+    "fed_funds_rate": {
+      "geographic_codes": [
+        "NATIONAL"
+      ],
+      "frequency": "weekly",
+      "time_of_day": "02:00",
+      "enabled": true,
+      "last_update": null,
+      "update_count": 0,
+      "error_count": 0,
+      "last_error": null
+    },
+    "commercial_mortgage_rate": {
+      "geographic_codes": [
+        "NATIONAL"
+      ],
+      "frequency": "weekly",
+      "time_of_day": "02:00",
+      "enabled": true,
+      "last_update": null,
+      "update_count": 0,
+      "error_count": 0,
+      "last_error": null
+    },
+    "cap_rate": {
+      "geographic_codes": [
+        "16740",
+        "39580",
+        "24660",
+        "20500"
+      ],
+      "frequency": "monthly",
+      "time_of_day": "02:00",
+      "enabled": true,
+      "last_update": "2025-07-28T14:51:56.553616",
+      "update_count": 3,
+      "error_count": 4,
+      "last_error": null
+    },
+    "vacancy_rate": {
+      "geographic_codes": [
+        "16740",
+        "39580",
+        "24660",
+        "20500"
+      ],
+      "frequency": "monthly",
+      "time_of_day": "02:00",
+      "enabled": true,
+      "last_update": "2025-07-28T14:55:31.761050",
+      "update_count": 1,
+      "error_count": 0,
+      "last_error": null
+    },
+    "rent_growth": {
+      "geographic_codes": [
+        "16740",
+        "39580",
+        "24660",
+        "20500"
+      ],
+      "frequency": "monthly",
+      "time_of_day": "02:00",
+      "enabled": true,
+      "last_update": null,
+      "update_count": 0,
+      "error_count": 0,
+      "last_error": null
+    },
+    "property_growth": {
+      "geographic_codes": [
+        "16740",
+        "39580",
+        "24660",
+        "20500"
+      ],
+      "frequency": "monthly",
+      "time_of_day": "02:00",
+      "enabled": true,
+      "last_update": null,
+      "update_count": 0,
+      "error_count": 0,
+      "last_error": null
+    },
+    "expense_growth": {
+      "geographic_codes": [
+        "16740",
+        "39580",
+        "24660",
+        "20500"
+      ],
+      "frequency": "monthly",
+      "time_of_day": "02:00",
+      "enabled": true,
+      "last_update": null,
+      "update_count": 0,
+      "error_count": 0,
+      "last_error": null
+    },
+    "ltv_ratio": {
+      "geographic_codes": [
+        "16740",
+        "39580",
+        "24660",
+        "20500"
+      ],
+      "frequency": "quarterly",
+      "time_of_day": "02:00",
+      "enabled": true,
+      "last_update": null,
+      "update_count": 0,
+      "error_count": 0,
+      "last_error": null
+    },
+    "closing_cost_pct": {
+      "geographic_codes": [
+        "16740",
+        "39580",
+        "24660",
+        "20500"
+      ],
+      "frequency": "quarterly",
+      "time_of_day": "02:00",
+      "enabled": true,
+      "last_update": null,
+      "update_count": 0,
+      "error_count": 0,
+      "last_error": null
+    },
+    "lender_reserves": {
+      "geographic_codes": [
+        "16740",
+        "39580",
+        "24660",
+        "20500"
+      ],
+      "frequency": "quarterly",
+      "time_of_day": "02:00",
+      "enabled": true,
+      "last_update": null,
+      "update_count": 0,
+      "error_count": 0,
+      "last_error": null
+    }
+  }
+}
