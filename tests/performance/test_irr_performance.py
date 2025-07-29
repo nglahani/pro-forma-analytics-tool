@@ -17,9 +17,9 @@ import pytest
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.application.services.financial_metrics_service import (
+from src.application.services.financial_metrics_service import (  # noqa: E402
     FinancialMetricsService,
-)  # noqa: E402
+)
 
 
 class TestIRRPerformance:

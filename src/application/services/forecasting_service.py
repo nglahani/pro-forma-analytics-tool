@@ -7,7 +7,7 @@ Follows clean architecture principles with proper dependency injection.
 
 import logging
 from datetime import date
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 if TYPE_CHECKING:
     from forecasting.prophet_engine import ProphetEngine

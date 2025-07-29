@@ -7,7 +7,7 @@ Orchestrates Monte Carlo simulation workflows using clean architecture principle
 import logging
 import time
 from datetime import date
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 if TYPE_CHECKING:
     from monte_carlo.simulation_engine import MonteCarloEngine
