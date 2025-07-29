@@ -11,7 +11,6 @@ from enum import Enum
 from typing import Dict, List, Optional
 
 
-
 class MarketScenario(Enum):
     """Market scenario classifications."""
 
