@@ -5,21 +5,24 @@ Tests for error scenarios, edge cases, and boundary conditions
 in the application services.
 """
 
-import pytest
+from datetime import date, datetime
 from decimal import Decimal
 from unittest.mock import Mock, patch
-from datetime import date, datetime
 
-from core.exceptions import ValidationError, DataNotFoundError, ForecastError
-from src.application.services.cash_flow_projection_service import CashFlowProjectionService
+import pytest
+
+from core.exceptions import DataNotFoundError, ForecastError, ValidationError
+from src.application.services.cash_flow_projection_service import (
+    CashFlowProjectionService,
+)
+from src.application.services.dcf_assumptions_service import DCFAssumptionsService
 from src.application.services.financial_metrics_service import FinancialMetricsService
 from src.application.services.initial_numbers_service import InitialNumbersService
-from src.application.services.dcf_assumptions_service import DCFAssumptionsService
-from src.domain.entities.property_data import SimplifiedPropertyInput
+from src.domain.entities.cash_flow_projection import AnnualCashFlow, CashFlowProjection
 from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.initial_numbers import InitialNumbers
-from src.domain.entities.cash_flow_projection import CashFlowProjection, AnnualCashFlow
 from src.domain.entities.monte_carlo import MonteCarloScenario
+from src.domain.entities.property_data import SimplifiedPropertyInput
 
 
 class TestCashFlowProjectionEdgeCases:
@@ -28,7 +31,7 @@ class TestCashFlowProjectionEdgeCases:
     def test_calculate_cash_flow_with_extreme_negative_noi(self):
         """Test cash flow calculation with extremely negative NOI."""
         service = CashFlowProjectionService(Mock())
-        
+
         # Create assumptions that lead to extreme negative NOI
         assumptions = DCFAssumptions(
             purchase_price=1000000,
@@ -46,9 +49,9 @@ class TestCashFlowProjectionEdgeCases:
             interest_rate=0.07,
             loan_term_years=30,
             closing_costs=25000,
-            lender_reserves=50000
+            lender_reserves=50000,
         )
-        
+
         initial_numbers = InitialNumbers(
             purchase_price=1000000,
             renovation_cost=500000,
@@ -60,22 +63,24 @@ class TestCashFlowProjectionEdgeCases:
             commercial_units=2,
             renovation_period_months=6,
             annual_rent_residential=12000,  # Total residential rent
-            annual_rent_commercial=2400,   # Total commercial rent
+            annual_rent_commercial=2400,  # Total commercial rent
             total_annual_rent=14400,
             operating_expenses=13680,  # Very high expenses
             net_operating_income=720,  # Very low NOI
             debt_service_coverage_ratio=0.01,  # Very low DSCR
             after_repair_value=1200000,
             ltv_ratio=0.67,
-            cash_on_cash_return=0.001
+            cash_on_cash_return=0.001,
         )
-        
+
         # This should handle extreme scenarios gracefully
-        projection = service.calculate_cash_flow_projection(assumptions, initial_numbers)
-        
+        projection = service.calculate_cash_flow_projection(
+            assumptions, initial_numbers
+        )
+
         assert projection is not None
         assert len(projection.annual_cash_flows) == 6
-        
+
         # NOI should be very low or negative
         for annual_cf in projection.annual_cash_flows:
             assert annual_cf.net_operating_income < 100000  # Very low
@@ -83,12 +88,12 @@ class TestCashFlowProjectionEdgeCases:
     def test_calculate_cash_flow_with_zero_rental_income(self):
         """Test cash flow calculation with zero rental income."""
         service = CashFlowProjectionService(Mock())
-        
+
         assumptions = DCFAssumptions(
             purchase_price=1000000,
             renovation_cost=200000,
             annual_rent_per_unit_residential=0,  # Zero rent
-            annual_rent_per_unit_commercial=0,   # Zero rent
+            annual_rent_per_unit_commercial=0,  # Zero rent
             operating_expense_ratio=0.3,
             vacancy_rate=0.1,
             rent_growth_rate=0.03,
@@ -100,9 +105,9 @@ class TestCashFlowProjectionEdgeCases:
             interest_rate=0.05,
             loan_term_years=30,
             closing_costs=20000,
-            lender_reserves=30000
+            lender_reserves=30000,
         )
-        
+
         initial_numbers = InitialNumbers(
             purchase_price=1000000,
             renovation_cost=200000,
@@ -121,12 +126,14 @@ class TestCashFlowProjectionEdgeCases:
             debt_service_coverage_ratio=0,
             after_repair_value=1300000,
             ltv_ratio=0.58,
-            cash_on_cash_return=-0.1
+            cash_on_cash_return=-0.1,
         )
-        
+
         # Should handle zero income scenario
-        projection = service.calculate_cash_flow_projection(assumptions, initial_numbers)
-        
+        projection = service.calculate_cash_flow_projection(
+            assumptions, initial_numbers
+        )
+
         assert projection is not None
         # All cash flows should be negative
         for annual_cf in projection.annual_cash_flows:
@@ -136,7 +143,7 @@ class TestCashFlowProjectionEdgeCases:
     def test_calculate_cash_flow_with_extreme_growth_rates(self):
         """Test cash flow calculation with extreme growth rates."""
         service = CashFlowProjectionService(Mock())
-        
+
         assumptions = DCFAssumptions(
             purchase_price=1000000,
             renovation_cost=200000,
@@ -153,9 +160,9 @@ class TestCashFlowProjectionEdgeCases:
             interest_rate=0.06,
             loan_term_years=30,
             closing_costs=25000,
-            lender_reserves=40000
+            lender_reserves=40000,
         )
-        
+
         initial_numbers = InitialNumbers(
             purchase_price=1000000,
             renovation_cost=200000,
@@ -174,17 +181,19 @@ class TestCashFlowProjectionEdgeCases:
             debt_service_coverage_ratio=0.17,
             after_repair_value=1400000,
             ltv_ratio=0.57,
-            cash_on_cash_return=0.045
+            cash_on_cash_return=0.045,
         )
-        
+
         # Should handle extreme growth rates
-        projection = service.calculate_cash_flow_projection(assumptions, initial_numbers)
-        
+        projection = service.calculate_cash_flow_projection(
+            assumptions, initial_numbers
+        )
+
         assert projection is not None
         # Rental income should grow dramatically
         year_1_income = projection.annual_cash_flows[0].total_rental_income
         year_6_income = projection.annual_cash_flows[5].total_rental_income
-        
+
         # With 50% annual growth, income should multiply significantly
         assert year_6_income > year_1_income * 10
 
@@ -195,7 +204,7 @@ class TestFinancialMetricsEdgeCases:
     def test_calculate_metrics_with_all_negative_cash_flows(self):
         """Test metrics calculation with all negative cash flows."""
         service = FinancialMetricsService(Mock())
-        
+
         # Create projection with all negative cash flows
         negative_cash_flows = []
         for year in range(1, 7):
@@ -210,18 +219,18 @@ class TestFinancialMetricsEdgeCases:
                 depreciation=20000,
                 taxable_income=-90000,
                 tax_benefit=25000,
-                after_tax_cash_flow=-45000
+                after_tax_cash_flow=-45000,
             )
             negative_cash_flows.append(annual_cf)
-        
+
         projection = CashFlowProjection(
             property_id="test_property",
             assumptions_id="test_assumptions",
             annual_cash_flows=negative_cash_flows,
             terminal_value=800000,  # Still positive terminal value
-            total_return=200000
+            total_return=200000,
         )
-        
+
         initial_numbers = InitialNumbers(
             purchase_price=1000000,
             renovation_cost=200000,
@@ -240,12 +249,12 @@ class TestFinancialMetricsEdgeCases:
             debt_service_coverage_ratio=-0.5,
             after_repair_value=1200000,
             ltv_ratio=0.67,
-            cash_on_cash_return=-0.175
+            cash_on_cash_return=-0.175,
         )
-        
+
         # Should handle all negative cash flows
         metrics = service.calculate_financial_metrics(projection, initial_numbers)
-        
+
         assert metrics is not None
         assert metrics.net_present_value < 0  # Should be negative
         assert metrics.internal_rate_of_return < 0  # Should be negative
@@ -254,7 +263,7 @@ class TestFinancialMetricsEdgeCases:
     def test_calculate_metrics_with_zero_terminal_value(self):
         """Test metrics calculation with zero terminal value."""
         service = FinancialMetricsService(Mock())
-        
+
         # Create projection with zero terminal value
         cash_flows = []
         for year in range(1, 7):
@@ -269,18 +278,18 @@ class TestFinancialMetricsEdgeCases:
                 depreciation=20000,
                 taxable_income=-5000,
                 tax_benefit=1500,
-                after_tax_cash_flow=16500
+                after_tax_cash_flow=16500,
             )
             cash_flows.append(annual_cf)
-        
+
         projection = CashFlowProjection(
             property_id="test_property",
             assumptions_id="test_assumptions",
             annual_cash_flows=cash_flows,
             terminal_value=0,  # Zero terminal value
-            total_return=99000
+            total_return=99000,
         )
-        
+
         initial_numbers = InitialNumbers(
             purchase_price=1000000,
             renovation_cost=200000,
@@ -299,12 +308,12 @@ class TestFinancialMetricsEdgeCases:
             debt_service_coverage_ratio=1.33,
             after_repair_value=1200000,
             ltv_ratio=0.67,
-            cash_on_cash_return=0.04
+            cash_on_cash_return=0.04,
         )
-        
+
         # Should handle zero terminal value
         metrics = service.calculate_financial_metrics(projection, initial_numbers)
-        
+
         assert metrics is not None
         assert metrics.terminal_value.terminal_cash_flow == 0
         # NPV should be lower due to no terminal value
@@ -313,7 +322,7 @@ class TestFinancialMetricsEdgeCases:
     def test_calculate_irr_with_no_sign_changes(self):
         """Test IRR calculation with cash flows that have no sign changes."""
         service = FinancialMetricsService(Mock())
-        
+
         # All positive cash flows (no initial investment represented)
         cash_flows = []
         for year in range(1, 7):
@@ -328,18 +337,18 @@ class TestFinancialMetricsEdgeCases:
                 depreciation=20000,
                 taxable_income=50000,
                 tax_benefit=0,
-                after_tax_cash_flow=70000
+                after_tax_cash_flow=70000,
             )
             cash_flows.append(annual_cf)
-        
+
         projection = CashFlowProjection(
             property_id="test_property",
             assumptions_id="test_assumptions",
             annual_cash_flows=cash_flows,
             terminal_value=1500000,
-            total_return=1920000
+            total_return=1920000,
         )
-        
+
         initial_numbers = InitialNumbers(
             purchase_price=0,  # No initial investment
             renovation_cost=0,
@@ -355,15 +364,15 @@ class TestFinancialMetricsEdgeCases:
             total_annual_rent=100000,
             operating_expenses=30000,
             net_operating_income=70000,
-            debt_service_coverage_ratio=float('inf'),
+            debt_service_coverage_ratio=float("inf"),
             after_repair_value=1500000,
             ltv_ratio=0,
-            cash_on_cash_return=float('inf')
+            cash_on_cash_return=float("inf"),
         )
-        
+
         # Should handle case with no initial investment (infinite IRR)
         metrics = service.calculate_financial_metrics(projection, initial_numbers)
-        
+
         assert metrics is not None
         # IRR should be very high or infinite
         assert metrics.internal_rate_of_return > 1.0  # More than 100%
@@ -375,7 +384,7 @@ class TestInitialNumbersEdgeCases:
     def test_calculate_with_zero_purchase_price_should_raise_error(self):
         """Test calculation with zero purchase price."""
         service = InitialNumbersService(Mock())
-        
+
         property_input = SimplifiedPropertyInput(
             purchase_price=0,  # Zero price
             renovation_cost=100000,
@@ -385,9 +394,9 @@ class TestInitialNumbersEdgeCases:
             annual_rent_per_unit_residential=2000,
             annual_rent_per_unit_commercial=0,
             equity_split_percentage=0.8,
-            cash_percentage=0.3
+            cash_percentage=0.3,
         )
-        
+
         assumptions = DCFAssumptions(
             purchase_price=0,
             renovation_cost=100000,
@@ -404,19 +413,19 @@ class TestInitialNumbersEdgeCases:
             interest_rate=0.05,
             loan_term_years=30,
             closing_costs=0,
-            lender_reserves=0
+            lender_reserves=0,
         )
-        
+
         # Should raise validation error for zero purchase price
         with pytest.raises(ValidationError) as exc_info:
             service.calculate_initial_numbers(property_input, assumptions)
-        
+
         assert "purchase price" in str(exc_info.value).lower()
 
     def test_calculate_with_extreme_ltv_ratio(self):
         """Test calculation with extreme LTV ratio."""
         service = InitialNumbersService(Mock())
-        
+
         property_input = SimplifiedPropertyInput(
             purchase_price=1000000,
             renovation_cost=200000,
@@ -426,9 +435,9 @@ class TestInitialNumbersEdgeCases:
             annual_rent_per_unit_residential=2000,
             annual_rent_per_unit_commercial=0,
             equity_split_percentage=0.8,
-            cash_percentage=0.3
+            cash_percentage=0.3,
         )
-        
+
         assumptions = DCFAssumptions(
             purchase_price=1000000,
             renovation_cost=200000,
@@ -445,15 +454,15 @@ class TestInitialNumbersEdgeCases:
             interest_rate=0.05,
             loan_term_years=30,
             closing_costs=25000,
-            lender_reserves=40000
+            lender_reserves=40000,
         )
-        
+
         # Should handle extreme LTV but flag as high risk
         initial_numbers = service.calculate_initial_numbers(property_input, assumptions)
-        
+
         assert initial_numbers is not None
         assert initial_numbers.ltv_ratio > 1.0  # Over-leveraged
-        
+
         # Validation should flag this as problematic
         issues = service.validate_initial_numbers(initial_numbers)
         assert len(issues) > 0
@@ -462,7 +471,7 @@ class TestInitialNumbersEdgeCases:
     def test_calculate_with_negative_after_repair_value(self):
         """Test calculation resulting in negative after-repair value."""
         service = InitialNumbersService(Mock())
-        
+
         property_input = SimplifiedPropertyInput(
             purchase_price=1000000,
             renovation_cost=200000,
@@ -472,9 +481,9 @@ class TestInitialNumbersEdgeCases:
             annual_rent_per_unit_residential=500,  # Very low rent
             annual_rent_per_unit_commercial=0,
             equity_split_percentage=0.8,
-            cash_percentage=0.3
+            cash_percentage=0.3,
         )
-        
+
         assumptions = DCFAssumptions(
             purchase_price=1000000,
             renovation_cost=200000,
@@ -491,16 +500,16 @@ class TestInitialNumbersEdgeCases:
             interest_rate=0.08,
             loan_term_years=30,
             closing_costs=50000,
-            lender_reserves=100000
+            lender_reserves=100000,
         )
-        
+
         # Should handle scenario where ARV might be very low
         initial_numbers = service.calculate_initial_numbers(property_input, assumptions)
-        
+
         assert initial_numbers is not None
         # NOI should be very low or negative
         assert initial_numbers.net_operating_income < 5000
-        
+
         # After-repair value should be very low
         assert initial_numbers.after_repair_value < initial_numbers.total_project_cost
 
@@ -511,7 +520,7 @@ class TestDCFAssumptionsEdgeCases:
     def test_create_assumptions_with_missing_parameters(self):
         """Test creating assumptions with missing Monte Carlo parameters."""
         service = DCFAssumptionsService(Mock())
-        
+
         # Incomplete Monte Carlo scenario (missing some parameters)
         incomplete_scenario = MonteCarloScenario(
             scenario_id="incomplete_scenario",
@@ -522,9 +531,9 @@ class TestDCFAssumptionsEdgeCases:
             },
             market_classification="neutral",
             growth_score=0.5,
-            risk_score=0.5
+            risk_score=0.5,
         )
-        
+
         property_input = SimplifiedPropertyInput(
             purchase_price=1000000,
             renovation_cost=200000,
@@ -534,19 +543,21 @@ class TestDCFAssumptionsEdgeCases:
             annual_rent_per_unit_residential=2000,
             annual_rent_per_unit_commercial=3000,
             equity_split_percentage=0.8,
-            cash_percentage=0.3
+            cash_percentage=0.3,
         )
-        
+
         # Should raise ValidationError for missing parameters
         with pytest.raises(ValidationError) as exc_info:
-            service.create_dcf_assumptions_from_scenario(incomplete_scenario, property_input)
-        
+            service.create_dcf_assumptions_from_scenario(
+                incomplete_scenario, property_input
+            )
+
         assert "missing" in str(exc_info.value).lower()
 
     def test_create_assumptions_with_invalid_parameter_values(self):
         """Test creating assumptions with invalid parameter values."""
         service = DCFAssumptionsService(Mock())
-        
+
         # Monte Carlo scenario with invalid values
         invalid_scenario = MonteCarloScenario(
             scenario_id="invalid_scenario",
@@ -561,13 +572,13 @@ class TestDCFAssumptionsEdgeCases:
                 "ltv_ratio": [1.2, 1.5, 2.0],  # Extreme leverage
                 "closing_cost_percentage": [0.2, 0.3, 0.4],  # Very high closing costs
                 "lender_reserves_months": [24, 36, 48],  # Very high reserves
-                "operating_expense_ratio": [0.9, 0.95, 1.0]  # Very high expense ratios
+                "operating_expense_ratio": [0.9, 0.95, 1.0],  # Very high expense ratios
             },
             market_classification="stress",
             growth_score=0.1,
-            risk_score=0.9
+            risk_score=0.9,
         )
-        
+
         property_input = SimplifiedPropertyInput(
             purchase_price=1000000,
             renovation_cost=200000,
@@ -577,17 +588,19 @@ class TestDCFAssumptionsEdgeCases:
             annual_rent_per_unit_residential=2000,
             annual_rent_per_unit_commercial=3000,
             equity_split_percentage=0.8,
-            cash_percentage=0.3
+            cash_percentage=0.3,
         )
-        
+
         # Should handle extreme values but may generate warnings
-        assumptions = service.create_dcf_assumptions_from_scenario(invalid_scenario, property_input)
-        
+        assumptions = service.create_dcf_assumptions_from_scenario(
+            invalid_scenario, property_input
+        )
+
         assert assumptions is not None
         # Some values should be clamped to reasonable ranges
         assert assumptions.cap_rate_terminal > 0.01  # Should be positive
         assert assumptions.ltv_ratio <= 1.0  # Should be clamped to reasonable max
-        
+
         # Compatibility validation should flag issues
         issues = service.validate_assumptions_compatibility(assumptions)
         assert len(issues) > 0
