@@ -1,41 +1,41 @@
 # Core Data Processing
-pandas==2.1.4
-numpy==1.25.2
-scipy==1.11.4
+pandas>=2.0.0  # Compatible with Python 3.8+
+numpy>=1.21.0  # Compatible with Python 3.8+
+scipy>=1.9.0   # Compatible with Python 3.8+
 
 # Forecasting
-prophet==1.1.7
+prophet>=1.1.5  # Compatible with Python 3.8+
 
 # Visualization
-matplotlib==3.8.2
+matplotlib>=3.6.0  # Compatible with Python 3.8+
 
 # API Requests
-requests==2.31.0
+requests>=2.28.0  # Compatible with Python 3.8+
 
 # Excel Processing
-openpyxl==3.1.2
+openpyxl>=3.0.9  # Compatible with Python 3.8+
 
 # Testing Framework
-pytest==7.4.3
-pytest-asyncio==0.21.1
-pytest-cov==4.1.0
-pytest-mock==3.12.0
-pytest-bdd==7.0.0
+pytest>=7.2.0
+pytest-asyncio>=0.20.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+pytest-bdd>=6.1.0
 
 # Code Quality and Linting
-black==23.11.0
-flake8==6.1.0
-isort==5.12.0
-mypy==1.7.1
-pre-commit==3.6.0
+black>=23.0.0
+flake8>=6.0.0
+isort>=5.11.0
+mypy>=1.5.0
+pre-commit>=3.0.0
 
 # Documentation
-mkdocs==1.5.3
-mkdocs-material==9.4.8
+mkdocs>=1.4.0
+mkdocs-material>=9.0.0
 
 # Date/Time utilities
-python-dateutil==2.8.2
+python-dateutil>=2.8.0
 
 # Development utilities
-rich==13.7.0
-click==8.1.7
+rich>=13.0.0
+click>=8.1.0
