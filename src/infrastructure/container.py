@@ -147,21 +147,22 @@ class DependencyContainer:
         for param_name in param_names:
             param = parameters[param_name]
 
-            # Skip parameters with default values unless they're type-annotated
-            if (
-                param.default != inspect.Parameter.empty
-                and param.annotation == inspect.Parameter.empty
-            ):
-                continue
-
             # Get type annotation
             if param.annotation == inspect.Parameter.empty:
+                # Skip parameters without type annotation (usually primitives with defaults)
+                if param.default != inspect.Parameter.empty:
+                    continue
                 raise TypeError(
                     f"Cannot resolve dependency '{param_name}' for {implementation.__name__}: "
                     "missing type annotation"
                 )
 
             param_type = param.annotation
+            
+            # Skip primitive types with default values (str, int, float, bool, etc.)
+            primitive_types = (str, int, float, bool, bytes, list, dict, tuple, set)
+            if param.default != inspect.Parameter.empty and param_type in primitive_types:
+                continue
 
             # Handle Optional types
             import typing

@@ -303,6 +303,12 @@ class SimplifiedPropertyInput:
             monthly_rent += self.commercial_units.monthly_gross_rent
         return monthly_rent
 
+    def get_msa_code(self) -> str:
+        """Get MSA code for compatibility with Monte Carlo engine."""
+        if not self.msa_code:
+            raise ValidationError("MSA code is required for Monte Carlo analysis")
+        return self.msa_code
+
     def get_annual_gross_rent(self) -> float:
         """Calculate total annual gross rent."""
         return self.get_monthly_gross_rent() * 12

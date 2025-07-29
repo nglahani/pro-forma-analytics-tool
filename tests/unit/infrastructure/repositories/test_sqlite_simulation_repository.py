@@ -34,9 +34,21 @@ class TestSQLiteSimulationRepository:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".db") as f:
             db_path = f.name
         yield db_path
-        # Cleanup
+        # Cleanup - force close connections and retry on Windows
         if os.path.exists(db_path):
-            os.unlink(db_path)
+            import gc
+            import time
+            gc.collect()  # Force garbage collection to close connections
+            time.sleep(0.1)  # Brief pause for Windows
+            try:
+                os.unlink(db_path)
+            except PermissionError:
+                # On Windows, file may still be locked - try again after brief delay
+                time.sleep(0.5)
+                try:
+                    os.unlink(db_path)
+                except PermissionError:
+                    pass  # Skip cleanup if still locked
 
     @pytest.fixture
     def repository(self, temp_db_path):

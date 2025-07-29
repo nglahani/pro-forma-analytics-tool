@@ -38,6 +38,10 @@ def main():
     update_parser = subparsers.add_parser('update', help='Execute immediate updates')
     update_parser.add_argument('parameter', nargs='?', help='Specific parameter to update (optional)')
     update_parser.add_argument('--all', action='store_true', help='Update all parameters')
+    update_parser.add_argument('--type', choices=['all', 'interest_rates', 'real_estate', 'lending_requirements'], 
+                               help='Update specific parameter category')
+    update_parser.add_argument('--action', help='Action to perform (for CI/CD integration)')
+    update_parser.add_argument('--fred-key', help='FRED API key')
     
     # Config command
     config_parser = subparsers.add_parser('config', help='Manage scheduler configuration')

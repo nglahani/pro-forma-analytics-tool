@@ -457,8 +457,10 @@ class SQLiteCorrelationRepository(CorrelationRepository):
     ) -> None:
         """Save a parameter correlation matrix."""
         try:
+            # Sort parameter names for consistent storage and retrieval
+            sorted_param_names = sorted(parameter_names)
             correlation_matrix_json = json.dumps(correlation_matrix)
-            parameter_names_json = json.dumps(parameter_names)
+            parameter_names_json = json.dumps(sorted_param_names)
 
             with sqlite3.connect(self._db_path) as conn:
                 conn.execute(

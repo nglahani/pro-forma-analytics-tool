@@ -16,7 +16,7 @@ from datetime import date
 from data.databases.database_manager import db_manager
 from core.logging_config import get_logger
 from core.exceptions import MonteCarloError, DataNotFoundError
-from core.property_inputs import PropertyInputData
+from src.domain.entities.property_data import SimplifiedPropertyInput
 from config.settings import settings
 
 
@@ -198,7 +198,7 @@ class MonteCarloEngine:
     
     def generate_scenarios(
         self, 
-        property_data: PropertyInputData,
+        property_data: SimplifiedPropertyInput,
         num_scenarios: int = None,
         horizon_years: int = 5,
         use_correlations: bool = True
