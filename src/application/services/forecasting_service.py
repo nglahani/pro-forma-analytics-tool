@@ -7,7 +7,10 @@ Follows clean architecture principles with proper dependency injection.
 
 import logging
 from datetime import date
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from forecasting.prophet_engine import ProphetEngine
 
 from ...domain.entities.forecast import (
     ForecastRequest,
@@ -28,7 +31,7 @@ class ForecastingApplicationService:
         self,
         parameter_repository: ParameterRepository,
         forecast_repository: ForecastRepository,
-        forecasting_engine: "ForecastingEngine",  # Forward reference
+        forecasting_engine: "ProphetEngine",  # Forward reference
         logger: Optional[logging.Logger] = None,
     ):
         self._parameter_repo = parameter_repository

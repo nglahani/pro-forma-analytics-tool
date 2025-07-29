@@ -119,7 +119,7 @@ class TestInfrastructureConfiguration:
 
         # Assert - Factory pattern creates new instances each time
         assert repo1 is not repo2
-        assert type(repo1) == type(repo2)
+        assert isinstance(repo1, type(repo2))
 
     def test_container_resolves_repository_implementations(self, temp_db_paths):
         """

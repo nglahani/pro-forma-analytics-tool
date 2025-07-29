@@ -17,7 +17,7 @@ import pytest
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.application.services.financial_metrics_service import FinancialMetricsService
+from src.application.services.financial_metrics_service import FinancialMetricsService  # noqa: E402
 
 
 class TestIRRPerformance:
@@ -174,9 +174,8 @@ class TestIRRPerformance:
         ), f"Total batch processing time too slow: {total_time:.3f}s"
 
         # Quality assertions - more realistic criteria for random scenarios
-        valid_irr_count = sum(
-            1 for irr in irr_results if -0.5 < irr < 3.0
-        )  # Broader reasonable IRR range
+        # Count valid IRRs in reasonable range
+        assert sum(1 for irr in irr_results if -0.5 < irr < 3.0) > 0
         successful_calculations = sum(
             1 for irr in irr_results if irr != 0.0
         )  # Non-zero results

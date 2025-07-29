@@ -7,9 +7,12 @@ Orchestrates Monte Carlo simulation workflows using clean architecture principle
 import logging
 import time
 from datetime import date
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TYPE_CHECKING
 
-from ...domain.entities.forecast import ParameterId
+if TYPE_CHECKING:
+    from monte_carlo.simulation_engine import MonteCarloEngine
+
+from ...domain.entities.forecast import ParameterId, ParameterType
 from ...domain.entities.monte_carlo import (
     CorrelationMatrix,
     SimulationRequest,
@@ -185,7 +188,6 @@ class MonteCarloApplicationService:
         Returns:
             Dictionary of quality check results
         """
-        checks = quality_checks or {}
         results = {}
 
         # Check scenario count
@@ -288,9 +290,6 @@ class MonteCarloApplicationService:
 
         parameter_ids = []
         for param_name, geo_code in required_params:
-            # Import here to avoid circular imports
-            from ...domain.entities.forecast import ParameterId, ParameterType
-
             param_id = ParameterId(
                 name=param_name,
                 geographic_code=geo_code,
@@ -300,9 +299,8 @@ class MonteCarloApplicationService:
 
         return parameter_ids
 
-    def _get_parameter_type(self, param_name: str) -> "ParameterType":
+    def _get_parameter_type(self, param_name: str) -> ParameterType:
         """Map parameter name to type."""
-        from ...domain.entities.forecast import ParameterType
 
         type_mapping = {
             "treasury_10y": ParameterType.INTEREST_RATE,

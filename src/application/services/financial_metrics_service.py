@@ -351,7 +351,7 @@ class FinancialMetricsService:
 
             return mirr if -1.0 < mirr < 10.0 else 0.0
 
-        except:
+        except (ValueError, ZeroDivisionError, ArithmeticError):
             return 0.0
 
     def _calculate_payback_period(self, cash_flows: List[float]) -> float:
