@@ -1,6 +1,6 @@
 # Documentation
 
-Comprehensive documentation for the Pro-Forma Analytics Tool covering architecture, user workflows, and technical implementation details.
+Comprehensive documentation for the Pro-Forma Analytics Tool (v1.3) covering architecture, user workflows, technical implementation, and recent enhancements.
 
 ## Documentation Overview
 
@@ -23,6 +23,8 @@ This folder contains detailed technical documentation for developers, users, and
 ### Development Documentation
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Development guidelines and contribution standards
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment instructions
+- **[DATABASE_OPTIMIZATION_SUMMARY.md](DATABASE_OPTIMIZATION_SUMMARY.md)** - Database optimization and performance improvements
+- **[PRODUCTION_DATA_IMPLEMENTATION.md](PRODUCTION_DATA_IMPLEMENTATION.md)** - Production data collection and validation
 
 ## Quick Start
 
