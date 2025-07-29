@@ -7,7 +7,6 @@ Centralized logging setup for the pro forma analytics tool.
 import logging
 import logging.handlers
 import sys
-from datetime import datetime
 from pathlib import Path
 
 

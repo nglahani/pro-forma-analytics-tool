@@ -90,7 +90,7 @@ def main():
         initial_numbers = initial_numbers_service.calculate_initial_numbers(
             test_property, dcf_assumptions
         )
-        print(f"   [OK] Initial numbers calculated")
+        print("   [OK] Initial numbers calculated")
         print(f"   Total Cash Required: ${initial_numbers.total_cash_required:,.0f}")
         print(f"   LTV Ratio: {initial_numbers.calculate_ltv_ratio():.1%}")
         print(f"   Year 1 NOI: ${initial_numbers.year_1_rental_income - initial_numbers.total_operating_expenses:,.0f}")
@@ -100,7 +100,7 @@ def main():
         cash_flow_projection = cash_flow_service.calculate_cash_flow_projection(
             dcf_assumptions, initial_numbers
         )
-        print(f"   [OK] Cash flow projections created")
+        print("   [OK] Cash flow projections created")
         print(f"   Years Projected: {len(cash_flow_projection.annual_cash_flows)}")
         
         # Calculate total distributions for summary
@@ -114,7 +114,7 @@ def main():
         financial_metrics = financial_metrics_service.calculate_financial_metrics(
             cash_flow_projection, dcf_assumptions, initial_numbers, discount_rate=0.10
         )
-        print(f"   [OK] Financial metrics calculated")
+        print("   [OK] Financial metrics calculated")
         
         # Display Results
         print("\n" + "="*80)

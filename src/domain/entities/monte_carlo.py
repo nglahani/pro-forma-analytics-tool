@@ -5,12 +5,11 @@ Clean architecture implementation of Monte Carlo simulation entities.
 """
 
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
-from .forecast import ForecastResult, ParameterId
 
 
 class MarketScenario(Enum):
@@ -113,7 +112,7 @@ class CorrelationMatrix:
             idx2 = self.parameter_names.index(param2)
             return self.matrix[idx1][idx2]
         except ValueError:
-            raise ValueError(f"Parameter not found in correlation matrix")
+            raise ValueError("Parameter not found in correlation matrix")
 
 
 @dataclass(frozen=True)

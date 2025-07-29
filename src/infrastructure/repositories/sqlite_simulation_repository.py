@@ -78,21 +78,21 @@ class SQLiteSimulationRepository(SimulationRepository):
             # Create indexes for efficient querying
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_simulation_property 
+                CREATE INDEX IF NOT EXISTS idx_simulation_property
                 ON simulation_results(property_id, simulation_date DESC)
             """
             )
 
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_simulation_msa 
+                CREATE INDEX IF NOT EXISTS idx_simulation_msa
                 ON simulation_results(msa_code, simulation_date DESC)
             """
             )
 
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_scenarios_simulation 
+                CREATE INDEX IF NOT EXISTS idx_scenarios_simulation
                 ON simulation_scenarios(simulation_id, scenario_number)
             """
             )
@@ -115,9 +115,9 @@ class SQLiteSimulationRepository(SimulationRepository):
 
                 conn.execute(
                     """
-                    INSERT OR REPLACE INTO simulation_results 
+                    INSERT OR REPLACE INTO simulation_results
                     (simulation_id, property_id, msa_code, num_scenarios, horizon_years,
-                     use_correlations, confidence_level, simulation_date, 
+                     use_correlations, confidence_level, simulation_date,
                      computation_time_seconds, summary_data, correlation_matrix, created_at)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
@@ -147,7 +147,7 @@ class SQLiteSimulationRepository(SimulationRepository):
 
                     conn.execute(
                         """
-                        INSERT OR REPLACE INTO simulation_scenarios 
+                        INSERT OR REPLACE INTO simulation_scenarios
                         (scenario_key, simulation_id, scenario_number, parameter_values,
                          growth_score, risk_score, market_scenario, volatility_measures,
                          percentile_rank, created_at)
@@ -185,7 +185,7 @@ class SQLiteSimulationRepository(SimulationRepository):
                     SELECT property_id, msa_code, num_scenarios, horizon_years,
                            use_correlations, confidence_level, simulation_date,
                            computation_time_seconds, summary_data, correlation_matrix
-                    FROM simulation_results 
+                    FROM simulation_results
                     WHERE simulation_id = ?
                 """,
                     (simulation_id,),
@@ -213,7 +213,7 @@ class SQLiteSimulationRepository(SimulationRepository):
                     """
                     SELECT scenario_number, parameter_values, growth_score, risk_score,
                            market_scenario, volatility_measures, percentile_rank
-                    FROM simulation_scenarios 
+                    FROM simulation_scenarios
                     WHERE simulation_id = ?
                     ORDER BY scenario_number
                 """,
@@ -287,8 +287,8 @@ class SQLiteSimulationRepository(SimulationRepository):
             with sqlite3.connect(self._db_path) as conn:
                 cursor = conn.execute(
                     """
-                    SELECT simulation_id 
-                    FROM simulation_results 
+                    SELECT simulation_id
+                    FROM simulation_results
                     WHERE property_id = ?
                     ORDER BY simulation_date DESC, created_at DESC
                     LIMIT ?
@@ -320,8 +320,8 @@ class SQLiteSimulationRepository(SimulationRepository):
         """Get simulation results for an MSA within a date range."""
         try:
             query = """
-                SELECT simulation_id 
-                FROM simulation_results 
+                SELECT simulation_id
+                FROM simulation_results
                 WHERE msa_code = ?
             """
             params = [msa_code]
@@ -365,8 +365,8 @@ class SQLiteSimulationRepository(SimulationRepository):
                 # Get simulation IDs to delete
                 cursor = conn.execute(
                     """
-                    SELECT simulation_id 
-                    FROM simulation_results 
+                    SELECT simulation_id
+                    FROM simulation_results
                     WHERE created_at < ?
                 """,
                     (cutoff_date.isoformat(),),
@@ -381,7 +381,7 @@ class SQLiteSimulationRepository(SimulationRepository):
                 placeholders = ",".join(["?" for _ in simulation_ids])
                 conn.execute(
                     f"""
-                    DELETE FROM simulation_scenarios 
+                    DELETE FROM simulation_scenarios
                     WHERE simulation_id IN ({placeholders})
                 """,
                     simulation_ids,
@@ -390,7 +390,7 @@ class SQLiteSimulationRepository(SimulationRepository):
                 # Delete main simulation results
                 cursor = conn.execute(
                     f"""
-                    DELETE FROM simulation_results 
+                    DELETE FROM simulation_results
                     WHERE simulation_id IN ({placeholders})
                 """,
                     simulation_ids,

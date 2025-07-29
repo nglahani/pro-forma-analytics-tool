@@ -5,10 +5,7 @@ Application service that calculates comprehensive financial metrics including
 NPV, IRR, and investment recommendations from cash flow projections.
 """
 
-from datetime import date
-from typing import Any, Dict, List, Optional, Tuple
-
-import numpy as np
+from typing import Any, Dict, List, Tuple
 
 from config.dcf_constants import (
     FINANCIAL_CONSTANTS,

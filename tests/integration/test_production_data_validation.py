@@ -248,9 +248,9 @@ class TestProductionDataValidation(unittest.TestCase):
         """Test that data shows realistic geographic variation."""
         # Test that different MSAs have different average rent growth rates
         rent_growth_by_msa = pd.read_sql_query(
-            """SELECT geographic_code, AVG(value) as avg_growth 
-               FROM rental_market_data 
-               WHERE metric_name = 'rent_growth' 
+            """SELECT geographic_code, AVG(value) as avg_growth
+               FROM rental_market_data
+               WHERE metric_name = 'rent_growth'
                GROUP BY geographic_code""",
             self.property_db,
         )

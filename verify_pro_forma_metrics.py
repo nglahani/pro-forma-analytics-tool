@@ -167,7 +167,7 @@ def print_verification_results(results: List[Tuple]) -> None:
     total_checks = len(results)
     successful_checks = sum(1 for _, _, coverage in results if coverage.get('sufficient', False))
     
-    print(f"\n" + "=" * 80)
+    print("\n" + "=" * 80)
     print(f"OVERALL SUMMARY: {successful_checks}/{total_checks} checks passed")
     
     if successful_checks == total_checks:

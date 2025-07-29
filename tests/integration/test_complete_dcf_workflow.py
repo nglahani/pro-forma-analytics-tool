@@ -195,7 +195,7 @@ class TestCompleteDCFWorkflow:
         assert financial_metrics.terminal_value is not None
         assert financial_metrics.terminal_value.net_sale_proceeds > 0
 
-        print(f"\n✅ Single Scenario Integration Test Results:")
+        print("\n✅ Single Scenario Integration Test Results:")
         print(f"   NPV: ${financial_metrics.net_present_value:,.0f}")
         print(f"   IRR: {financial_metrics.internal_rate_return:.1%}")
         print(f"   Multiple: {financial_metrics.equity_multiple:.2f}x")
@@ -219,7 +219,7 @@ if __name__ == "__main__":
     try:
         test_suite.test_complete_dcf_workflow_single_scenario()
 
-        print(f"\n" + "=" * 80)
+        print("\n" + "=" * 80)
         print("[SUCCESS] INTEGRATION TEST PASSED")
         print("The complete DCF workflow is functioning correctly!")
         print("=" * 80)

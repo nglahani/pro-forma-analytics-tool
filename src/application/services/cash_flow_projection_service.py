@@ -5,8 +5,7 @@ Application service that calculates Years 0-5 cash flow projections
 from DCF assumptions and initial numbers.
 """
 
-from datetime import date
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from core.exceptions import ValidationError
 from core.logging_config import get_logger

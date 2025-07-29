@@ -6,7 +6,7 @@ into DCF assumptions for financial analysis.
 """
 
 from datetime import date
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from core.exceptions import ValidationError
 from core.logging_config import get_logger

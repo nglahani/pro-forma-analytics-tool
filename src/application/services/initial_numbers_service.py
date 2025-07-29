@@ -5,8 +5,7 @@ Application service that calculates initial investment and acquisition costs
 from property data and DCF assumptions.
 """
 
-from datetime import date
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from config.dcf_constants import FINANCIAL_CONSTANTS, VALIDATION_CONSTANTS
 from core.exceptions import ValidationError

@@ -6,14 +6,12 @@ Includes both statistical validation and business-focused analysis visualization
 """
 
 import logging
-from datetime import date, datetime
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, Optional
 
-import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import seaborn as sns
 
 # Set style for professional charts
@@ -22,7 +20,6 @@ sns.set_palette("husl")
 
 # Assuming these imports will work with the existing structure
 try:
-    from core.logging_config import get_logger
     from monte_carlo.simulation_engine import MonteCarloResults, MonteCarloScenario
 except ImportError:
     # Fallback for when clean architecture is fully implemented
@@ -1032,7 +1029,7 @@ class MonteCarloVisualizer:
             for s in simulation_result.scenarios
         ]
 
-        report_content += f"""
+        report_content += """
 ### Risk and Growth Analysis
 - **Average Growth Score**: {np.mean(growth_scores):.3f} (0-1 scale)
 - **Average Risk Score**: {np.mean(risk_scores):.3f} (0-1 scale)
@@ -1046,7 +1043,7 @@ class MonteCarloVisualizer:
             if file_path:
                 report_content += f"- **{chart_name.replace('_', ' ').title()}**: {Path(file_path).name}\n"
 
-        report_content += f"""
+        report_content += """
 ## Validation Status
 ✅ Monte Carlo simulation is generating diverse, realistic scenarios
 ✅ Parameter correlations are being properly applied

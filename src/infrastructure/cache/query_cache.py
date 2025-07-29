@@ -14,7 +14,7 @@ import time
 from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 from core.logging_config import get_logger
 
@@ -78,7 +78,7 @@ class QueryCache:
                 # Create index for efficient cleanup
                 conn.execute(
                     """
-                    CREATE INDEX IF NOT EXISTS idx_cache_expires 
+                    CREATE INDEX IF NOT EXISTS idx_cache_expires
                     ON cache_entries(expires_at)
                 """
                 )
@@ -168,8 +168,8 @@ class QueryCache:
                 with sqlite3.connect(str(self.cache_db_path)) as conn:
                     cursor = conn.execute(
                         """
-                        SELECT data, expires_at, access_count 
-                        FROM cache_entries 
+                        SELECT data, expires_at, access_count
+                        FROM cache_entries
                         WHERE cache_key = ?
                     """,
                         (cache_key,),
@@ -187,7 +187,7 @@ class QueryCache:
                             # Update access statistics
                             conn.execute(
                                 """
-                                UPDATE cache_entries 
+                                UPDATE cache_entries
                                 SET access_count = ?, last_accessed = ?
                                 WHERE cache_key = ?
                             """,
@@ -266,7 +266,7 @@ class QueryCache:
                     conn.execute(
                         """
                         INSERT OR REPLACE INTO cache_entries
-                        (cache_key, data, created_at, expires_at, 
+                        (cache_key, data, created_at, expires_at,
                          last_accessed, data_size)
                         VALUES (?, ?, ?, ?, ?, ?)
                     """,
@@ -315,7 +315,7 @@ class QueryCache:
                         # Clear entries matching pattern
                         cursor = conn.execute(
                             """
-                            SELECT cache_key FROM cache_entries 
+                            SELECT cache_key FROM cache_entries
                             WHERE cache_key LIKE ?
                         """,
                             (pattern,),
@@ -392,7 +392,7 @@ class QueryCache:
                 # Get entry count and total size
                 cursor = conn.execute(
                     """
-                    SELECT COUNT(*), COALESCE(SUM(data_size), 0) 
+                    SELECT COUNT(*), COALESCE(SUM(data_size), 0)
                     FROM cache_entries
                 """
                 )
@@ -403,7 +403,7 @@ class QueryCache:
                 # Calculate hit rate (simplified)
                 cursor = conn.execute(
                     """
-                    SELECT AVG(access_count) FROM cache_entries 
+                    SELECT AVG(access_count) FROM cache_entries
                     WHERE access_count > 1
                 """
                 )

@@ -87,7 +87,7 @@ class FHFACollector(BaseDataCollector):
         
         try:
             # Download the master HPI dataset
-            self.logger.info(f"Downloading FHFA House Price Index data...")
+            self.logger.info("Downloading FHFA House Price Index data...")
             df = self._make_request(self.csv_url)
             
             # Filter for our MSA and date range

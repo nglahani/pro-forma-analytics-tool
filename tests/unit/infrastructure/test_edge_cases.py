@@ -273,7 +273,7 @@ class TestRepositoryEdgeCases:
 
             cursor.execute(
                 """
-                INSERT INTO simulation_results 
+                INSERT INTO simulation_results
                 (simulation_id, property_id, msa_code, simulation_date, scenarios_json, correlation_matrix_json, summary_stats_json)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """,

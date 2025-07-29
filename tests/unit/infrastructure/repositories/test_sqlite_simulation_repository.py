@@ -177,7 +177,7 @@ class TestSQLiteSimulationRepository:
         with sqlite3.connect(temp_db_path) as conn:
             cursor = conn.execute(
                 """
-                SELECT name FROM sqlite_master 
+                SELECT name FROM sqlite_master
                 WHERE type='table' AND name IN ('simulation_results', 'simulation_scenarios')
             """
             )

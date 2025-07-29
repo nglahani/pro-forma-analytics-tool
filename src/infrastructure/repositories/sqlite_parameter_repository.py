@@ -56,7 +56,7 @@ class SQLiteParameterRepository(ParameterRepository):
 
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_historical_data_lookup 
+                CREATE INDEX IF NOT EXISTS idx_historical_data_lookup
                 ON historical_data(parameter_name, geographic_code, date)
             """
             )
@@ -69,8 +69,8 @@ class SQLiteParameterRepository(ParameterRepository):
     ) -> Optional[HistoricalData]:
         """Retrieve historical data for a parameter."""
         query = """
-            SELECT date, value, data_source 
-            FROM historical_data 
+            SELECT date, value, data_source
+            FROM historical_data
             WHERE parameter_name = ? AND geographic_code = ?
         """
         params = [parameter_id.name, parameter_id.geographic_code]
@@ -121,7 +121,7 @@ class SQLiteParameterRepository(ParameterRepository):
                 for data_point in historical_data.data_points:
                     conn.execute(
                         """
-                        INSERT OR REPLACE INTO historical_data 
+                        INSERT OR REPLACE INTO historical_data
                         (parameter_name, geographic_code, parameter_type, date, value, data_source, created_at)
                         VALUES (?, ?, ?, ?, ?, ?, ?)
                     """,
@@ -151,8 +151,8 @@ class SQLiteParameterRepository(ParameterRepository):
             with sqlite3.connect(self._db_path) as conn:
                 cursor = conn.execute(
                     """
-                    SELECT DISTINCT parameter_name, parameter_type 
-                    FROM historical_data 
+                    SELECT DISTINCT parameter_name, parameter_type
+                    FROM historical_data
                     WHERE geographic_code = ?
                 """,
                     (geographic_code,),
@@ -187,9 +187,9 @@ class SQLiteParameterRepository(ParameterRepository):
             with sqlite3.connect(self._db_path) as conn:
                 cursor = conn.execute(
                     """
-                    SELECT COUNT(*) 
-                    FROM historical_data 
-                    WHERE parameter_name = ? AND geographic_code = ? 
+                    SELECT COUNT(*)
+                    FROM historical_data
+                    WHERE parameter_name = ? AND geographic_code = ?
                     AND date >= ? AND date <= ?
                 """,
                     (
@@ -239,7 +239,7 @@ class SQLiteForecastRepository(ForecastRepository):
 
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_forecast_lookup 
+                CREATE INDEX IF NOT EXISTS idx_forecast_lookup
                 ON forecasts(parameter_name, geographic_code, model_type, horizon_years)
             """
             )
@@ -265,9 +265,9 @@ class SQLiteForecastRepository(ForecastRepository):
             with sqlite3.connect(self._db_path) as conn:
                 conn.execute(
                     """
-                    INSERT OR REPLACE INTO forecasts 
-                    (forecast_id, parameter_name, geographic_code, model_type, 
-                     horizon_years, forecast_data, model_performance, 
+                    INSERT OR REPLACE INTO forecasts
+                    (forecast_id, parameter_name, geographic_code, model_type,
+                     horizon_years, forecast_data, model_performance,
                      historical_data_points, forecast_date, created_at)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
@@ -308,13 +308,13 @@ class SQLiteForecastRepository(ForecastRepository):
             with sqlite3.connect(self._db_path) as conn:
                 cursor = conn.execute(
                     """
-                    SELECT forecast_id, forecast_data, model_performance, 
+                    SELECT forecast_id, forecast_data, model_performance,
                            historical_data_points, forecast_date
-                    FROM forecasts 
-                    WHERE parameter_name = ? AND geographic_code = ? 
+                    FROM forecasts
+                    WHERE parameter_name = ? AND geographic_code = ?
                     AND model_type = ? AND horizon_years = ?
                     AND created_at >= ?
-                    ORDER BY created_at DESC 
+                    ORDER BY created_at DESC
                     LIMIT 1
                 """,
                     (
@@ -396,7 +396,7 @@ class SQLiteForecastRepository(ForecastRepository):
             with sqlite3.connect(self._db_path) as conn:
                 cursor = conn.execute(
                     """
-                    DELETE FROM forecasts 
+                    DELETE FROM forecasts
                     WHERE created_at < ?
                 """,
                     (cutoff_date.isoformat(),),
@@ -442,7 +442,7 @@ class SQLiteCorrelationRepository(CorrelationRepository):
 
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_correlation_lookup 
+                CREATE INDEX IF NOT EXISTS idx_correlation_lookup
                 ON parameter_correlations(geographic_code, calculation_date DESC)
             """
             )
@@ -465,8 +465,8 @@ class SQLiteCorrelationRepository(CorrelationRepository):
             with sqlite3.connect(self._db_path) as conn:
                 conn.execute(
                     """
-                    INSERT OR REPLACE INTO parameter_correlations 
-                    (geographic_code, correlation_matrix, parameter_names, 
+                    INSERT OR REPLACE INTO parameter_correlations
+                    (geographic_code, correlation_matrix, parameter_names,
                      calculation_date, window_years, created_at)
                     VALUES (?, ?, ?, ?, ?, ?)
                 """,
@@ -506,11 +506,11 @@ class SQLiteCorrelationRepository(CorrelationRepository):
                 cursor = conn.execute(
                     """
                     SELECT correlation_matrix, parameter_names, calculation_date
-                    FROM parameter_correlations 
-                    WHERE geographic_code = ? 
+                    FROM parameter_correlations
+                    WHERE geographic_code = ?
                     AND parameter_names = ?
                     AND created_at >= ?
-                    ORDER BY created_at DESC 
+                    ORDER BY created_at DESC
                     LIMIT 1
                 """,
                     (geographic_code, parameter_names_json, cutoff_date.isoformat()),

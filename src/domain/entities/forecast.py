@@ -8,7 +8,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Dict, List
 
 
 class ParameterType(Enum):

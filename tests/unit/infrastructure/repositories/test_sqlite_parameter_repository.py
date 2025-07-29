@@ -99,7 +99,7 @@ class TestSQLiteParameterRepository:
         with sqlite3.connect(temp_db_path) as conn:
             cursor = conn.execute(
                 """
-                SELECT name FROM sqlite_master 
+                SELECT name FROM sqlite_master
                 WHERE type='table' AND name='historical_data'
             """
             )
@@ -347,7 +347,7 @@ class TestSQLiteForecastRepository:
         with sqlite3.connect(temp_db_path) as conn:
             cursor = conn.execute(
                 """
-                SELECT name FROM sqlite_master 
+                SELECT name FROM sqlite_master
                 WHERE type='table' AND name='forecasts'
             """
             )
@@ -519,7 +519,7 @@ class TestSQLiteCorrelationRepository:
         with sqlite3.connect(temp_db_path) as conn:
             cursor = conn.execute(
                 """
-                SELECT name FROM sqlite_master 
+                SELECT name FROM sqlite_master
                 WHERE type='table' AND name='parameter_correlations'
             """
             )
