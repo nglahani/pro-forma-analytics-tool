@@ -40,7 +40,7 @@ jobs:
     - name: Initialize production databases
       run: |
         echo "🗄️ Setting up production databases for CI testing..."
-        python data_manager.py setup
+        python data_manager.py init
     
     - name: Run code quality checks
       run: |
@@ -59,7 +59,7 @@ jobs:
     - name: Run core test suites
       run: |
         echo "🧪 Running core test suites..."
-        pytest tests/unit/application/ tests/unit/infrastructure/test_edge_cases.py tests/integration/ tests/performance/ --cov=src --cov=core --cov=monte_carlo --cov-report=xml --cov-report=term-missing -v
+        pytest tests/unit/application/ tests/unit/infrastructure/test_edge_cases.py tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src --cov=core --cov=monte_carlo --cov-report=xml --cov-report=term-missing -v
     
     - name: Validate end-to-end workflow
       run: |
@@ -94,12 +94,12 @@ jobs:
     - name: Initialize production databases  
       run: |
         echo "🗄️ Setting up production databases for validation..."
-        python data_manager.py setup
+        python data_manager.py init
     
     - name: Enforce quality gates
       run: |
         echo "📊 Enforcing quality gates..."
-        pytest tests/unit/application/ tests/unit/infrastructure/test_edge_cases.py tests/integration/ tests/performance/ --cov=src --cov=core --cov=monte_carlo --cov-fail-under=95
+        pytest tests/unit/application/ tests/unit/infrastructure/test_edge_cases.py tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src --cov=core --cov=monte_carlo --cov-fail-under=95
     
     - name: Security validation
       run: |
