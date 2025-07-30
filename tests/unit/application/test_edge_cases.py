@@ -21,7 +21,7 @@ from src.application.services.initial_numbers_service import InitialNumbersServi
 from src.domain.entities.cash_flow_projection import AnnualCashFlow, CashFlowProjection
 from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.initial_numbers import InitialNumbers
-from src.domain.entities.monte_carlo import MonteCarloScenario
+from src.domain.entities.monte_carlo import Scenario
 from src.domain.entities.property_data import SimplifiedPropertyInput
 
 
@@ -30,7 +30,7 @@ class TestCashFlowProjectionEdgeCases:
 
     def test_calculate_cash_flow_with_extreme_negative_noi(self):
         """Test cash flow calculation with extremely negative NOI."""
-        service = CashFlowProjectionService(Mock())
+        service = CashFlowProjectionService()
 
         # Create assumptions that lead to extreme negative NOI
         assumptions = DCFAssumptions(
@@ -87,7 +87,7 @@ class TestCashFlowProjectionEdgeCases:
 
     def test_calculate_cash_flow_with_zero_rental_income(self):
         """Test cash flow calculation with zero rental income."""
-        service = CashFlowProjectionService(Mock())
+        service = CashFlowProjectionService()
 
         assumptions = DCFAssumptions(
             purchase_price=1000000,
@@ -142,7 +142,7 @@ class TestCashFlowProjectionEdgeCases:
 
     def test_calculate_cash_flow_with_extreme_growth_rates(self):
         """Test cash flow calculation with extreme growth rates."""
-        service = CashFlowProjectionService(Mock())
+        service = CashFlowProjectionService()
 
         assumptions = DCFAssumptions(
             purchase_price=1000000,
@@ -203,7 +203,7 @@ class TestFinancialMetricsEdgeCases:
 
     def test_calculate_metrics_with_all_negative_cash_flows(self):
         """Test metrics calculation with all negative cash flows."""
-        service = FinancialMetricsService(Mock())
+        service = FinancialMetricsService()
 
         # Create projection with all negative cash flows
         negative_cash_flows = []
@@ -262,7 +262,7 @@ class TestFinancialMetricsEdgeCases:
 
     def test_calculate_metrics_with_zero_terminal_value(self):
         """Test metrics calculation with zero terminal value."""
-        service = FinancialMetricsService(Mock())
+        service = FinancialMetricsService()
 
         # Create projection with zero terminal value
         cash_flows = []
@@ -321,7 +321,7 @@ class TestFinancialMetricsEdgeCases:
 
     def test_calculate_irr_with_no_sign_changes(self):
         """Test IRR calculation with cash flows that have no sign changes."""
-        service = FinancialMetricsService(Mock())
+        service = FinancialMetricsService()
 
         # All positive cash flows (no initial investment represented)
         cash_flows = []
@@ -383,7 +383,7 @@ class TestInitialNumbersEdgeCases:
 
     def test_calculate_with_zero_purchase_price_should_raise_error(self):
         """Test calculation with zero purchase price."""
-        service = InitialNumbersService(Mock())
+        service = InitialNumbersService()
 
         property_input = SimplifiedPropertyInput(
             purchase_price=0,  # Zero price
@@ -424,7 +424,7 @@ class TestInitialNumbersEdgeCases:
 
     def test_calculate_with_extreme_ltv_ratio(self):
         """Test calculation with extreme LTV ratio."""
-        service = InitialNumbersService(Mock())
+        service = InitialNumbersService()
 
         property_input = SimplifiedPropertyInput(
             purchase_price=1000000,
@@ -470,7 +470,7 @@ class TestInitialNumbersEdgeCases:
 
     def test_calculate_with_negative_after_repair_value(self):
         """Test calculation resulting in negative after-repair value."""
-        service = InitialNumbersService(Mock())
+        service = InitialNumbersService()
 
         property_input = SimplifiedPropertyInput(
             purchase_price=1000000,
@@ -519,7 +519,7 @@ class TestDCFAssumptionsEdgeCases:
 
     def test_create_assumptions_with_missing_parameters(self):
         """Test creating assumptions with missing Monte Carlo parameters."""
-        service = DCFAssumptionsService(Mock())
+        service = DCFAssumptionsService()
 
         # Incomplete Monte Carlo scenario (missing some parameters)
         incomplete_scenario = MonteCarloScenario(
@@ -556,7 +556,7 @@ class TestDCFAssumptionsEdgeCases:
 
     def test_create_assumptions_with_invalid_parameter_values(self):
         """Test creating assumptions with invalid parameter values."""
-        service = DCFAssumptionsService(Mock())
+        service = DCFAssumptionsService()
 
         # Monte Carlo scenario with invalid values
         invalid_scenario = MonteCarloScenario(

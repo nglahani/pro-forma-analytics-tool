@@ -4,6 +4,7 @@ Unit Tests for Cash Flow Projection Service (Simplified)
 Core functionality tests for the cash flow projection service.
 """
 
+from datetime import date
 from unittest.mock import Mock, patch
 
 import pytest
