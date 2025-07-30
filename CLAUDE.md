@@ -383,6 +383,72 @@ git push origin main                 # Push with confidence
 
 **Remember**: Every code change must include corresponding test updates and pass all CI/CD quality gates before merging.
 
+## Comprehensive Testing Procedures
+
+### Quick Test Validation (5 minutes)
+```bash
+# Core business logic validation
+python -m pytest tests/unit/application/ tests/integration/ -q
+python demo_end_to_end_workflow.py
+
+# Expected: 91/91 tests passing, NPV $7.8M, IRR 64.8%, STRONG_BUY
+```
+
+### Full System Validation (10 minutes)
+Run complete test suite after significant codebase changes:
+
+```bash
+# 1. Environment & Database
+python --version && python data_manager.py status
+
+# 2. All Test Suites (91 tests total)
+python -m pytest tests/unit/application/ -v           # 74 tests
+python -m pytest tests/unit/infrastructure/test_edge_cases.py -v  # 12 tests  
+python -m pytest tests/integration/test_complete_dcf_workflow.py -v  # 1 test
+python -m pytest tests/performance/ -v                # 4 tests
+
+# 3. End-to-End Demo
+python demo_end_to_end_workflow.py
+
+# 4. Code Quality
+black --check src/ tests/
+isort --check-only --profile black src/ tests/
+flake8 src/ tests/
+
+# 5. Linux Compatibility (Docker)
+docker build -f Dockerfile.test -t proforma-linux-test .
+```
+
+### CI/CD Pipeline Validation
+```bash
+# Check pipeline status
+gh run list --limit 3
+```
+
+### Expected Results Summary
+- **Tests**: 91/91 passing across all categories
+- **Performance**: All tests complete in <2 seconds
+- **Financial Results**: NPV $7,847,901, IRR 64.8%, Equity Multiple 9.79x
+- **Environments**: Windows (local), Linux (Docker), CI/CD (GitHub Actions)
+- **Databases**: 4 databases, 2,176+ historical records
+
+### Test Categories
+1. **Local Environment** - Python compatibility
+2. **Database System** - Connectivity, data availability  
+3. **Core Business Logic** - 74 application service tests
+4. **Infrastructure Edge Cases** - 12 resilience tests
+5. **DCF Integration** - Complete 4-phase workflow
+6. **Performance** - IRR calculations, batch processing
+7. **End-to-End Demo** - Real-world scenario validation
+8. **Code Quality** - Black, isort, flake8 standards
+9. **Type Safety** - mypy validation (core modules)
+10. **CI/CD Pipeline** - Multi-Python version support
+11. **Documentation** - Onboarding resources
+12. **System Performance** - Resource usage validation
+13. **Docker Linux** - Production environment compatibility
+
+**Detailed procedures**: See `TESTING_PROCEDURES.md` for step-by-step instructions
+
 ---
 
 ## Development Workflow - Kiro-Style Spec-Driven Development

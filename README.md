@@ -227,13 +227,26 @@ python demo_end_to_end_workflow.py
 
 This project follows **Test-Driven Development (TDD)** and **Behavior-Driven Development (BDD)** practices with comprehensive CI/CD pipeline integration.
 
-### Quick Testing (< 1 minute)
+### Quick Testing (5 minutes)
 ```bash
-# All tests with enhanced coverage
-python -m pytest tests/ -v
-
-# End-to-end workflow validation
+# Core business logic validation
+python -m pytest tests/unit/application/ tests/integration/ -q
 python demo_end_to_end_workflow.py
+
+# Expected: 91/91 tests passing, NPV $7.8M, IRR 64.8%, STRONG_BUY
+```
+
+### Full System Validation (10 minutes)
+```bash
+# Run comprehensive test suite (all 13 test categories)
+scripts/run_full_tests.bat   # Windows
+./scripts/run_full_tests.sh  # Unix/Linux
+
+# Manual execution (see TESTING_PROCEDURES.md for details)
+python -m pytest tests/unit/application/ tests/unit/infrastructure/test_edge_cases.py tests/integration/test_complete_dcf_workflow.py tests/performance/ -v
+python demo_end_to_end_workflow.py
+black --check src/ tests/ && isort --check-only --profile black src/ tests/ && flake8 src/ tests/
+docker build -f Dockerfile.test -t proforma-linux-test .  # Linux compatibility
 ```
 
 ### Comprehensive Validation (2-3 minutes)
