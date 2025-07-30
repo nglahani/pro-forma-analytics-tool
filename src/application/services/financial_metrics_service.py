@@ -1,8 +1,20 @@
 """
-Financial Metrics Service
+Financial Metrics Service - PHASE 4 of 4
 
-Application service that calculates comprehensive financial metrics including
-NPV, IRR, and investment recommendations from cash flow projections.
+BUSINESS PROCESS:
+Phase 4 calculates investment performance metrics and provides buy/sell recommendations
+based on the complete DCF analysis.
+
+WHAT IT DOES:
+- Computes Net Present Value (NPV) using discount rate
+- Calculates Internal Rate of Return (IRR) iteratively
+- Determines equity multiples and payback periods
+- Models terminal value (property sale at Year 5)
+- Provides investment recommendations (STRONG_BUY to STRONG_SELL)
+- Assesses risk level based on cash flow volatility
+
+EXAMPLE FLOW:
+Cash Flows → NPV: $2.5M, IRR: 64.8%, Multiple: 9.79x → STRONG_BUY Recommendation
 """
 
 from typing import Any, Dict, List, Tuple
@@ -25,7 +37,7 @@ from src.domain.entities.initial_numbers import InitialNumbers
 class FinancialMetricsService:
     """Service for calculating comprehensive financial metrics and investment analysis."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = get_logger(__name__)
 
     def calculate_financial_metrics(
@@ -267,8 +279,8 @@ class FinancialMetricsService:
     def _calculate_irr(
         self,
         cash_flows: List[float],
-        max_iterations: int = None,
-        precision: float = None,
+        max_iterations: int = 1000,
+        precision: float = 1e-6,
     ) -> float:
         """Calculate Internal Rate of Return using Newton-Raphson method."""
         if not cash_flows or len(cash_flows) < 2:

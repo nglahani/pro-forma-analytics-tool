@@ -16,7 +16,7 @@ class DependencyContainer:
     and automatic dependency resolution.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._services: Dict[Type, Any] = {}
         self._factories: Dict[Type, Callable] = {}
         self._singletons: Dict[Type, Any] = {}

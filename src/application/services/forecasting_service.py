@@ -10,7 +10,7 @@ from datetime import date
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 if TYPE_CHECKING:
-    from forecasting.prophet_engine import ProphetEngine
+    from forecasting.prophet_engine import ProFormaProphetEngine
 
 from ...domain.entities.forecast import (
     ForecastRequest,
@@ -30,7 +30,7 @@ class ForecastingApplicationService:
         self,
         parameter_repository: ParameterRepository,
         forecast_repository: ForecastRepository,
-        forecasting_engine: "ProphetEngine",  # Forward reference
+        forecasting_engine: "ProFormaProphetEngine",  # Forward reference
         logger: Optional[logging.Logger] = None,
     ):
         self._parameter_repo = parameter_repository

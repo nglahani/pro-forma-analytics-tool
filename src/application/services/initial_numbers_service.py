@@ -1,8 +1,17 @@
 """
-Initial Numbers Service
+Initial Numbers Service - PHASE 2 of 4
 
-Application service that calculates initial investment and acquisition costs
-from property data and DCF assumptions.
+BUSINESS PROCESS:
+Phase 2 calculates all upfront costs and financing for the property acquisition.
+
+WHAT IT DOES:
+- Calculates purchase price, closing costs, renovation expenses
+- Determines loan amounts, LTV ratios, cash requirements
+- Computes initial rental income and operating expenses
+- Sets up financing structure for cash flow projections
+
+EXAMPLE FLOW:
+Property $3.5M + Assumptions → Cash Required: $1.2M, Loan: $2.3M → Initial Numbers
 """
 
 from typing import Any, Dict
@@ -18,7 +27,7 @@ from src.domain.entities.property_data import SimplifiedPropertyInput
 class InitialNumbersService:
     """Service for calculating initial investment numbers."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = get_logger(__name__)
 
     def calculate_initial_numbers(

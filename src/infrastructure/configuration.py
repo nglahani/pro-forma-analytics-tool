@@ -107,11 +107,11 @@ def configure_forecasting_engines(container: DependencyContainer) -> None:
         container: The dependency injection container to configure
     """
     # Import forecasting engines
-    from forecasting.prophet_engine import ProphetEngine
+    from forecasting.prophet_engine import ProFormaProphetEngine
     from monte_carlo.simulation_engine import MonteCarloEngine
 
     # Register forecasting engines
-    container.register_singleton(ProphetEngine, ProphetEngine)
+    container.register_singleton(ProFormaProphetEngine, ProFormaProphetEngine)
     container.register_singleton(MonteCarloEngine, MonteCarloEngine)
 
     logger = container.resolve(logging.Logger)

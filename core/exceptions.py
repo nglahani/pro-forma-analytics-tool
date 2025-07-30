@@ -75,7 +75,7 @@ class ProFormaAnalyticsError(Exception):
         error_code: Optional[ErrorCode] = None,
         context: Optional[Dict[str, Any]] = None,
         cause: Optional[Exception] = None,
-    ):
+    ) -> None:
         """
         Initialize the exception.
 
@@ -126,8 +126,8 @@ class DataNotFoundError(ProFormaAnalyticsError):
         parameter_name: Optional[str] = None,
         geographic_code: Optional[str] = None,
         date_range: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         context = kwargs.pop("context", {})
         if parameter_name:
             context["parameter_name"] = parameter_name
@@ -153,8 +153,8 @@ class ForecastError(ProFormaAnalyticsError):
         model_type: Optional[str] = None,
         parameter_name: Optional[str] = None,
         horizon_years: Optional[int] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         context = kwargs.pop("context", {})
         if model_type:
             context["model_type"] = model_type
@@ -179,8 +179,8 @@ class DatabaseError(ProFormaAnalyticsError):
         message: str = "Database operation failed",
         operation: Optional[str] = None,
         table_name: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         context = kwargs.pop("context", {})
         if operation:
             context["operation"] = operation
@@ -204,8 +204,8 @@ class ValidationError(ProFormaAnalyticsError):
         field_name: Optional[str] = None,
         field_value: Optional[Any] = None,
         expected_type: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         context = kwargs.pop("context", {})
         if field_name:
             context["field_name"] = field_name
@@ -230,8 +230,8 @@ class ConfigurationError(ProFormaAnalyticsError):
         message: str = "Configuration error",
         config_key: Optional[str] = None,
         config_file: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         context = kwargs.pop("context", {})
         if config_key:
             context["config_key"] = config_key
@@ -255,8 +255,8 @@ class APIError(ProFormaAnalyticsError):
         api_endpoint: Optional[str] = None,
         status_code: Optional[int] = None,
         response_data: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         context = kwargs.pop("context", {})
         if api_endpoint:
             context["api_endpoint"] = api_endpoint
@@ -281,8 +281,8 @@ class MonteCarloError(ProFormaAnalyticsError):
         message: str = "Monte Carlo simulation failed",
         num_scenarios: Optional[int] = None,
         simulation_id: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         context = kwargs.pop("context", {})
         if num_scenarios:
             context["num_scenarios"] = num_scenarios
@@ -305,8 +305,8 @@ class PropertyDataError(ProFormaAnalyticsError):
         message: str = "Property data error",
         property_id: Optional[str] = None,
         property_type: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         context = kwargs.pop("context", {})
         if property_id:
             context["property_id"] = property_id

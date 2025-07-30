@@ -88,7 +88,7 @@ def get_msas_by_state(state: str) -> Dict[str, MSAInfo]:
     return {code: info for code, info in ACTIVE_MSAS.items() 
             if state in info.state}
 
-def add_msa(msa_code: str, msa_info: MSAInfo):
+def add_msa(msa_code: str, msa_info: MSAInfo) -> None:
     """Add a new MSA to active collection (for expansion)."""
     ACTIVE_MSAS[msa_code] = msa_info
 

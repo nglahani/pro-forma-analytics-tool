@@ -41,7 +41,7 @@ class ScenarioMetrics:
     market_scenario: MarketScenario
     volatility_measures: Dict[str, float]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not 0 <= self.growth_score <= 1:
             raise ValueError("Growth score must be between 0 and 1")
         if not 0 <= self.risk_score <= 1:
@@ -57,7 +57,7 @@ class Scenario:
     metrics: ScenarioMetrics
     percentile_rank: Optional[float] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.parameter_values:
             raise ValueError("Scenario must contain parameter values")
 
@@ -92,7 +92,7 @@ class CorrelationMatrix:
     parameter_names: List[str]
     creation_date: date
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if len(self.matrix) != len(self.parameter_names):
             raise ValueError("Matrix dimensions must match parameter count")
 
@@ -147,7 +147,7 @@ class SimulationRequest:
     use_correlations: bool = True
     confidence_level: float = 0.95
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.num_scenarios <= 0:
             raise ValueError("Number of scenarios must be positive")
         if self.horizon_years <= 0:
@@ -168,7 +168,7 @@ class SimulationResult:
     simulation_date: date
     computation_time_seconds: float
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if len(self.scenarios) != self.request.num_scenarios:
             raise ValueError("Number of scenarios doesn't match request")
 
@@ -188,7 +188,12 @@ class SimulationResult:
 
         # Find scenario closest to target percentile
         closest_scenario = min(
-            scenarios_with_ranks, key=lambda s: abs(s.percentile_rank - percentile)
+            scenarios_with_ranks,
+            key=lambda s: (
+                abs(s.percentile_rank - percentile)
+                if s.percentile_rank is not None
+                else float("inf")
+            ),
         )
         return closest_scenario
 

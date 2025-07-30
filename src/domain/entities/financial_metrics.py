@@ -59,12 +59,12 @@ class TerminalValue:
     investor_terminal_distribution: float = 0.0
     operator_terminal_distribution: float = 0.0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate terminal value calculations."""
         self._validate_inputs()
         self._calculate_terminal_value()
 
-    def _validate_inputs(self):
+    def _validate_inputs(self) -> None:
         """Validate input parameters."""
         if self.year < 1 or self.year > 10:
             raise ValidationError("Exit year must be between 1 and 10")
@@ -75,7 +75,7 @@ class TerminalValue:
         if not (0.01 <= self.selling_costs_rate <= 0.10):
             raise ValidationError("Selling costs rate must be between 1% and 10%")
 
-    def _calculate_terminal_value(self):
+    def _calculate_terminal_value(self) -> None:
         """Calculate terminal value components."""
         # Gross property value = NOI / Cap Rate
         self.gross_property_value = (
@@ -111,12 +111,12 @@ class CashFlowSummary:
     # Total cash flows for analysis
     total_cash_flows: List[float] = field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate and compile cash flows."""
         self._validate_cash_flows()
         self._compile_total_cash_flows()
 
-    def _validate_cash_flows(self):
+    def _validate_cash_flows(self) -> None:
         """Validate cash flow inputs."""
         if self.initial_investment <= 0:
             raise ValidationError("Initial investment must be positive")
@@ -125,7 +125,7 @@ class CashFlowSummary:
         if len(self.annual_cash_flows) > 10:
             raise ValidationError("Cannot have more than 10 years of cash flows")
 
-    def _compile_total_cash_flows(self):
+    def _compile_total_cash_flows(self) -> None:
         """Compile total cash flows including initial investment and terminal value."""
         # Start with negative initial investment
         self.total_cash_flows = [-self.initial_investment]
@@ -188,20 +188,20 @@ class FinancialMetrics:
     loan_to_value_ratio: float = 0.0
     cap_rate_year_1: float = 0.0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate financial metrics after creation."""
         self._validate_identifiers()
         self._validate_financial_inputs()
         self._validate_metrics()
 
-    def _validate_identifiers(self):
+    def _validate_identifiers(self) -> None:
         """Validate required identifiers."""
         if not self.property_id:
             raise ValidationError("Property ID is required")
         if not self.scenario_id:
             raise ValidationError("Scenario ID is required")
 
-    def _validate_financial_inputs(self):
+    def _validate_financial_inputs(self) -> None:
         """Validate financial input parameters."""
         if self.initial_investment <= 0:
             raise ValidationError("Initial investment must be positive")
@@ -210,7 +210,7 @@ class FinancialMetrics:
         if not (1 <= self.investment_horizon_years <= 15):
             raise ValidationError("Investment horizon must be between 1 and 15 years")
 
-    def _validate_metrics(self):
+    def _validate_metrics(self) -> None:
         """Validate calculated metrics are reasonable."""
         if self.internal_rate_return < -1.0 or self.internal_rate_return > 5.0:
             raise ValidationError(

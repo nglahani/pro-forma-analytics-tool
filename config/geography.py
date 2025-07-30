@@ -24,11 +24,11 @@ class GeographicRegion:
 class GeographyManager:
     """Manages geographic regions and their identifiers."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.regions: Dict[str, GeographicRegion] = {}
         self._load_default_regions()
     
-    def _load_default_regions(self):
+    def _load_default_regions(self) -> None:
         """Load commonly used MSAs for real estate analysis."""
         default_msas = [
             # Major Real Estate Markets

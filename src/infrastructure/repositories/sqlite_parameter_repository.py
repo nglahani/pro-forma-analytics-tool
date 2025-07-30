@@ -11,6 +11,8 @@ from dataclasses import asdict
 from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional
 
+from core.exceptions import DatabaseError
+
 from ...domain.entities.forecast import (
     DataPoint,
     ForecastPoint,
@@ -37,29 +39,32 @@ class SQLiteParameterRepository(ParameterRepository):
 
     def _init_database(self) -> None:
         """Initialize database tables if they don't exist."""
-        with sqlite3.connect(self._db_path) as conn:
-            conn.execute(
+        try:
+            with sqlite3.connect(self._db_path) as conn:
+                conn.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS historical_data (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        parameter_name TEXT NOT NULL,
+                        geographic_code TEXT NOT NULL,
+                        parameter_type TEXT NOT NULL,
+                        date TEXT NOT NULL,
+                        value REAL NOT NULL,
+                        data_source TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        UNIQUE(parameter_name, geographic_code, date)
+                    )
                 """
-                CREATE TABLE IF NOT EXISTS historical_data (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    parameter_name TEXT NOT NULL,
-                    geographic_code TEXT NOT NULL,
-                    parameter_type TEXT NOT NULL,
-                    date TEXT NOT NULL,
-                    value REAL NOT NULL,
-                    data_source TEXT NOT NULL,
-                    created_at TEXT NOT NULL,
-                    UNIQUE(parameter_name, geographic_code, date)
                 )
-            """
-            )
 
-            conn.execute(
+                conn.execute(
+                    """
+                    CREATE INDEX IF NOT EXISTS idx_historical_data_lookup
+                    ON historical_data(parameter_name, geographic_code, date)
                 """
-                CREATE INDEX IF NOT EXISTS idx_historical_data_lookup
-                ON historical_data(parameter_name, geographic_code, date)
-            """
-            )
+                )
+        except sqlite3.Error as e:
+            raise DatabaseError(f"Failed to initialize database: {e}")
 
     def get_historical_data(
         self,

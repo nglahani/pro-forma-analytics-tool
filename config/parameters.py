@@ -44,11 +44,11 @@ class ParameterDefinition:
 class ParameterManager:
     """Manages investment parameter definitions and configurations."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.parameters: Dict[str, ParameterDefinition] = {}
         self._load_default_parameters()
     
-    def _load_default_parameters(self):
+    def _load_default_parameters(self) -> None:
         """Load default investment parameter definitions."""
         
         # Interest Rate Parameters
@@ -250,8 +250,9 @@ PRO_FORMA_PARAMETER_MAPPING = {
 
 def get_pro_forma_parameters() -> Dict[str, ParameterDefinition]:
     """Get parameter definitions mapped to pro forma assumptions."""
-    return {
-        excel_name: parameters.get_parameter(param_name)
-        for excel_name, param_name in PRO_FORMA_PARAMETER_MAPPING.items()
-        if parameters.get_parameter(param_name) is not None
-    }
+    result = {}
+    for excel_name, param_name in PRO_FORMA_PARAMETER_MAPPING.items():
+        param = parameters.get_parameter(param_name)
+        if param is not None:
+            result[excel_name] = param
+    return result

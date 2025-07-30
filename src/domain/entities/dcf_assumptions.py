@@ -46,14 +46,14 @@ class DCFAssumptions:
     preferred_return_rate: float = 0.06  # Default 6%
     self_cash_percentage: float = 0.0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate DCF assumptions after initialization."""
         self._validate_identifiers()
         self._validate_forecast_parameters()
         self._validate_static_parameters()
         self._validate_investment_structure()
 
-    def _validate_identifiers(self):
+    def _validate_identifiers(self) -> None:
         """Validate required identifiers."""
         if not self.scenario_id:
             raise ValidationError("Scenario ID is required")
@@ -62,7 +62,7 @@ class DCFAssumptions:
         if not self.property_id:
             raise ValidationError("Property ID is required")
 
-    def _validate_forecast_parameters(self):
+    def _validate_forecast_parameters(self) -> None:
         """Validate forecasted parameter arrays."""
         forecast_params = [
             ("commercial_mortgage_rate", self.commercial_mortgage_rate),
@@ -86,7 +86,7 @@ class DCFAssumptions:
             # Validate reasonable ranges
             self._validate_parameter_ranges(param_name, param_values)
 
-    def _validate_parameter_ranges(self, param_name: str, values: List[float]):
+    def _validate_parameter_ranges(self, param_name: str, values: List[float]) -> None:
         """Validate parameter values are within reasonable ranges."""
         range_checks = {
             "commercial_mortgage_rate": (0.01, 0.20),  # 1% to 20%
@@ -108,7 +108,7 @@ class DCFAssumptions:
                         f"[{min_val:.4f}, {max_val:.4f}]"
                     )
 
-    def _validate_static_parameters(self):
+    def _validate_static_parameters(self) -> None:
         """Validate static parameters."""
         if not (0.5 <= self.ltv_ratio <= 0.95):
             raise ValidationError("LTV ratio must be between 50% and 95%")
@@ -117,7 +117,7 @@ class DCFAssumptions:
         if not (1.0 <= self.lender_reserves_months <= 12.0):
             raise ValidationError("Lender reserves must be between 1 and 12 months")
 
-    def _validate_investment_structure(self):
+    def _validate_investment_structure(self) -> None:
         """Validate investment structure parameters."""
         if not (0.0 <= self.investor_equity_share <= 1.0):
             raise ValidationError("Investor equity share must be between 0% and 100%")

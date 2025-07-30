@@ -514,6 +514,39 @@ When creating or updating documentation in this repository, adhere to the follow
 - Provide clear examples and usage patterns where applicable
 - Maintain version compatibility information and migration guides
 
+### Comprehensive Documentation Analysis Protocol
+
+When analyzing or updating documentation, Claude Code MUST perform comprehensive analysis across ALL markdown files in the repository:
+
+#### Required Documentation Analysis Steps
+1. **Repository-Wide Search**: Use `Glob` tool to find all `**/*.md` files across the entire repository
+2. **Comprehensive Review**: Read ALL relevant documentation files, not just root-level files
+3. **Cross-Reference Analysis**: Check for consistency across all documentation sources
+4. **Gap Identification**: Identify missing or outdated information across all docs
+5. **Redundancy Detection**: Find duplicate or conflicting information across files
+
+#### Documentation File Categories to Analyze
+- **Root Level**: README.md, CLAUDE.md, CONTRIBUTING.md
+- **Primary Docs**: `/docs/*.md` - All technical documentation
+- **Module Docs**: `/src/README.md`, `/tests/README.md`, `/core/README.md`, etc.
+- **Database Docs**: `/data/databases/README.md`, `/data/databases/schemas/README.md`
+- **Specialized Docs**: `/scripts/README.md`, `/validation_charts/*.md`
+- **Configuration Docs**: Any workflow or config documentation
+
+#### Documentation Consistency Requirements
+- **Testing Commands**: Ensure all documentation shows consistent, current testing procedures
+- **CI/CD References**: Validate all pipeline documentation matches actual workflows
+- **Installation Procedures**: Verify setup instructions are consistent across all docs
+- **Architecture References**: Ensure all architectural documentation aligns
+- **Development Workflows**: Validate development process documentation consistency
+
+#### Analysis Output Requirements
+- **Status Assessment**: Current vs. required documentation state
+- **Gap Analysis**: Missing or outdated information identification
+- **Consistency Review**: Cross-document alignment validation
+- **Update Recommendations**: Specific files and sections requiring updates
+- **Priority Classification**: Critical vs. minor documentation issues
+
 ---
 
 ## Collaborative Development Workflow

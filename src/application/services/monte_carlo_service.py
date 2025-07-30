@@ -7,7 +7,7 @@ Orchestrates Monte Carlo simulation workflows using clean architecture principle
 import logging
 import time
 from datetime import date
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 if TYPE_CHECKING:
     from monte_carlo.simulation_engine import MonteCarloEngine
@@ -175,7 +175,7 @@ class MonteCarloApplicationService:
     def validate_simulation_quality(
         self,
         simulation_result: SimulationResult,
-        quality_checks: Optional[Dict[str, any]] = None,
+        quality_checks: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, bool]:
         """
         Validate simulation quality and completeness.

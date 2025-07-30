@@ -1,8 +1,19 @@
 """
-Cash Flow Projection Service
+Cash Flow Projection Service - PHASE 3 of 4
 
-Application service that calculates Years 0-5 cash flow projections
-from DCF assumptions and initial numbers.
+BUSINESS PROCESS:
+Phase 3 models the property's cash flows over 6 years (Year 0-5) including rental income,
+expenses, debt service, and waterfall distributions to investors.
+
+WHAT IT DOES:
+- Projects rental income growth and vacancy losses year by year
+- Calculates operating expenses (management, maintenance, taxes, insurance)
+- Models debt service payments (principal & interest)
+- Computes waterfall distributions between investors and operators
+- Handles renovation periods with income interruption
+
+EXAMPLE FLOW:
+Initial Numbers + Assumptions → Year 1: $180K NOI, Year 2: $190K NOI → Cash Flow Projection
 """
 
 from typing import Any, Dict, List
@@ -21,7 +32,7 @@ from src.domain.entities.initial_numbers import InitialNumbers
 class CashFlowProjectionService:
     """Service for calculating cash flow projections and waterfall distributions."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = get_logger(__name__)
 
     def calculate_cash_flow_projection(

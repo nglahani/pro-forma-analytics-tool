@@ -54,7 +54,7 @@ class QueryCache:
         # Initialize persistent cache database
         self._init_persistent_cache()
 
-    def _init_persistent_cache(self):
+    def _init_persistent_cache(self) -> None:
         """Initialize SQLite database for persistent caching."""
 
         self.cache_db_path = self.cache_dir / "query_cache.db"
@@ -115,7 +115,7 @@ class QueryCache:
         """Check if a cache entry has expired."""
         return datetime.now() > expires_at
 
-    def _evict_memory_cache(self):
+    def _evict_memory_cache(self) -> None:
         """Evict least recently used entries from memory cache."""
 
         if len(self._memory_cache) <= self.max_memory_entries:
@@ -434,7 +434,9 @@ def get_query_cache() -> QueryCache:
     return _global_cache
 
 
-def cached_query(ttl_seconds: int = 3600, cache_key_extra: Optional[Dict] = None):
+def cached_query(
+    ttl_seconds: int = 3600, cache_key_extra: Optional[Dict] = None
+) -> Any:
     """
     Decorator for caching database query results.
 
@@ -443,9 +445,9 @@ def cached_query(ttl_seconds: int = 3600, cache_key_extra: Optional[Dict] = None
         cache_key_extra: Additional context for cache key generation
     """
 
-    def decorator(func):
+    def decorator(func) -> Any:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             cache = get_query_cache()
 
             # Generate cache key from function name and arguments

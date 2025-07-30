@@ -62,7 +62,7 @@ class InitialNumbers:
     investor_equity_share: float = 0.0
     preferred_return_rate: float = 0.0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate initial numbers after creation."""
         self._validate_identifiers()
         self._validate_purchase_details()
@@ -71,14 +71,14 @@ class InitialNumbers:
         self._validate_income_structure()
         self._validate_operating_expenses()
 
-    def _validate_identifiers(self):
+    def _validate_identifiers(self) -> None:
         """Validate required identifiers."""
         if not self.property_id:
             raise ValidationError("Property ID is required")
         if not self.scenario_id:
             raise ValidationError("Scenario ID is required")
 
-    def _validate_purchase_details(self):
+    def _validate_purchase_details(self) -> None:
         """Validate purchase and acquisition details."""
         if self.purchase_price <= 0:
             raise ValidationError("Purchase price must be positive")
@@ -99,7 +99,7 @@ class InitialNumbers:
                 f"expected calculation ({expected_cost_basis:,.2f})"
             )
 
-    def _validate_financing(self):
+    def _validate_financing(self) -> None:
         """Validate financing calculations."""
         if self.loan_amount < 0:
             raise ValidationError("Loan amount cannot be negative")
@@ -110,7 +110,7 @@ class InitialNumbers:
         if self.lender_reserves_amount < 0:
             raise ValidationError("Lender reserves cannot be negative")
 
-    def _validate_equity_structure(self):
+    def _validate_equity_structure(self) -> None:
         """Validate equity requirements and structure."""
         if self.total_cash_required <= 0:
             raise ValidationError("Total cash required must be positive")
@@ -132,7 +132,7 @@ class InitialNumbers:
         if not (0.0 <= self.preferred_return_rate <= 0.25):
             raise ValidationError("Preferred return rate must be between 0% and 25%")
 
-    def _validate_income_structure(self):
+    def _validate_income_structure(self) -> None:
         """Validate income calculations."""
         if self.pre_renovation_annual_rent < 0:
             raise ValidationError("Pre-renovation rent cannot be negative")
@@ -143,7 +143,7 @@ class InitialNumbers:
         if self.initial_cap_rate < 0:
             raise ValidationError("Initial cap rate cannot be negative")
 
-    def _validate_operating_expenses(self):
+    def _validate_operating_expenses(self) -> None:
         """Validate operating expense calculations."""
         expense_components = [
             self.property_taxes,

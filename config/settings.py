@@ -5,7 +5,7 @@ Manages application-wide settings including forecast horizons,
 database connections, API configurations, and update schedules.
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 from pathlib import Path
 import os
@@ -31,9 +31,9 @@ class MonteCarloSettings:
     default_num_simulations: int = 10000
     correlation_window_years: int = 5
     seed: int = 42
-    percentiles: List[float] = None
+    percentiles: Optional[List[float]] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.percentiles is None:
             self.percentiles = [5, 10, 25, 50, 75, 90, 95]
 
@@ -61,7 +61,7 @@ class APISettings:
     retry_attempts: int = 3
     cache_duration_hours: int = 24
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Try to load API key from multiple sources (priority order)
         # 1. Environment variable (highest priority)
         self.fred_api_key = os.getenv("FRED_API_KEY", self.fred_api_key)
@@ -81,13 +81,13 @@ class APISettings:
 @dataclass
 class UpdateSchedule:
     """Data update schedule configuration."""
-    monthly_parameters: List[str] = None
-    quarterly_parameters: List[str] = None
-    annual_parameters: List[str] = None
+    monthly_parameters: Optional[List[str]] = None
+    quarterly_parameters: Optional[List[str]] = None
+    annual_parameters: Optional[List[str]] = None
     auto_update_enabled: bool = True
     update_time_hour: int = 2  # 2 AM local time
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.monthly_parameters is None:
             self.monthly_parameters = [
                 "treasury_10y", 
@@ -109,7 +109,7 @@ class UpdateSchedule:
 class Settings:
     """Main settings manager."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.forecast = ForecastSettings()
         self.monte_carlo = MonteCarloSettings()
         self.database = DatabaseSettings()
@@ -122,11 +122,11 @@ class Settings:
         return (self.forecast.min_horizon_years <= years <= 
                 self.forecast.max_horizon_years)
     
-    def get_data_path(self, *path_parts) -> Path:
+    def get_data_path(self, *path_parts: str) -> Path:
         """Get path relative to project data directory."""
         return self.project_root / "data" / Path(*path_parts)
     
-    def get_cache_path(self, *path_parts) -> Path:
+    def get_cache_path(self, *path_parts: str) -> Path:
         """Get path relative to cache directory."""
         return self.project_root / "data" / "cache" / Path(*path_parts)
     
@@ -137,7 +137,7 @@ class Settings:
                 "min_horizon_years": self.forecast.min_horizon_years,
                 "max_horizon_years": self.forecast.max_horizon_years,
                 "default_horizon_years": self.forecast.default_horizon_years,
-                "confidence_intervals": self.forecast.confidence_intervals
+                "confidence_interval": self.forecast.confidence_interval
             },
             "monte_carlo": {
                 "default_num_simulations": self.monte_carlo.default_num_simulations,
@@ -163,7 +163,7 @@ def validate_api_key(api_key: str) -> bool:
     """Validate FRED API key format."""
     return len(api_key) == 32 and api_key.isalnum()
 
-def create_directories():
+def create_directories() -> None:
     """Create necessary directories if they don't exist."""
     directories = [
         settings.get_data_path("databases"),
@@ -188,7 +188,7 @@ PRODUCTION_CONFIG = {
     "cache_duration_hours": 24
 }
 
-def apply_config(config_name: str = "development"):
+def apply_config(config_name: str = "development") -> None:
     """Apply environment-specific configuration."""
     config = DEVELOPMENT_CONFIG if config_name == "development" else PRODUCTION_CONFIG
     

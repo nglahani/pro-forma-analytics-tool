@@ -63,7 +63,7 @@ class ResidentialUnits:
     unit_types: Optional[str] = None  # JSON string for database compatibility
     average_square_feet_per_unit: Optional[float] = None  # Match database schema
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.total_units <= 0:
             raise ValidationError("Residential units must be positive")
         if self.average_rent_per_unit <= 0:
@@ -84,7 +84,7 @@ class CommercialUnits:
     unit_types: Optional[str] = None  # JSON string for database compatibility
     average_square_feet_per_unit: Optional[float] = None  # Match database schema
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.total_units <= 0:
             raise ValidationError("Commercial units must be positive")
         if self.average_rent_per_unit <= 0:
@@ -107,7 +107,7 @@ class RenovationInfo:
     estimated_cost: Optional[float] = None
     description: Optional[str] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.status in [RenovationStatus.PLANNED, RenovationStatus.IN_PROGRESS]:
             if not self.anticipated_duration_months:
                 raise ValidationError(
@@ -131,7 +131,7 @@ class InvestorEquityStructure:
     number_of_investors: int = 1  # Match database schema
     investment_structure: Optional[str] = None  # JSON string for database compatibility
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not 0 <= self.investor_equity_share_pct <= 100:
             raise ValidationError("Investor equity share must be between 0 and 100%")
         if not 0 <= self.self_cash_percentage <= 100:
@@ -152,7 +152,7 @@ class PropertyPhysicalInfo:
     stories: Optional[int] = None
     lot_size_sf: Optional[int] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.total_units <= 0:
             raise ValidationError("Total units must be positive")
         if self.total_square_feet <= 0:
@@ -169,7 +169,7 @@ class PropertyFinancialInfo:
     estimated_renovation_cost: Optional[float] = None
     closing_costs: Optional[float] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.purchase_price <= 0:
             raise ValidationError("Purchase price must be positive")
         if not 0 <= self.down_payment_pct <= 1:
@@ -189,7 +189,7 @@ class PropertyLocationInfo:
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.address.strip():
             raise ValidationError("Address is required")
         if not self.city.strip():
@@ -213,7 +213,7 @@ class PropertyOperatingInfo:
     annual_expense_growth_pct: float = 0.025
     exit_cap_rate: Optional[float] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not 0 <= self.vacancy_rate_pct <= 1:
             raise ValidationError("Vacancy rate must be between 0 and 1")
 
@@ -239,7 +239,7 @@ class PropertyInputData:
     operating_info: PropertyOperatingInfo
     notes: Optional[str] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.property_id:
             self.property_id = f"PROP_{uuid.uuid4().hex[:8].upper()}"
         if not self.property_name.strip():
@@ -273,7 +273,7 @@ class SimplifiedPropertyInput:
     property_address: Optional[str] = None
     notes: Optional[str] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.property_id:
             self.property_id = f"USER_{uuid.uuid4().hex[:8].upper()}"
         if not self.property_name.strip():
@@ -461,7 +461,7 @@ class PropertyDataManager:
     Handles property lifecycle management and data operations.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.properties: Dict[
             str, Union[PropertyInputData, SimplifiedPropertyInput]
         ] = {}
@@ -503,7 +503,7 @@ class PropertyDataManager:
         """Get all mixed-use properties."""
         return [p for p in self.get_simplified_properties() if p.is_mixed_use()]
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear all properties."""
         self.properties.clear()
 

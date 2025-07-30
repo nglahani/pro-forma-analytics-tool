@@ -37,7 +37,7 @@ class ParameterId:
     geographic_code: str
     parameter_type: ParameterType
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.name or not self.geographic_code:
             raise ValueError("Parameter name and geographic code are required")
 
@@ -51,7 +51,7 @@ class DataPoint:
     value: float
     data_source: str
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.value is None:
             raise ValueError("Data point value cannot be None")
 
@@ -65,7 +65,7 @@ class HistoricalData:
     start_date: date
     end_date: date
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.data_points:
             raise ValueError("Historical data must contain at least one data point")
 
@@ -129,7 +129,7 @@ class ForecastResult:
     horizon_years: int
     historical_data_points: int
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.forecast_points:
             raise ValueError("Forecast must contain at least one point")
 
@@ -167,7 +167,7 @@ class ForecastRequest:
     model_type: str = "prophet"
     confidence_level: float = 0.95
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.horizon_years <= 0:
             raise ValueError("Forecast horizon must be positive")
 

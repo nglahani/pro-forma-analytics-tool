@@ -1,8 +1,17 @@
 """
-DCF Assumptions Service
+DCF Assumptions Service - PHASE 1 of 4
 
-Application service that converts Monte Carlo scenarios and property data
-into DCF assumptions for financial analysis.
+BUSINESS PROCESS:
+Phase 1 converts Monte Carlo market scenarios into DCF financial assumptions.
+
+WHAT IT DOES:
+- Takes probabilistic market forecasts (interest rates, cap rates, growth rates)
+- Converts them into specific financial parameters for this property
+- Validates all assumptions against business rules
+- Outputs structured DCF assumptions for Phase 2
+
+EXAMPLE FLOW:
+Monte Carlo Input → Interest Rate: 7.2%, Cap Rate: 6.1% → DCF Assumptions
 """
 
 from datetime import date
@@ -21,7 +30,7 @@ from src.domain.entities.property_data import SimplifiedPropertyInput
 class DCFAssumptionsService:
     """Service for creating and managing DCF assumptions."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = get_logger(__name__)
 
     def create_dcf_assumptions_from_scenario(
@@ -231,7 +240,7 @@ class DCFAssumptionsService:
 
         return issues
 
-    def _validate_scenario_structure(self, scenario: Dict[str, Any]):
+    def _validate_scenario_structure(self, scenario: Dict[str, Any]) -> None:
         """Validate that scenario has required structure."""
         if "forecasted_parameters" not in scenario:
             raise ValidationError("Scenario missing 'forecasted_parameters'")

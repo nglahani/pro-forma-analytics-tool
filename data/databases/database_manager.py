@@ -18,7 +18,7 @@ from config.settings import settings
 class DatabaseManager:
     """Manages SQLite database connections and operations."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
         self.db_configs = {
             'market_data': settings.database.market_data_db,
@@ -37,7 +37,7 @@ class DatabaseManager:
         return Path(settings.database.base_path) / self.db_configs[db_name]
     
     @contextmanager
-    def get_connection(self, db_name: str):
+    def get_connection(self, db_name: str) -> Any:
         """Context manager for database connections."""
         db_path = self.get_db_path(db_name)
         conn = sqlite3.connect(str(db_path))

@@ -50,19 +50,19 @@ class AnnualCashFlow:
     # Net Cash Flow (available for distribution)
     net_cash_flow: float = 0.0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate annual cash flow calculations."""
         self._validate_year()
         self._validate_income_calculations()
         self._validate_expense_calculations()
         self._validate_cash_flow_calculations()
 
-    def _validate_year(self):
+    def _validate_year(self) -> None:
         """Validate year is in valid range."""
         if not (0 <= self.year <= 5):
             raise ValidationError(f"Year must be between 0-5, got {self.year}")
 
-    def _validate_income_calculations(self):
+    def _validate_income_calculations(self) -> None:
         """Validate income calculations are consistent."""
         if self.gross_rental_income < 0:
             raise ValidationError("Gross rental income cannot be negative")
@@ -77,7 +77,7 @@ class AnnualCashFlow:
                 f"doesn't match calculation ({expected_egi:,.2f})"
             )
 
-    def _validate_expense_calculations(self):
+    def _validate_expense_calculations(self) -> None:
         """Validate operating expense calculations."""
         expense_components = [
             self.property_taxes,
@@ -100,7 +100,7 @@ class AnnualCashFlow:
                 f"doesn't match sum of components ({expected_total:,.2f})"
             )
 
-    def _validate_cash_flow_calculations(self):
+    def _validate_cash_flow_calculations(self) -> None:
         """Validate cash flow calculations are consistent."""
         if self.annual_debt_service < 0:
             raise ValidationError("Annual debt service cannot be negative")
@@ -157,18 +157,18 @@ class WaterfallDistribution:
     # Remaining cash (if any)
     remaining_cash: float = 0.0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate waterfall distribution calculations."""
         self._validate_year()
         self._validate_amounts()
         self._validate_distribution_calculations()
 
-    def _validate_year(self):
+    def _validate_year(self) -> None:
         """Validate year is in valid range."""
         if not (0 <= self.year <= 5):
             raise ValidationError(f"Year must be between 0-5, got {self.year}")
 
-    def _validate_amounts(self):
+    def _validate_amounts(self) -> None:
         """Validate all amounts are non-negative."""
         amounts = {
             "available_cash": self.available_cash,
@@ -188,7 +188,7 @@ class WaterfallDistribution:
                     f"Distribution amount '{name}' cannot be negative: {amount}"
                 )
 
-    def _validate_distribution_calculations(self):
+    def _validate_distribution_calculations(self) -> None:
         """Validate distribution calculations are consistent."""
         # Check total distribution
         expected_total = (
@@ -239,7 +239,7 @@ class CashFlowProjection:
     total_investor_distributions: float = 0.0
     total_operator_distributions: float = 0.0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate cash flow projection after creation."""
         self._validate_identifiers()
         self._validate_investment_structure()
@@ -247,21 +247,21 @@ class CashFlowProjection:
         self._validate_waterfall_distributions()
         self._calculate_summary_metrics()
 
-    def _validate_identifiers(self):
+    def _validate_identifiers(self) -> None:
         """Validate required identifiers."""
         if not self.property_id:
             raise ValidationError("Property ID is required")
         if not self.scenario_id:
             raise ValidationError("Scenario ID is required")
 
-    def _validate_investment_structure(self):
+    def _validate_investment_structure(self) -> None:
         """Validate investment structure parameters."""
         if not (0.0 <= self.investor_equity_share <= 1.0):
             raise ValidationError("Investor equity share must be between 0% and 100%")
         if not (0.0 <= self.preferred_return_rate <= 0.25):
             raise ValidationError("Preferred return rate must be between 0% and 25%")
 
-    def _validate_annual_cash_flows(self):
+    def _validate_annual_cash_flows(self) -> None:
         """Validate annual cash flows are complete and sequential."""
         if len(self.annual_cash_flows) != 6:
             raise ValidationError("Must have exactly 6 annual cash flows (Years 0-5)")
@@ -272,7 +272,7 @@ class CashFlowProjection:
                     f"Cash flow {i} has incorrect year {cash_flow.year}"
                 )
 
-    def _validate_waterfall_distributions(self):
+    def _validate_waterfall_distributions(self) -> None:
         """Validate waterfall distributions are complete and sequential."""
         if len(self.waterfall_distributions) != 6:
             raise ValidationError(
@@ -285,7 +285,7 @@ class CashFlowProjection:
                     f"Distribution {i} has incorrect year {distribution.year}"
                 )
 
-    def _calculate_summary_metrics(self):
+    def _calculate_summary_metrics(self) -> None:
         """Calculate summary metrics from annual cash flows."""
         self.total_gross_income = sum(
             cf.gross_rental_income for cf in self.annual_cash_flows
