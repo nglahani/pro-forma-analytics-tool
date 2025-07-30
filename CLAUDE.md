@@ -82,6 +82,8 @@ src/
 - **BDD/TDD**: Behavior-driven development with given/when/then patterns
 
 ### Build Commands
+
+#### Local Development (Windows)
 ```bash
 # Test execution
 python -m pytest tests/ -v
@@ -89,11 +91,22 @@ python demo_end_to_end_workflow.py
 
 # Code quality
 black src/ tests/
+isort src/ tests/
 flake8 src/ tests/
 mypy src/
 
 # Coverage analysis
 pytest --cov=src --cov=core --cov=monte_carlo
+```
+
+#### Linux Compatibility Validation
+```bash
+# Validate Linux compatibility before pushing
+scripts\validate-linux.bat    # Windows
+./scripts/validate-linux.sh   # Unix/Mac
+
+# Manual Docker validation
+docker build -f Dockerfile.test -t proforma-test .
 ```
 
 ## Recent Enhancements (v1.3)
@@ -140,6 +153,44 @@ pytest --cov=src --cov=core --cov=monte_carlo
 - **Current**: `SimplifiedPropertyInput` in `src/domain/entities/property_data.py`
 - **Legacy**: `PropertyInputData` has been removed and replaced with modern implementation
 - **Required Fields**: 7 core inputs (residential units, renovation time, commercial units, equity share, rent rates, cash percentage)
+
+## CI/CD Pipeline and Development Workflow
+
+### Streamlined Linux-Focused CI/CD
+
+**Pipeline Design**: Optimized for Linux deployment with simplified validation workflow
+- **Platform**: Ubuntu Linux only (eliminates cross-platform complexity)
+- **Python Versions**: 3.9, 3.10, 3.11 (focused on production-relevant versions)
+- **Execution Time**: ~3-5 minutes (reduced from 10+ minutes)
+- **Jobs**: 2 parallel jobs (test + production-validation)
+
+### Development Workflow
+
+#### 1. Local Development (Windows)
+```bash
+# Normal development cycle
+python -m pytest tests/ -v           # Quick local testing
+python demo_end_to_end_workflow.py   # Validate DCF engine
+black src/ tests/                    # Code formatting
+```
+
+#### 2. Linux Compatibility Check (Pre-Push)
+```bash
+# Validate Linux compatibility
+scripts\validate-linux.bat           # Full Linux validation
+git push origin main                 # Push with confidence
+```
+
+#### 3. CI/CD Pipeline (Automatic)
+- **Test Job**: Code quality, type checking, comprehensive tests across Python versions
+- **Production Validation**: Security, architecture, build validation, 95% coverage enforcement
+
+### Docker Integration
+
+**Purpose**: Local Linux compatibility validation without workflow disruption
+- **File**: `Dockerfile.test` - Lightweight Linux testing container
+- **Usage**: On-demand validation before pushing changes
+- **Benefits**: Catch platform-specific issues early, maintain Windows development workflow
 
 ## Development Guidelines
 

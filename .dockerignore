@@ -1,0 +1,84 @@
+# Docker ignore file to optimize build context and security
+
+# Version control
+.git/
+.gitignore
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing and coverage
+.coverage
+.pytest_cache/
+.cache/
+htmlcov/
+.tox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Documentation
+docs/_build/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Docker files (avoid recursion)
+Dockerfile*
+.dockerignore
+
+# Local development files
+.env.local
+.env.development
+config/local_settings.py
+
+# Large data files (if any)
+data/large_datasets/
+*.parquet
+*.csv.gz

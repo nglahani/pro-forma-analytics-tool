@@ -1,0 +1,45 @@
+# Docker container for Linux compatibility testing
+# Usage: docker build -f Dockerfile.test -t proforma-test . && docker run --rm proforma-test
+
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies for Prophet and scientific packages
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir pytest pytest-cov black flake8 mypy isort
+
+# Copy source code
+COPY . .
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Run comprehensive validation
+RUN echo "🔍 Running Linux compatibility validation..." && \
+    black --check src/ tests/ && \
+    echo "✅ Code formatting: PASS" && \
+    isort --check-only --profile black src/ tests/ && \
+    echo "✅ Import sorting: PASS" && \
+    flake8 src/ tests/ && \
+    echo "✅ Linting: PASS" && \
+    mypy src/ --ignore-missing-imports && \
+    echo "✅ Type checking: PASS" && \
+    pytest tests/ -v && \
+    echo "✅ Test suite: PASS" && \
+    python demo_end_to_end_workflow.py && \
+    echo "✅ End-to-end workflow: PASS" && \
+    echo "🎉 All Linux compatibility checks passed!"
+
+# Default command for interactive use
+CMD ["bash"]
