@@ -9,7 +9,7 @@ import logging
 import sqlite3
 from dataclasses import asdict
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from ...domain.entities.forecast import (
     DataPoint,

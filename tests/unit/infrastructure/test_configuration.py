@@ -6,7 +6,6 @@ Tests the dependency injection configuration for repositories and services.
 
 import os
 import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -17,7 +16,6 @@ from src.domain.repositories.parameter_repository import (
 )
 from src.domain.repositories.simulation_repository import SimulationRepository
 from src.infrastructure.configuration import (
-    configure_repositories,
     configure_test_container,
     get_configured_container,
 )

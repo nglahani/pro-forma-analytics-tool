@@ -8,7 +8,6 @@ ensuring all 4 phases work together correctly.
 from datetime import date
 from typing import Any, Dict, List
 
-import pytest
 
 from src.application.services.cash_flow_projection_service import (
     CashFlowProjectionService,
@@ -16,10 +15,8 @@ from src.application.services.cash_flow_projection_service import (
 from src.application.services.dcf_assumptions_service import DCFAssumptionsService
 from src.application.services.financial_metrics_service import FinancialMetricsService
 from src.application.services.initial_numbers_service import InitialNumbersService
-from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.financial_metrics import InvestmentRecommendation, RiskLevel
 from src.domain.entities.property_data import (
-    CommercialUnits,
     InvestorEquityStructure,
     RenovationInfo,
     RenovationStatus,

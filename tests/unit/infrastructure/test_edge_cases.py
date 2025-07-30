@@ -12,7 +12,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from core.exceptions import ConfigurationError, DatabaseError
+from core.exceptions import DatabaseError
 from src.infrastructure.configuration import configure_test_container
 from src.infrastructure.repositories.sqlite_parameter_repository import (
     SQLiteParameterRepository,

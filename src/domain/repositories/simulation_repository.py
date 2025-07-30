@@ -8,11 +8,7 @@ from abc import ABC, abstractmethod
 from datetime import date
 from typing import Dict, List, Optional
 
-from ..entities.monte_carlo import (
-    CorrelationMatrix,
-    SimulationRequest,
-    SimulationResult,
-)
+from ..entities.monte_carlo import SimulationResult
 
 
 class SimulationRepository(ABC):

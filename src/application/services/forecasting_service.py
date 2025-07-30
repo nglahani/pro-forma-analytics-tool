@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 from ...domain.entities.forecast import (
     ForecastRequest,
     ForecastResult,
-    HistoricalData,
     ParameterId,
 )
 from ...domain.repositories.parameter_repository import (

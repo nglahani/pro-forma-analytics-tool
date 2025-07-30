@@ -5,7 +5,6 @@ Implements IoC container for clean architecture dependency management.
 """
 
 import logging
-from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Type
 
 

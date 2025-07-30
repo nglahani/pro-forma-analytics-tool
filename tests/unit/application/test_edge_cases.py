@@ -6,12 +6,10 @@ in the application services.
 """
 
 from datetime import date
-from decimal import Decimal
-from unittest.mock import Mock, patch
 
 import pytest
 
-from core.exceptions import DataNotFoundError, ForecastError, ValidationError
+from core.exceptions import ValidationError
 from src.application.services.cash_flow_projection_service import (
     CashFlowProjectionService,
 )
@@ -21,12 +19,6 @@ from src.application.services.initial_numbers_service import InitialNumbersServi
 from src.domain.entities.cash_flow_projection import AnnualCashFlow, CashFlowProjection
 from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.initial_numbers import InitialNumbers
-from src.domain.entities.monte_carlo import (
-    MarketScenario,
-    Scenario,
-    ScenarioId,
-    ScenarioMetrics,
-)
 from src.domain.entities.property_data import SimplifiedPropertyInput
 
 

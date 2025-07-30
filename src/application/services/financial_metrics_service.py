@@ -7,11 +7,7 @@ NPV, IRR, and investment recommendations from cash flow projections.
 
 from typing import Any, Dict, List, Tuple
 
-from config.dcf_constants import (
-    FINANCIAL_CONSTANTS,
-    INVESTMENT_THRESHOLDS,
-    RISK_THRESHOLDS,
-)
+from config.dcf_constants import FINANCIAL_CONSTANTS
 from core.exceptions import ValidationError
 from core.logging_config import get_logger
 from src.domain.entities.cash_flow_projection import CashFlowProjection

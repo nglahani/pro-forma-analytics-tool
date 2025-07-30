@@ -7,7 +7,7 @@ from property data and DCF assumptions.
 
 from typing import Any, Dict
 
-from config.dcf_constants import FINANCIAL_CONSTANTS, VALIDATION_CONSTANTS
+from config.dcf_constants import FINANCIAL_CONSTANTS
 from core.exceptions import ValidationError
 from core.logging_config import get_logger
 from src.domain.entities.dcf_assumptions import DCFAssumptions

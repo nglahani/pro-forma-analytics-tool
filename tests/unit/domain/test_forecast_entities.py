@@ -4,16 +4,13 @@ Unit Tests for Forecast Domain Entities
 Tests the core business entities following TDD/BDD principles.
 """
 
-from datetime import date, datetime
-from unittest import TestCase
+from datetime import date
 
 import pytest
 
 from src.domain.entities.forecast import (
     DataPoint,
-    ForecastPoint,
     ForecastRequest,
-    ForecastResult,
     HistoricalData,
     ModelPerformance,
     ParameterId,

@@ -5,7 +5,7 @@ Provides a caching layer over the SQLite parameter repository
 for improved performance on frequently accessed data.
 """
 
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 

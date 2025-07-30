@@ -8,10 +8,7 @@ against various test cases and scenarios.
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List
-
 import numpy as np
-import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent

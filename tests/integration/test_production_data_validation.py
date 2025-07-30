@@ -7,7 +7,6 @@ have adequate production-grade data coverage.
 
 import sqlite3
 import unittest
-from datetime import datetime, timedelta
 
 import pandas as pd
 

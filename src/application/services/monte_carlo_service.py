@@ -14,7 +14,6 @@ if TYPE_CHECKING:
 
 from ...domain.entities.forecast import ParameterId, ParameterType
 from ...domain.entities.monte_carlo import (
-    CorrelationMatrix,
     SimulationRequest,
     SimulationResult,
 )

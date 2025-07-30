@@ -7,7 +7,7 @@ Corresponds to "Initial Numbers" section in Excel pro forma.
 
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from core.exceptions import ValidationError
 

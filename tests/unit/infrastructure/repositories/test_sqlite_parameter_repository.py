@@ -7,7 +7,6 @@ Tests the infrastructure layer implementation of parameter repository.
 import os
 import tempfile
 from datetime import date, datetime
-from pathlib import Path
 
 import pytest
 

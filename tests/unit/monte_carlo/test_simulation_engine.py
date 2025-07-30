@@ -5,12 +5,12 @@ Tests the monte_carlo.simulation_engine module following BDD/TDD principles.
 """
 
 from datetime import date
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pytest
 
-from core.exceptions import DataNotFoundError, MonteCarloError
+from core.exceptions import MonteCarloError
 from monte_carlo.simulation_engine import (
     MonteCarloEngine,
     MonteCarloResults,

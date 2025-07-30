@@ -10,7 +10,7 @@ import sqlite3
 import tempfile
 from datetime import date, datetime
 from pathlib import Path
-from unittest.mock import MagicMock, Mock
+from unittest.mock import Mock
 
 import pytest
 

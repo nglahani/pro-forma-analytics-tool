@@ -4,7 +4,6 @@ Unit tests for Cash Flow Projection functionality.
 Tests the calculation of annual cash flows and waterfall distributions.
 """
 
-from datetime import date
 
 import pytest
 

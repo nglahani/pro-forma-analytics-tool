@@ -8,9 +8,8 @@ for Monte Carlo simulation data persistence.
 import json
 import logging
 import sqlite3
-from dataclasses import asdict
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from ...domain.entities.monte_carlo import (
     CorrelationMatrix,

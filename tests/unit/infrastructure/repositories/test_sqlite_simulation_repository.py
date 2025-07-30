@@ -6,8 +6,7 @@ Tests the infrastructure layer implementation of simulation repository.
 
 import os
 import tempfile
-from datetime import date, datetime
-from pathlib import Path
+from datetime import date
 
 import pytest
 

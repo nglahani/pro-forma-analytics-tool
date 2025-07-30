@@ -4,7 +4,6 @@ Unit tests for Financial Metrics functionality.
 Tests the calculation of NPV, IRR, and investment recommendations.
 """
 
-from datetime import date
 
 import pytest
 

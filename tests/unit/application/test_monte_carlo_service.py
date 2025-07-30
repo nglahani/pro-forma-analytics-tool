@@ -9,7 +9,6 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from core.exceptions import ValidationError
 from src.application.services.monte_carlo_service import MonteCarloApplicationService
 from src.domain.entities.monte_carlo import (
     CorrelationMatrix,

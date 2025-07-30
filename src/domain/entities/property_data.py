@@ -6,12 +6,12 @@ Supports both legacy PropertyInputData and simplified user input requirements.
 """
 
 import uuid
-from dataclasses import dataclass, field
-from datetime import date, datetime
+from dataclasses import dataclass
+from datetime import date
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
-from core.exceptions import PropertyDataError, ValidationError
+from core.exceptions import ValidationError
 from core.logging_config import get_logger
 
 logger = get_logger(__name__)

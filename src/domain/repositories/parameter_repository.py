@@ -6,9 +6,9 @@ Abstracts data access for historical parameter data and forecasts.
 
 from abc import ABC, abstractmethod
 from datetime import date
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
-from ..entities.forecast import DataPoint, ForecastResult, HistoricalData, ParameterId
+from ..entities.forecast import ForecastResult, HistoricalData, ParameterId
 
 
 class ParameterRepository(ABC):
