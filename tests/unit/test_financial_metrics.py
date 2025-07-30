@@ -4,7 +4,6 @@ Unit tests for Financial Metrics functionality.
 Tests the calculation of NPV, IRR, and investment recommendations.
 """
 
-
 import pytest
 
 from core.exceptions import ValidationError

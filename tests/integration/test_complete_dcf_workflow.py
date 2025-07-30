@@ -8,7 +8,6 @@ ensuring all 4 phases work together correctly.
 from datetime import date
 from typing import Any, Dict, List
 
-
 from src.application.services.cash_flow_projection_service import (
     CashFlowProjectionService,
 )

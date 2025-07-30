@@ -4,7 +4,6 @@ Unit tests for Cash Flow Projection functionality.
 Tests the calculation of annual cash flows and waterfall distributions.
 """
 
-
 import pytest
 
 from core.exceptions import ValidationError
