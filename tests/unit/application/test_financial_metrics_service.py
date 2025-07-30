@@ -467,7 +467,7 @@ class TestFinancialMetricsService:
         """
         # Act & Assert - ValidationError should be raised during InitialNumbers creation
         with pytest.raises(ValidationError, match="Purchase price must be positive"):
-            invalid_initial_numbers = InitialNumbers(
+            InitialNumbers(
                 property_id="test_property_123",
                 scenario_id="test_scenario_001",
                 calculation_date=date.today(),

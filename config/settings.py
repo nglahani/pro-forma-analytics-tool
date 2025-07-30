@@ -74,7 +74,7 @@ class APISettings:
                     with open(config_path, 'r') as f:
                         config = json.load(f)
                         self.fred_api_key = config.get("fred_api_key", "")
-            except Exception as e:
+            except Exception:
                 # Fail silently and use empty key (will be handled by collectors)
                 pass
 

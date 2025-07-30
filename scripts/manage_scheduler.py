@@ -29,10 +29,10 @@ def main():
     start_parser.add_argument('--fred-key', help='FRED API key (optional)')
     
     # Stop command
-    stop_parser = subparsers.add_parser('stop', help='Stop the scheduler')
+    stop_parser = subparsers.add_parser('stop', help='Stop the scheduler')  # noqa: F841
     
     # Status command
-    status_parser = subparsers.add_parser('status', help='Show scheduler status')
+    status_parser = subparsers.add_parser('status', help='Show scheduler status')  # noqa: F841
     
     # Update command
     update_parser = subparsers.add_parser('update', help='Execute immediate updates')
@@ -67,10 +67,10 @@ def main():
     disable_parser.add_argument('parameter', help='Parameter name')
     
     # Config list
-    list_parser = config_subparsers.add_parser('list', help='List all scheduled updates')
+    list_parser = config_subparsers.add_parser('list', help='List all scheduled updates')  # noqa: F841
     
     # Freshness command
-    freshness_parser = subparsers.add_parser('freshness', help='Check data freshness')
+    freshness_parser = subparsers.add_parser('freshness', help='Check data freshness')  # noqa: F841
     
     args = parser.parse_args()
     

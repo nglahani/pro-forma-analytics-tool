@@ -276,7 +276,7 @@ class TestRepositoryIntegration:
 
         # This should not throw an error (though it may return None/empty results)
         available_params = param_repo.get_available_parameters("12345")
-        historical_data = param_repo.get_historical_data(test_param_id)
+        historical_data = param_repo.get_historical_data(test_param_id)  # noqa: F841
 
         # Basic assertions
         assert isinstance(available_params, list)

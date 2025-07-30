@@ -90,7 +90,7 @@ class TestSQLiteParameterRepository:
         THEN it should create the required tables
         """
         # Act
-        repository = SQLiteParameterRepository(temp_db_path)
+        SQLiteParameterRepository(temp_db_path)
 
         # Assert - check that tables exist by querying them
         import sqlite3
@@ -338,7 +338,7 @@ class TestSQLiteForecastRepository:
         THEN it should create forecast tables
         """
         # Act
-        repository = SQLiteForecastRepository(temp_db_path)
+        SQLiteForecastRepository(temp_db_path)
 
         # Assert
         import sqlite3
@@ -452,7 +452,7 @@ class TestSQLiteForecastRepository:
         assert deleted_count >= 0
 
         # Verify forecast is deleted
-        retrieved = repository.get_cached_forecast(
+        retrieved = repository.get_cached_forecast(  # noqa: F841
             sample_forecast_result.parameter_id,
             sample_forecast_result.horizon_years,
             sample_forecast_result.model_type,
@@ -510,7 +510,7 @@ class TestSQLiteCorrelationRepository:
         THEN it should create correlation tables
         """
         # Act
-        repository = SQLiteCorrelationRepository(temp_db_path)
+        SQLiteCorrelationRepository(temp_db_path)
 
         # Assert
         import sqlite3

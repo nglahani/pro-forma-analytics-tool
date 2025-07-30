@@ -168,7 +168,7 @@ class TestSQLiteSimulationRepository:
         THEN it should create required simulation tables
         """
         # Act
-        repository = SQLiteSimulationRepository(temp_db_path)
+        SQLiteSimulationRepository(temp_db_path)
 
         # Assert
         import sqlite3
@@ -391,7 +391,7 @@ class TestSQLiteSimulationRepository:
         assert deleted_count >= 0
 
         # Verify simulation is deleted
-        retrieved = repository.get_simulation_result(
+        retrieved = repository.get_simulation_result(  # noqa: F841
             sample_simulation_result.simulation_id
         )
         # May or may not be None depending on exact timing, but operation completes successfully

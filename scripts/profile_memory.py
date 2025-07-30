@@ -118,7 +118,7 @@ def profile_dcf_workflow():
     snapshot_phase3 = tracemalloc.take_snapshot()
     
     # Phase 4: Financial Metrics
-    financial_metrics = financial_metrics_service.calculate_financial_metrics(
+    financial_metrics = financial_metrics_service.calculate_financial_metrics(  # noqa: F841
         cash_flow_projection, dcf_assumptions, initial_numbers, discount_rate=0.10
     )
     snapshot_final = tracemalloc.take_snapshot()
@@ -192,7 +192,7 @@ def profile_multiple_iterations():
         dcf_assumptions = dcf_service.create_dcf_assumptions_from_scenario(scenario, property_data)
         initial_numbers = initial_numbers_service.calculate_initial_numbers(property_data, dcf_assumptions)
         cash_flow_projection = cash_flow_service.calculate_cash_flow_projection(dcf_assumptions, initial_numbers)
-        financial_metrics = financial_metrics_service.calculate_financial_metrics(
+        financial_metrics = financial_metrics_service.calculate_financial_metrics(  # noqa: F841
             cash_flow_projection, dcf_assumptions, initial_numbers, discount_rate=0.10
         )
         

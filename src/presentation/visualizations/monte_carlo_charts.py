@@ -630,7 +630,7 @@ class MonteCarloVisualizer:
             # Add correlation values as text
             for i in range(len(parameter_names)):
                 for j in range(len(parameter_names)):
-                    text = ax.text(
+                    ax.text(
                         j,
                         i,
                         f"{correlation_matrix[i][j]:.2f}",
@@ -1029,7 +1029,7 @@ class MonteCarloVisualizer:
             for s in simulation_result.scenarios
         ]
 
-        report_content += """
+        report_content += f"""
 ### Risk and Growth Analysis
 - **Average Growth Score**: {np.mean(growth_scores):.3f} (0-1 scale)
 - **Average Risk Score**: {np.mean(risk_scores):.3f} (0-1 scale)

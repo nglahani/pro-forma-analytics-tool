@@ -308,7 +308,7 @@ class TestMonteCarloApplicationService:
         """
         # Arrange - create invalid request
         with pytest.raises(ValueError):
-            invalid_request = SimulationRequest(
+            SimulationRequest(
                 property_id="",  # Invalid empty property ID
                 msa_code="35620",
                 num_scenarios=0,  # Invalid zero scenarios
