@@ -40,7 +40,7 @@ jobs:
     - name: Initialize production databases
       run: |
         echo "🗄️ Setting up production databases for CI testing..."
-        python data_manager.py setup
+        python data_manager.py init
     
     - name: Run code quality checks
       run: |
@@ -94,7 +94,7 @@ jobs:
     - name: Initialize production databases  
       run: |
         echo "🗄️ Setting up production databases for validation..."
-        python data_manager.py setup
+        python data_manager.py init
     
     - name: Enforce quality gates
       run: |

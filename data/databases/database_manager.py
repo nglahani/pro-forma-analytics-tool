@@ -58,7 +58,7 @@ class DatabaseManager:
             'forecast_cache': 'forecast_cache_schema.sql'
         }
         
-        schema_dir = Path(__file__).parent
+        schema_dir = Path(__file__).parent / "schemas"
         
         # Initialize each database with its specific schema
         for db_name in self.db_configs.keys():
