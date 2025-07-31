@@ -9,7 +9,7 @@ import logging
 
 import pytest
 
-from src.infrastructure.service_factory import ServiceFactory
+from src.application.factories.service_factory import ServiceFactory
 
 
 @pytest.fixture(scope="session")

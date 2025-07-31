@@ -1,0 +1,1 @@
+# Application factories tests package

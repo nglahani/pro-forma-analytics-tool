@@ -1,11 +1,10 @@
 """
-Edge Case Tests for Infrastructure Layer
+Service Factory Tests for Application Layer
 
-Tests for error scenarios, edge cases, and boundary conditions
-in the infrastructure layer.
+Tests for service factory functionality, edge cases, and boundary conditions.
 """
 
-from src.infrastructure.service_factory import (
+from src.application.factories.service_factory import (
     ServiceFactory,
     create_all_services,
     get_service_factory,

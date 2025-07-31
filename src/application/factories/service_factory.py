@@ -8,12 +8,10 @@ Creates service instances with minimal configuration.
 import logging
 from typing import Optional
 
-from src.application.services.cash_flow_projection_service import (
-    CashFlowProjectionService,
-)
-from src.application.services.dcf_assumptions_service import DCFAssumptionsService
-from src.application.services.financial_metrics_service import FinancialMetricsService
-from src.application.services.initial_numbers_service import InitialNumbersService
+from ..services.cash_flow_projection_service import CashFlowProjectionService
+from ..services.dcf_assumptions_service import DCFAssumptionsService
+from ..services.financial_metrics_service import FinancialMetricsService
+from ..services.initial_numbers_service import InitialNumbersService
 
 
 class ServiceFactory:
