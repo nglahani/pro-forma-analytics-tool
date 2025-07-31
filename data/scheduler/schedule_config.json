@@ -1,4 +1,5 @@
 {
+  "_note": "FUTURE FEATURE: Automated data updates not yet operational. Configuration preserved for future implementation.",
   "scheduled_updates": {
     "treasury_10y": {
       "geographic_codes": [

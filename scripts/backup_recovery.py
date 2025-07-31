@@ -42,8 +42,7 @@ class DatabaseBackupManager:
             'market_data': self.db_dir / 'market_data.db',
             'property_data': self.db_dir / 'property_data.db',
             'economic_data': self.db_dir / 'economic_data.db',
-            'forecast_cache': self.db_dir / 'forecast_cache.db',
-            'property_listings': self.db_dir / 'property_listings.db'
+            'forecast_cache': self.db_dir / 'forecast_cache.db'
         }
         
         # Backup retention policy (days)

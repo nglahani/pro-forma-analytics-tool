@@ -177,7 +177,6 @@ This directory contains the SQLite databases that store all market data for the 
 
 ### Support Files
 - **`database_manager.py`** - Database connection and query management
-- **`property_listings.db`** - Property listings data (if applicable)
 
 ## Directory Structure
 
@@ -189,7 +188,6 @@ databases/
 ├── property_data.db            # Property data
 ├── economic_data.db            # Economic data
 ├── forecast_cache.db           # Forecasting cache
-├── property_listings.db        # Property listings
 ├── backups/                    # Database backups
 │   ├── README.md
 │   └── *.db                    # Backup files

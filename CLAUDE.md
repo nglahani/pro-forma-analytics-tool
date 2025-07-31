@@ -70,36 +70,11 @@ src/
 ## Development Standards
 
 ### Code Quality Requirements
-- **Test Coverage**: 95%+ target for business logic
+- **Test Coverage**: 95%+ target for business logic with comprehensive BDD/TDD framework
 - **Architecture**: Strict adherence to Clean Architecture principles
 - **Type Safety**: Comprehensive type hints with mypy validation
 - **Error Handling**: Consistent ValidationError usage with detailed messages
 - **Documentation**: Docstrings for all public interfaces
-
-### Testing Framework
-- **Unit Tests**: `tests/unit/` - Isolated component testing with 280+ test methods
-- **Integration Tests**: `tests/integration/` - End-to-end workflow validation
-- **Performance Tests**: `tests/performance/` - Load and performance validation
-- **Edge Case Tests**: `tests/unit/*/test_edge_cases.py` - 40+ comprehensive error scenario tests
-- **BDD/TDD**: Behavior-driven development with given/when/then patterns
-
-### Build Commands
-
-#### Local Development (Windows)
-```bash
-# Test execution
-python -m pytest tests/ -v
-python demo_end_to_end_workflow.py
-
-# Code quality
-black src/ tests/
-isort src/ tests/
-flake8 src/ tests/
-mypy src/
-
-# Coverage analysis
-pytest --cov=src --cov=core --cov=monte_carlo
-```
 
 #### Linux Compatibility Validation
 ```bash
@@ -289,146 +264,71 @@ git push origin main                 # Push with confidence
 **Performance**: Handles 500+ Monte Carlo scenarios with sub-second response times
 **Scalability**: Clean architecture supports horizontal scaling and microservice decomposition
 
-## CI/CD Pipeline and Testing Requirements
+## Testing and Quality Assurance
 
-### Mandatory Testing and Quality Assurance
+**CRITICAL**: All code changes require comprehensive testing and CI/CD compliance.
 
-**CRITICAL**: When making any code changes, you MUST update tests and maintain CI/CD pipeline compliance:
+### Essential Testing Commands
 
-### 1. Test-Driven Development Requirements
+**Quick Validation (5 minutes)**:
+```bash
+# Core business logic and end-to-end validation
+python -m pytest tests/unit/application/ tests/integration/ -q
+python demo_end_to_end_workflow.py
+# Expected: 91/91 tests passing, NPV $7.8M, IRR 64.8%, STRONG_BUY
+```
 
-**For ANY code changes, you MUST:**
+**Complete Testing Suite**:
+```bash
+# 1. All test categories (91 tests total)
+python -m pytest tests/unit/application/ -v           # 74 tests
+python -m pytest tests/unit/infrastructure/test_edge_cases.py -v  # 12 tests  
+python -m pytest tests/integration/test_complete_dcf_workflow.py -v  # 1 test
+python -m pytest tests/performance/ -v                # 4 tests
 
-1. **Write Tests First** (TDD/BDD Pattern):
-   ```bash
-   # Create failing test that describes desired behavior
-   pytest tests/unit/[relevant_test_file].py::test_new_functionality -v
-   
-   # Implement feature to make test pass
-   # Refactor while keeping tests green
-   ```
+# 2. Code quality and formatting
+black --check src/ tests/
+isort --check-only --profile black src/ tests/
+flake8 src/ tests/
+mypy src/
 
-2. **Update All Relevant Test Types**:
-   - **Unit Tests**: `tests/unit/` - Test individual components in isolation
-   - **Integration Tests**: `tests/integration/` - Test end-to-end workflows  
-   - **Performance Tests**: `tests/performance/` - Validate performance requirements
-   - **Architecture Tests**: Validated automatically by `scripts/validate_architecture.py`
+# 3. Architecture and coverage validation
+python scripts/validate_architecture.py
+pytest --cov=src --cov=core --cov=monte_carlo --cov-fail-under=95
 
-3. **Maintain Test Coverage**:
-   ```bash
-   # Coverage must remain ≥95% for business logic
-   pytest --cov=src --cov=core --cov=monte_carlo --cov-fail-under=95
-   ```
+# 4. End-to-end workflow validation
+python demo_end_to_end_workflow.py
+```
 
-### 2. CI/CD Pipeline Compliance
+### Test Development Requirements
 
-**Before any code commit, ensure:**
+**TDD/BDD Pattern** - Always write tests first:
+1. Create failing test describing desired behavior
+2. Implement minimum code to make test pass
+3. Refactor while keeping tests green
+4. Maintain ≥95% test coverage for business logic
 
-1. **All Quality Checks Pass**:
-   ```bash
-   # Code formatting
-   black --check src/ tests/
-   isort --check-only src/ tests/
-   
-   # Linting
-   flake8 src/ tests/
-   
-   # Type checking  
-   mypy src/
-   
-   # Architecture validation
-   python scripts/validate_architecture.py
-   
-   # Documentation validation
-   python scripts/validate_docs.py
-   ```
+**Test Categories by Component**:
+- **Unit Tests** (`tests/unit/`): Isolated component testing
+- **Integration Tests** (`tests/integration/`): End-to-end workflow validation  
+- **Performance Tests** (`tests/performance/`): Load and regression testing
+- **Edge Case Tests** (`tests/unit/*/test_edge_cases.py`): Error scenarios and boundary conditions
 
-2. **End-to-End Workflow Validation**:
-   ```bash
-   # MUST pass before any commit
-   python demo_end_to_end_workflow.py
-   ```
+### CI/CD Pipeline
 
-3. **Performance Regression Check**:
-   ```bash
-   # Ensure no performance degradation
-   python tests/performance/test_irr_performance.py
-   ```
+**Automated Quality Gates**:
+- Python 3.9-3.11 compatibility testing
+- 95% test coverage enforcement
+- Clean Architecture compliance validation
+- Security vulnerability scanning
+- Performance regression detection
 
-### 3. Specific Testing Requirements by Change Type
+**Pipeline Status Check**:
+```bash
+gh run list --limit 3  # Check recent CI/CD runs
+```
 
-**When Adding New Services**:
-1. Create comprehensive unit tests in `tests/unit/application/` following existing patterns
-2. Add integration tests in `tests/integration/test_complete_dcf_workflow.py`
-3. Update performance tests if the service affects calculation speed
-4. Validate Clean Architecture compliance
-
-**When Modifying Domain Entities**:
-1. Update entity tests in `tests/unit/domain/` following existing patterns
-2. Ensure immutability and validation rules are tested
-3. Update integration tests that use the entity
-4. Verify serialization/deserialization works correctly
-
-**When Changing DCF Calculations**:
-1. Add specific test cases for edge cases and boundary conditions
-2. Include realistic property scenarios in integration tests
-3. Validate financial calculations against known benchmarks
-4. Test error handling for invalid inputs
-
-**When Adding New Pro Forma Parameters**:
-1. Update `tests/unit/domain/test_forecast_entities.py`
-2. Add Monte Carlo correlation tests
-3. Update end-to-end workflow validation
-4. Test database schema changes
-
-### 4. CI/CD Pipeline Files
-
-**Pipeline Configuration** (`.github/workflows/`):
-- `ci.yml` - Main CI pipeline with multi-Python version testing
-- `quality.yml` - Code quality and security checks
-- `release.yml` - Automated release and deployment
-
-**Validation Scripts** (`scripts/`):
-- `validate_architecture.py` - Clean Architecture compliance checking
-- `validate_docs.py` - Documentation accuracy validation
-- `profile_memory.py` - Memory usage profiling
-- `generate_release_notes.py` - Automated release documentation
-
-### 5. Automated Quality Gates
-
-**The CI/CD pipeline enforces**:
-- **Python 3.8-3.13 compatibility** across all code changes
-- **95% test coverage** threshold for business logic
-- **Zero architecture violations** in Clean Architecture patterns
-- **No security vulnerabilities** in dependencies
-- **Performance regression detection** for DCF calculations
-- **Documentation accuracy** for all code examples
-
-### 6. Release Process
-
-**For version releases**:
-1. Tag with semantic versioning: `git tag v1.1.0`
-2. Push tag: `git push origin v1.1.0`
-3. CI/CD automatically runs full validation suite
-4. Generates release notes from commit history
-5. Creates GitHub release with build artifacts
-6. Optionally deploys to PyPI (if configured)
-
-### 7. Failure Response Protocol
-
-**If CI/CD pipeline fails**:
-1. **Never ignore pipeline failures** - fix immediately
-2. **Review specific failure logs** in GitHub Actions
-3. **Run failing checks locally** to reproduce and debug
-4. **Update tests** if business requirements changed
-5. **Maintain architectural compliance** - no shortcuts
-
-**Common Failure Resolutions**:
-- **Test failures**: Update test expectations or fix implementation
-- **Coverage drops**: Add tests for uncovered code paths
-- **Architecture violations**: Refactor to maintain Clean Architecture
-- **Performance regression**: Optimize or update performance thresholds
-- **Documentation outdated**: Update examples and references
+**Failure Response**: Never ignore pipeline failures - debug locally, fix issues, and re-run validation before pushing.
 
 ## Next Development Priorities
 
@@ -441,72 +341,6 @@ git push origin main                 # Push with confidence
 5. **Advanced Analytics** - Machine learning features for investment recommendations
 
 **Remember**: Every code change must include corresponding test updates and pass all CI/CD quality gates before merging.
-
-## Comprehensive Testing Procedures
-
-### Quick Test Validation (5 minutes)
-```bash
-# Core business logic validation
-python -m pytest tests/unit/application/ tests/integration/ -q
-python demo_end_to_end_workflow.py
-
-# Expected: 91/91 tests passing, NPV $7.8M, IRR 64.8%, STRONG_BUY
-```
-
-### Full System Validation (10 minutes)
-Run complete test suite after significant codebase changes:
-
-```bash
-# 1. Environment & Database
-python --version && python data_manager.py status
-
-# 2. All Test Suites (91 tests total)
-python -m pytest tests/unit/application/ -v           # 74 tests
-python -m pytest tests/unit/infrastructure/test_edge_cases.py -v  # 12 tests  
-python -m pytest tests/integration/test_complete_dcf_workflow.py -v  # 1 test
-python -m pytest tests/performance/ -v                # 4 tests
-
-# 3. End-to-End Demo
-python demo_end_to_end_workflow.py
-
-# 4. Code Quality
-black --check src/ tests/
-isort --check-only --profile black src/ tests/
-flake8 src/ tests/
-
-# 5. Linux Compatibility (Docker)
-docker build -f Dockerfile.test -t proforma-linux-test .
-```
-
-### CI/CD Pipeline Validation
-```bash
-# Check pipeline status
-gh run list --limit 3
-```
-
-### Expected Results Summary
-- **Tests**: 91/91 passing across all categories
-- **Performance**: All tests complete in <2 seconds
-- **Financial Results**: NPV $7,847,901, IRR 64.8%, Equity Multiple 9.79x
-- **Environments**: Windows (local), Linux (Docker), CI/CD (GitHub Actions)
-- **Databases**: 4 databases, 2,176+ historical records
-
-### Test Categories
-1. **Local Environment** - Python compatibility
-2. **Database System** - Connectivity, data availability  
-3. **Core Business Logic** - 74 application service tests
-4. **Infrastructure Edge Cases** - 12 resilience tests
-5. **DCF Integration** - Complete 4-phase workflow
-6. **Performance** - IRR calculations, batch processing
-7. **End-to-End Demo** - Real-world scenario validation
-8. **Code Quality** - Black, isort, flake8 standards
-9. **Type Safety** - mypy validation (core modules)
-10. **CI/CD Pipeline** - Multi-Python version support
-11. **Documentation** - Onboarding resources
-12. **System Performance** - Resource usage validation
-13. **Docker Linux** - Production environment compatibility
-
-**Detailed procedures**: See `TESTING_PROCEDURES.md` for step-by-step instructions
 
 ---
 

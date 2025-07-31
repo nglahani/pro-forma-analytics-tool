@@ -1,6 +1,10 @@
 """
 MSA (Metropolitan Statistical Area) Configuration
 
+IMPORTANT: This configuration defines North Carolina MSAs for future expansion.
+Current DCF system uses national-level data. MSA-specific functionality is planned
+but not yet implemented. Use national data sources for current operations.
+
 Defines geographic areas for data collection with scalable structure
 to support nationwide expansion from initial North Carolina focus.
 """
