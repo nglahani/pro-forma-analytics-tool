@@ -1,7 +1,0 @@
-Database,Table,Records,Date Range,Parameters/Metrics
-Market Data,interest_rates,64,2010-01-01 to 2025-04-01,"fed_funds_rate, treasury_10y"
-Market Data,cap_rates,0,No data,No data
-Property Data,rental_market_data,21,2020-01-01 to 2025-01-01,vacancy_rate
-Property Data,operating_expenses,0,No data,No data
-Economic Data,lending_requirements,0,No data,No data
-Economic Data,property_growth,0,No data,No data
