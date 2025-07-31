@@ -5,26 +5,28 @@ Provides a lightweight alternative to complex dependency injection.
 Creates service instances with minimal configuration.
 """
 
-from typing import Optional
 import logging
+from typing import Optional
 
+from src.application.services.cash_flow_projection_service import (
+    CashFlowProjectionService,
+)
 from src.application.services.dcf_assumptions_service import DCFAssumptionsService
-from src.application.services.initial_numbers_service import InitialNumbersService
-from src.application.services.cash_flow_projection_service import CashFlowProjectionService
 from src.application.services.financial_metrics_service import FinancialMetricsService
+from src.application.services.initial_numbers_service import InitialNumbersService
 
 
 class ServiceFactory:
     """Simple factory for creating application services."""
-    
+
     def __init__(self) -> None:
         self.logger = self._create_logger()
-    
+
     def _create_logger(self) -> logging.Logger:
         """Create configured logger."""
         logger = logging.getLogger("pro_forma_analytics")
         logger.setLevel(logging.INFO)
-        
+
         if not logger.handlers:
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
@@ -32,21 +34,21 @@ class ServiceFactory:
             )
             handler.setFormatter(formatter)
             logger.addHandler(handler)
-        
+
         return logger
-    
+
     def create_dcf_assumptions_service(self) -> DCFAssumptionsService:
         """Create DCF assumptions service."""
         return DCFAssumptionsService()
-    
+
     def create_initial_numbers_service(self) -> InitialNumbersService:
         """Create initial numbers service."""
         return InitialNumbersService()
-    
+
     def create_cash_flow_projection_service(self) -> CashFlowProjectionService:
         """Create cash flow projection service."""
         return CashFlowProjectionService()
-    
+
     def create_financial_metrics_service(self) -> FinancialMetricsService:
         """Create financial metrics service."""
         return FinancialMetricsService()
@@ -67,10 +69,10 @@ def get_service_factory() -> ServiceFactory:
 def create_all_services() -> dict:
     """Create all main application services."""
     factory = get_service_factory()
-    
+
     return {
-        'dcf_assumptions': factory.create_dcf_assumptions_service(),
-        'initial_numbers': factory.create_initial_numbers_service(),
-        'cash_flow_projection': factory.create_cash_flow_projection_service(),
-        'financial_metrics': factory.create_financial_metrics_service(),
+        "dcf_assumptions": factory.create_dcf_assumptions_service(),
+        "initial_numbers": factory.create_initial_numbers_service(),
+        "cash_flow_projection": factory.create_cash_flow_projection_service(),
+        "financial_metrics": factory.create_financial_metrics_service(),
     }

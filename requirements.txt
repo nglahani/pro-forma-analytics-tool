@@ -9,6 +9,11 @@ prophet>=1.1.5  # Compatible with Python 3.8+
 # Visualization
 matplotlib>=3.6.0  # Compatible with Python 3.8+
 
+# Web Framework and API
+fastapi>=0.104.0  # Modern, fast web framework with automatic API docs
+uvicorn[standard]>=0.24.0  # ASGI server for FastAPI
+pydantic>=2.5.0  # Data validation and serialization
+
 # API Requests
 requests>=2.28.0  # Compatible with Python 3.8+
 

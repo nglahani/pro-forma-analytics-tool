@@ -1,15 +1,25 @@
 """
-Global Settings and Configuration
+Environment Configuration Management
 
-Manages application-wide settings including forecast horizons,
-database connections, API configurations, and update schedules.
+Enhanced configuration system supporting multiple environments (dev/test/prod).
+Handles environment variables, secrets, API settings, and application configuration.
 """
 
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 from pathlib import Path
+from enum import Enum
 import os
 import json
+
+from core.exceptions import ConfigurationError
+
+
+class Environment(Enum):
+    """Application environment types."""
+    DEVELOPMENT = "development"
+    TESTING = "testing"
+    PRODUCTION = "production"
 
 @dataclass
 class ForecastSettings:
@@ -53,7 +63,30 @@ class DatabaseSettings:
 
 @dataclass
 class APISettings:
-    """API configuration settings."""
+    """Web API server configuration."""
+    host: str = "127.0.0.1"
+    port: int = 8000
+    debug: bool = False
+    reload: bool = False
+    workers: int = 1
+    
+    # Security
+    secret_key: str = ""
+    api_key_header: str = "X-API-Key"
+    allowed_origins: Optional[List[str]] = None
+    
+    # Rate limiting
+    rate_limit_requests: int = 100
+    rate_limit_window_seconds: int = 60
+    
+    def __post_init__(self) -> None:
+        if self.allowed_origins is None:
+            self.allowed_origins = ["*"]  # Default allow all for development
+
+
+@dataclass 
+class ExternalAPISettings:
+    """External API configuration settings."""
     fred_api_key: str = ""
     fred_base_url: str = "https://api.stlouisfed.org/fred"
     rate_limit_requests_per_minute: int = 120
@@ -62,21 +95,8 @@ class APISettings:
     cache_duration_hours: int = 24
     
     def __post_init__(self) -> None:
-        # Try to load API key from multiple sources (priority order)
-        # 1. Environment variable (highest priority)
-        self.fred_api_key = os.getenv("FRED_API_KEY", self.fred_api_key)
-        
-        # 2. Configuration file (if environment variable not set)
-        if not self.fred_api_key:
-            try:
-                config_path = Path(__file__).parent / "api_keys.json"
-                if config_path.exists():
-                    with open(config_path, 'r') as f:
-                        config = json.load(f)
-                        self.fred_api_key = config.get("fred_api_key", "")
-            except Exception:
-                # Fail silently and use empty key (will be handled by collectors)
-                pass
+        # Load API key from environment variable ONLY
+        self.fred_api_key = os.getenv("FRED_API_KEY", "")
 
 @dataclass
 class UpdateSchedule:
@@ -107,15 +127,91 @@ class UpdateSchedule:
             ]
 
 class Settings:
-    """Main settings manager."""
+    """
+    Enhanced settings manager with environment-based configuration.
+    
+    Supports multiple environments: development, testing, production.
+    Loads configuration from environment variables with sensible defaults.
+    """
     
     def __init__(self) -> None:
+        self.environment = self._get_environment()
+        self.project_root = Path(__file__).parent.parent
+        
+        # Load configuration based on environment
         self.forecast = ForecastSettings()
         self.monte_carlo = MonteCarloSettings()
-        self.database = DatabaseSettings()
-        self.api = APISettings()
+        self.database = self._load_database_settings()
+        self.api = self._load_api_settings()
+        self.external_apis = ExternalAPISettings()
         self.updates = UpdateSchedule()
-        self.project_root = Path(__file__).parent.parent
+        
+        # Validate critical settings
+        self._validate_configuration()
+    
+    def _get_environment(self) -> Environment:
+        """Determine current environment."""
+        env_name = os.getenv("PRO_FORMA_ENV", "development").lower()
+        try:
+            return Environment(env_name)
+        except ValueError:
+            raise ConfigurationError(
+                f"Invalid environment: {env_name}. Must be one of: {[e.value for e in Environment]}"
+            )
+    
+    def _load_database_settings(self) -> DatabaseSettings:
+        """Load database settings based on environment."""
+        settings = DatabaseSettings()
+        
+        if self.environment == Environment.TESTING:
+            # Use separate test databases
+            settings.base_path = "data/databases/test"
+        elif self.environment == Environment.PRODUCTION:
+            # Use production database path
+            settings.base_path = os.getenv("DB_BASE_PATH", "data/databases/prod")
+            settings.backup_frequency_days = int(os.getenv("DB_BACKUP_FREQUENCY", "1"))
+        
+        return settings
+    
+    def _load_api_settings(self) -> APISettings:
+        """Load API settings based on environment."""
+        settings = APISettings(
+            host=os.getenv("API_HOST", "127.0.0.1"),
+            port=int(os.getenv("API_PORT", "8000")),
+            debug=self.environment == Environment.DEVELOPMENT,
+            reload=self.environment == Environment.DEVELOPMENT,
+            workers=int(os.getenv("API_WORKERS", "1")),
+            secret_key=os.getenv("SECRET_KEY", "dev-secret-key-change-in-production"),
+            api_key_header=os.getenv("API_KEY_HEADER", "X-API-Key"),
+            rate_limit_requests=int(os.getenv("RATE_LIMIT_REQUESTS", "100")),
+            rate_limit_window_seconds=int(os.getenv("RATE_LIMIT_WINDOW", "60"))
+        )
+        
+        # Parse allowed origins
+        origins_str = os.getenv("ALLOWED_ORIGINS", "*")
+        if origins_str == "*":
+            settings.allowed_origins = ["*"]
+        else:
+            settings.allowed_origins = [origin.strip() for origin in origins_str.split(",")]
+        
+        return settings
+    
+    def _validate_configuration(self) -> None:
+        """Validate critical configuration settings."""
+        errors = []
+        
+        # Validate external API keys in production
+        if self.environment == Environment.PRODUCTION:
+            if not self.external_apis.fred_api_key:
+                errors.append("FRED_API_KEY environment variable is required in production")
+            
+            if self.api.secret_key == "dev-secret-key-change-in-production":
+                errors.append("SECRET_KEY environment variable must be set in production")
+        
+        if errors:
+            raise ConfigurationError(
+                f"Configuration validation failed: {'; '.join(errors)}"
+            )
         
     def validate_forecast_horizon(self, years: int) -> bool:
         """Validate forecast horizon is within allowed range."""
@@ -130,9 +226,22 @@ class Settings:
         """Get path relative to cache directory."""
         return self.project_root / "data" / "cache" / Path(*path_parts)
     
+    def is_development(self) -> bool:
+        """Check if running in development mode."""
+        return self.environment == Environment.DEVELOPMENT
+    
+    def is_testing(self) -> bool:
+        """Check if running in testing mode."""
+        return self.environment == Environment.TESTING
+    
+    def is_production(self) -> bool:
+        """Check if running in production mode."""
+        return self.environment == Environment.PRODUCTION
+    
     def to_dict(self) -> Dict[str, Any]:
-        """Convert settings to dictionary for serialization."""
+        """Convert settings to dictionary (excluding sensitive data)."""
         return {
+            "environment": self.environment.value,
             "forecast": {
                 "min_horizon_years": self.forecast.min_horizon_years,
                 "max_horizon_years": self.forecast.max_horizon_years,
@@ -149,14 +258,34 @@ class Settings:
                 "backup_frequency_days": self.database.backup_frequency_days
             },
             "api": {
-                "rate_limit_requests_per_minute": self.api.rate_limit_requests_per_minute,
-                "timeout_seconds": self.api.timeout_seconds,
-                "cache_duration_hours": self.api.cache_duration_hours
+                "host": self.api.host,
+                "port": self.api.port,
+                "debug": self.api.debug,
+                "allowed_origins": self.api.allowed_origins,
+                "rate_limit_requests": self.api.rate_limit_requests
+            },
+            "external_apis": {
+                "fred_base_url": self.external_apis.fred_base_url,
+                "rate_limit_requests_per_minute": self.external_apis.rate_limit_requests_per_minute,
+                "timeout_seconds": self.external_apis.timeout_seconds,
+                "cache_duration_hours": self.external_apis.cache_duration_hours
             }
         }
 
 # Global settings instance
 settings = Settings()
+
+
+def get_settings() -> Settings:
+    """Get application settings."""
+    return settings
+
+
+def reload_settings() -> Settings:
+    """Reload settings (useful for testing)."""
+    global settings
+    settings = Settings()
+    return settings
 
 # Validation functions
 def validate_api_key(api_key: str) -> bool:

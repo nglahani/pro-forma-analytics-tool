@@ -6,16 +6,18 @@ Simplified to focus on core DCF business logic testing.
 """
 
 import logging
+
 import pytest
+
 from src.infrastructure.service_factory import ServiceFactory
 
 
-@pytest.fixture(scope="session") 
+@pytest.fixture(scope="session")
 def test_logger():
     """Provide a test logger."""
     logger = logging.getLogger("test_pro_forma_analytics")
     logger.setLevel(logging.DEBUG)
-    
+
     if not logger.handlers:
         handler = logging.StreamHandler()
         formatter = logging.Formatter(
@@ -23,7 +25,7 @@ def test_logger():
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-    
+
     return logger
 
 
