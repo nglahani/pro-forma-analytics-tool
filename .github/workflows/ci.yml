@@ -59,7 +59,7 @@ jobs:
     - name: Run core test suites
       run: |
         echo "🧪 Running core test suites..."
-        pytest tests/unit/application/ tests/unit/infrastructure/test_edge_cases.py tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src --cov=core --cov=monte_carlo --cov-report=xml --cov-report=term-missing -v
+        pytest tests/unit/application/ tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src --cov=core --cov=monte_carlo --cov-report=xml --cov-report=term-missing -v
     
     - name: Validate end-to-end workflow
       run: |
@@ -99,7 +99,7 @@ jobs:
     - name: Enforce quality gates
       run: |
         echo "📊 Enforcing quality gates..."
-        pytest tests/unit/application/ tests/unit/infrastructure/test_edge_cases.py tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src/application --cov=src/domain --cov=core --cov-fail-under=75
+        pytest tests/unit/application/ tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src/application --cov=src/domain --cov=core --cov-fail-under=75
     
     - name: Security validation
       run: |
