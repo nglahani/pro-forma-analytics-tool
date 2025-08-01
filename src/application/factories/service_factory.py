@@ -11,7 +11,9 @@ from typing import Optional
 from ..services.cash_flow_projection_service import CashFlowProjectionService
 from ..services.dcf_assumptions_service import DCFAssumptionsService
 from ..services.financial_metrics_service import FinancialMetricsService
+from ..services.forecasting_service import ForecastingApplicationService
 from ..services.initial_numbers_service import InitialNumbersService
+from ..services.monte_carlo_service import MonteCarloApplicationService
 
 
 class ServiceFactory:

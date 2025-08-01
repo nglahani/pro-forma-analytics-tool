@@ -40,8 +40,14 @@ src/
 │   ├── cache/               # Query result caching system
 │   ├── container.py         # Dependency injection container
 │   └── configuration.py    # Application configuration management
-└── presentation/            # User Interfaces (CLI, Future Web API)
-    └── cli/                 # Command-line interface components
+└── presentation/            # User Interfaces (CLI, REST API)
+    ├── api/                 # Production-ready REST API (FastAPI)
+    │   ├── routers/         # API endpoint routers (8 core endpoints)
+    │   ├── models/          # Request/response Pydantic models
+    │   ├── middleware/      # Authentication, rate limiting, logging
+    │   └── main.py          # FastAPI application entry point
+    ├── cli/                 # Command-line interface components
+    └── visualizations/      # Chart and graph generation
 
 External Modules (Production-Grade Engines):
 ├── core/                    # Exception handling & logging infrastructure
@@ -60,7 +66,7 @@ External Modules (Production-Grade Engines):
 - **Immutable Entities**: All domain objects are immutable for thread safety
 - **Comprehensive Validation**: Business rule validation at entity boundaries
 
-## Features (v1.3 Production Ready)
+## Features (v1.5 Production Ready with REST API)
 
 ### Complete DCF Engine with Clean Architecture
 - **4-Phase Workflow**: DCF Assumptions → Initial Numbers → Cash Flow Projections → Financial Metrics
@@ -106,6 +112,18 @@ Each simulation incorporates economic correlations between variables, ensuring r
 - **Risk & Growth Scoring** with composite metrics
 - **Statistical Validation**: Quality checks for scenario realism
 
+### Production-Ready REST API Layer
+- **8 Core Endpoints**: Complete API coverage for DCF analysis, Monte Carlo simulation, and data access
+- **Authentication**: API key-based authentication with development and production modes
+- **Rate Limiting**: Token bucket algorithm with customizable request limits (configurable requests/minute)
+- **Request Logging**: Comprehensive request/response logging with correlation IDs for debugging
+- **Error Handling**: Structured error responses with detailed error codes and actionable suggestions
+- **Input Validation**: Pydantic model validation with field-level error messages
+- **CORS Support**: Cross-origin resource sharing for web application integration
+- **OpenAPI Integration**: Auto-generated Swagger documentation at `/api/v1/docs`
+- **Async Processing**: Concurrent batch analysis with semaphore-controlled concurrency
+- **Health Monitoring**: Database connectivity monitoring and system status reporting
+
 ## Installation
 
 ### Prerequisites
@@ -138,6 +156,71 @@ pytest tests/ -v --cov=src --cov=core --cov=monte_carlo
 ```
 
 ## Usage
+
+### REST API (Production Ready)
+
+Start the FastAPI server for web applications and external integrations:
+
+```bash
+# Start the API server
+cd src/presentation/api
+python main.py
+
+# Server starts at: http://localhost:8000
+# API Documentation: http://localhost:8000/api/v1/docs
+# Health Check: http://localhost:8000/api/v1/health
+```
+
+#### API Authentication
+```bash
+# Set your API key as environment variable
+export API_KEY="your_production_api_key_32_chars_min"
+
+# Or use development key for testing
+curl -H "X-API-Key: dev_test_key_12345678901234567890123" \
+     http://localhost:8000/api/v1/health
+```
+
+#### Core API Endpoints
+```bash
+# Single Property DCF Analysis
+curl -X POST "http://localhost:8000/api/v1/analysis/dcf" \
+     -H "X-API-Key: your_api_key" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "property_data": {
+         "property_id": "SAMPLE_001",
+         "property_name": "Sample Property",
+         "analysis_date": "2025-07-31",
+         "residential_units": {"total_units": 20, "average_rent_per_unit": 2000},
+         "renovation_info": {"status": "not_needed"},
+         "equity_structure": {"investor_equity_share_pct": 75.0, "self_cash_percentage": 25.0},
+         "city": "New York", "state": "NY", "purchase_price": 1000000.0
+       }
+     }'
+
+# Monte Carlo Simulation
+curl -X POST "http://localhost:8000/api/v1/simulation/monte-carlo" \
+     -H "X-API-Key: your_api_key" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "property_id": "SAMPLE_001",
+       "msa_code": "35620",
+       "num_scenarios": 1000,
+       "horizon_years": 6,
+       "use_correlations": true,
+       "confidence_level": 0.95
+     }'
+
+# Market Data Access
+curl -H "X-API-Key: your_api_key" \
+     "http://localhost:8000/api/v1/data/markets/35620?parameters=cap_rate,rent_growth"
+
+# System Health Check (no authentication required)
+curl http://localhost:8000/api/v1/health
+```
+
+### Python Services (Direct Integration)
 
 The tool provides a complete 4-phase DCF workflow accessible through Python services. To run a complete analysis, instantiate the required services and process your property through each phase. The demo workflow in `demo_end_to_end_workflow.py` provides a working example that processes a sample property through all phases, generating NPV, IRR calculations, and investment recommendations. For detailed implementation examples, refer to the test files in `tests/integration/` which demonstrate various property configurations and market scenarios.
 

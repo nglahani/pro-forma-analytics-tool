@@ -19,7 +19,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from core.logging_config import get_logger
-from src.infrastructure.cache.query_cache import get_cache_statistics, cleanup_expired_cache
+# Cache statistics functionality removed - infrastructure layer cleaned up
 
 
 class DatabasePerformanceMonitor:

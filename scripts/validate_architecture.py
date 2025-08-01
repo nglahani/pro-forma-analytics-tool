@@ -24,26 +24,21 @@ class ArchitectureValidator:
         self.src_path = self.project_root / "src"
         self.violations = []
         
-        # Define allowed dependencies for each layer
+        # Define allowed dependencies for each layer (infrastructure layer removed)
         self.dependency_rules = {
             "domain": {
                 "allowed_internal": ["domain"],
                 "allowed_external": ["typing", "datetime", "enum", "dataclasses", "abc"],
-                "forbidden": ["src.application", "src.infrastructure", "src.presentation"]
+                "forbidden": ["src.application", "src.presentation"]
             },
             "application": {
                 "allowed_internal": ["domain", "application"],
                 "allowed_external": ["typing", "datetime", "enum", "dataclasses", "abc"],
-                "forbidden": ["src.infrastructure", "src.presentation"]
-            },
-            "infrastructure": {
-                "allowed_internal": ["domain", "infrastructure"],
-                "allowed_external": ["typing", "datetime", "sqlite3", "pathlib", "json"],
-                "forbidden": ["src.application", "src.presentation"]
+                "forbidden": ["src.presentation"]
             },
             "presentation": {
                 "allowed_internal": ["domain", "application", "presentation"],
-                "allowed_external": ["typing", "datetime", "matplotlib", "numpy", "pandas"],
+                "allowed_external": ["typing", "datetime", "fastapi", "pydantic", "uvicorn"],
                 "forbidden": []
             }
         }
