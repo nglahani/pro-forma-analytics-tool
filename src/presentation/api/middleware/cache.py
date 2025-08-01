@@ -4,15 +4,12 @@ Response Cache Middleware
 Lightweight in-memory cache middleware with TTL-based expiration and configurable cache strategies.
 """
 
-import asyncio
 import hashlib
-import json
 import time
-from typing import Any, Dict, List, Optional, Tuple
-from urllib.parse import parse_qs, urlencode, urlparse
+from typing import Any, Dict, Optional
+from urllib.parse import urlencode
 
 from fastapi import Request, Response
-from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 

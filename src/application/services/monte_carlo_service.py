@@ -320,5 +320,3 @@ class MonteCarloApplicationService:
 
 class SimulationError(Exception):
     """Raised when Monte Carlo simulation fails."""
-
-    pass

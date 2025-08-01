@@ -238,10 +238,6 @@ class ForecastingApplicationService:
 class ForecastError(Exception):
     """Raised when forecast generation fails."""
 
-    pass
-
 
 class DataNotFoundError(Exception):
     """Raised when required data is not found."""
-
-    pass

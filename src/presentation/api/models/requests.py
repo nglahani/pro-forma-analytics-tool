@@ -7,7 +7,7 @@ Pydantic models for validating and serializing API request data.
 import sys
 from datetime import date
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field, validator
 
@@ -209,59 +209,4 @@ class ForecastRequest(BaseModel):
         ]
         if v not in supported_parameters:
             raise ValueError(f"Parameter must be one of: {supported_parameters}")
-        return v
-
-
-class MonteCarloRequest(BaseModel):
-    """Request for Monte Carlo simulation analysis."""
-
-    property_id: str = Field(
-        ...,
-        min_length=1,
-        max_length=100,
-        description="Unique identifier for the property",
-    )
-
-    msa_code: str = Field(..., description="MSA (Metropolitan Statistical Area) code")
-
-    num_scenarios: int = Field(
-        default=10000,
-        ge=500,
-        le=50000,
-        description="Number of Monte Carlo scenarios to generate",
-    )
-
-    horizon_years: int = Field(
-        default=6, ge=3, le=10, description="Forecast horizon in years"
-    )
-
-    use_correlations: bool = Field(
-        default=True, description="Use parameter correlations in simulation"
-    )
-
-    confidence_level: float = Field(
-        default=0.95,
-        ge=0.8,
-        le=0.99,
-        description="Confidence level for statistical analysis",
-    )
-
-    request_id: Optional[str] = Field(
-        default=None,
-        max_length=100,
-        description="Optional request identifier for tracking",
-    )
-
-    @validator("msa_code")
-    def validate_msa_code(cls, v):
-        """Validate MSA code is supported."""
-        supported_msas = [
-            "35620",
-            "31080",
-            "16980",
-            "47900",
-            "33100",
-        ]  # NYC, LA, Chicago, DC, Miami
-        if v not in supported_msas:
-            raise ValueError(f"MSA code must be one of: {supported_msas}")
         return v

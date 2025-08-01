@@ -10,10 +10,8 @@ import time
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, Request, status
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent.parent.parent
@@ -23,16 +21,12 @@ from core.logging_config import get_logger
 from src.presentation.api.dependencies import DCFServices
 from src.presentation.api.middleware.auth import require_permission
 from src.presentation.api.models.errors import (
-    BusinessLogicError,
     CalculationError,
-    DataError,
 )
 from src.presentation.api.models.examples import (
     EXAMPLE_AUTHENTICATION_ERROR,
-    EXAMPLE_BATCH_REQUEST,
     EXAMPLE_CALCULATION_ERROR,
     EXAMPLE_DCF_RESPONSE,
-    EXAMPLE_PROPERTY_REQUEST_COMPREHENSIVE,
     EXAMPLE_VALIDATION_ERROR,
 )
 from src.presentation.api.models.requests import (
@@ -68,69 +62,69 @@ router = APIRouter(
     summary="Perform Complete DCF Analysis on Property",
     description="""
     **Execute comprehensive 4-phase DCF analysis workflow for real estate investment evaluation.**
-    
-    This endpoint performs institutional-grade DCF analysis combining Monte Carlo simulation with 
+
+    This endpoint performs institutional-grade DCF analysis combining Monte Carlo simulation with
     Prophet time series forecasting to deliver investment recommendations.
-    
+
     ## Analysis Workflow
-    
+
     ### Phase 1: DCF Assumptions
     - Converts Monte Carlo market scenarios into DCF parameters
     - Maps economic indicators to property-specific assumptions
     - Applies correlation models between market variables
-    
+
     ### Phase 2: Initial Numbers
     - Calculates acquisition costs and closing expenses
     - Determines financing terms and loan-to-value ratios
     - Computes initial cash investment requirements
-    
-    ### Phase 3: Cash Flow Projections  
+
+    ### Phase 3: Cash Flow Projections
     - Generates 6-year detailed cash flow projections
     - Models rental income growth and operating expense escalation
     - Applies vacancy assumptions and capital improvements
     - Calculates annual investor distributions via waterfall structure
-    
+
     ### Phase 4: Financial Metrics
     - Computes NPV using 10% discount rate
     - Calculates IRR and equity multiple returns
     - Estimates terminal value via cap rate approach
     - Generates investment recommendation (STRONG_BUY, BUY, HOLD, SELL)
-    
+
     ## Key Features
-    
+
     * **Market Data Integration**: Uses 15+ years of historical data across 5 major MSAs
     * **Prophet Forecasting**: AI-powered time series predictions for 11 pro forma parameters
     * **Monte Carlo Simulation**: Economic correlation modeling with 500+ scenarios
     * **Real-time Performance**: Sub-second analysis with comprehensive validation
     * **Risk Assessment**: Detailed investment recommendation with key strengths/risks
-    
+
     ## Supported Markets
-    
+
     * **New York** (MSA: 35620) - Manhattan, Brooklyn, Queens
-    * **Los Angeles** (MSA: 31080) - LA County markets  
+    * **Los Angeles** (MSA: 31080) - LA County markets
     * **Chicago** (MSA: 16980) - Chicago metro area
     * **Washington DC** (MSA: 47900) - DC metro region
     * **Miami** (MSA: 33100) - Miami-Dade County
-    
+
     ## Request Options
-    
+
     * **monte_carlo_simulations**: Number of scenarios (500-50,000, default: 1,000)
     * **forecast_horizon_years**: Analysis period (3-10 years, default: 6)
     * **include_scenarios**: Return individual Monte Carlo scenarios (default: false)
     * **detailed_cash_flows**: Include annual cash flow breakdown (default: false)
     * **confidence_level**: Statistical confidence (0.90-0.99, default: 0.95)
-    
+
     ## Response Highlights
-    
+
     Returns comprehensive analysis including:
     - **Financial Metrics**: NPV, IRR, payback period, equity multiple
     - **Investment Recommendation**: Professional-grade buy/sell recommendation
     - **Cash Flow Analysis**: Year-by-year property performance projections
     - **Risk Assessment**: Key investment strengths and risk factors
     - **Market Assumptions**: Underlying economic and market assumptions used
-    
+
     ## Performance
-    
+
     * **Response Time**: < 2 seconds for standard analysis
     * **Data Coverage**: 2,174+ historical data points
     * **Accuracy**: 95%+ forecast accuracy with Prophet engine
@@ -474,52 +468,52 @@ async def process_single_property_async(
     summary="Batch DCF Analysis for Multiple Properties",
     description="""
     **Process multiple properties simultaneously with concurrent DCF analysis.**
-    
+
     Ideal for portfolio analysis, investment comparison, and bulk property evaluation.
-    Each property is analyzed independently with individual error handling - failed 
+    Each property is analyzed independently with individual error handling - failed
     properties don't prevent successful analysis of others.
-    
+
     ## Key Benefits
-    
+
     * **Concurrent Processing**: Parallel analysis reduces total processing time
     * **Individual Error Handling**: Failed properties don't block successful ones
     * **Portfolio Analysis**: Compare multiple investment opportunities
     * **Rate Limit Optimization**: Single request for multiple properties
     * **Configurable Concurrency**: Control system resource usage
-    
+
     ## Performance Features
-    
+
     * **Parallel Processing**: Up to 10 concurrent property analyses
     * **Semaphore Control**: Prevents system overload with configurable limits
     * **Individual Tracking**: Each property gets unique request ID
     * **Success Metrics**: Detailed batch processing statistics
     * **Error Isolation**: Property failures don't affect batch completion
-    
+
     ## Request Configuration
-    
+
     * **parallel_processing**: Enable concurrent analysis (default: true)
     * **max_concurrent**: Maximum concurrent analyses (1-10, default: 5)
     * **batch_id**: Optional batch identifier for tracking
     * **properties**: Array of individual property analysis requests
-    
+
     ## Response Structure
-    
+
     Returns comprehensive batch results including:
     - **Success Rate**: Percentage of successful analyses
     - **Individual Results**: Complete DCF analysis or error for each property
     - **Processing Statistics**: Total time, average per property, success metrics
     - **Batch Metadata**: Timestamp, configuration, and tracking information
-    
+
     ## Use Cases
-    
+
     * **Portfolio Optimization**: Analyze multiple properties to select best investments
     * **Market Comparison**: Compare properties across different MSAs and markets
     * **Investment Committee Review**: Bulk analysis for investment decision meetings
     * **Due Diligence**: Concurrent analysis of target properties in acquisition pipeline
     * **Performance Monitoring**: Regular analysis of existing property portfolio
-    
+
     ## Error Handling Strategy
-    
+
     Robust error handling ensures batch reliability:
     - Individual property errors don't prevent batch completion
     - Detailed error messages for failed properties

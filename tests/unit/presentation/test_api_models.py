@@ -3,7 +3,6 @@ Unit tests for API models (requests, responses, errors).
 """
 
 from datetime import date, datetime
-from typing import Any, Dict
 
 import pytest
 
@@ -25,7 +24,6 @@ from src.presentation.api.models.requests import (
     BatchAnalysisRequest,
     ForecastRequest,
     MarketDataRequest,
-    MonteCarloRequest,
     PropertyAnalysisRequest,
 )
 from src.presentation.api.models.responses import (

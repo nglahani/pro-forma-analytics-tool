@@ -22,7 +22,6 @@ class SimulationRepository(ABC):
         Args:
             result: Simulation result to save
         """
-        pass
 
     @abstractmethod
     def get_simulation_result(self, simulation_id: str) -> Optional[SimulationResult]:
@@ -35,7 +34,6 @@ class SimulationRepository(ABC):
         Returns:
             SimulationResult if found, None otherwise
         """
-        pass
 
     @abstractmethod
     def get_simulation_results_for_property(
@@ -51,7 +49,6 @@ class SimulationRepository(ABC):
         Returns:
             List of simulation results, most recent first
         """
-        pass
 
     @abstractmethod
     def get_simulation_results_by_msa(
@@ -73,7 +70,6 @@ class SimulationRepository(ABC):
         Returns:
             List of simulation results
         """
-        pass
 
     @abstractmethod
     def delete_old_simulations(self, older_than_days: int) -> int:
@@ -86,7 +82,6 @@ class SimulationRepository(ABC):
         Returns:
             Number of simulations deleted
         """
-        pass
 
     @abstractmethod
     def get_simulation_summary_stats(
@@ -108,4 +103,3 @@ class SimulationRepository(ABC):
         Returns:
             Dictionary of statistics if data available, None otherwise
         """
-        pass

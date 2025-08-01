@@ -5,9 +5,6 @@ Comprehensive example objects for OpenAPI documentation and interactive testing.
 These examples provide realistic data that demonstrates proper API usage.
 """
 
-from datetime import date, datetime
-from typing import Any, Dict
-
 # =============================================================================
 # PROPERTY REQUEST EXAMPLES
 # =============================================================================

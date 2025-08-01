@@ -6,12 +6,10 @@ Custom exception handlers for mapping domain exceptions to HTTP responses.
 
 import sys
 from pathlib import Path
-from typing import Any, Dict
 
 from fastapi import HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic import ValidationError as PydanticValidationError
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent.parent
@@ -22,9 +20,7 @@ from core.exceptions import ValidationError as DomainValidationError
 from core.logging_config import get_logger
 from src.presentation.api.models.errors import (
     APIError,
-    BusinessLogicError,
     CalculationError,
-    DataError,
     ErrorCode,
     ServiceError,
     ValidationError,

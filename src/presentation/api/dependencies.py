@@ -15,7 +15,6 @@ project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.application.factories.service_factory import (
-    ServiceFactory,
     get_service_factory,
 )
 from src.application.services.cash_flow_projection_service import (
@@ -23,9 +22,7 @@ from src.application.services.cash_flow_projection_service import (
 )
 from src.application.services.dcf_assumptions_service import DCFAssumptionsService
 from src.application.services.financial_metrics_service import FinancialMetricsService
-from src.application.services.forecasting_service import ForecastingApplicationService
 from src.application.services.initial_numbers_service import InitialNumbersService
-from src.application.services.monte_carlo_service import MonteCarloApplicationService
 
 
 def get_dcf_services() -> Dict[str, Any]:

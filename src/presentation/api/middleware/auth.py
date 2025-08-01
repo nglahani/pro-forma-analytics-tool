@@ -5,14 +5,13 @@ API key-based authentication for securing API endpoints.
 """
 
 import hashlib
-import hmac
 import sys
 import time
 from pathlib import Path
 from typing import Dict, Optional, Set
 
 from fastapi import HTTPException, Request, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPBearer
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
@@ -22,7 +21,7 @@ sys.path.insert(0, str(project_root))
 
 from config.settings import get_settings
 from core.logging_config import get_logger
-from src.presentation.api.models.errors import AuthenticationError, ErrorCode
+from src.presentation.api.models.errors import AuthenticationError
 
 logger = get_logger(__name__)
 settings = get_settings()

@@ -4,11 +4,10 @@ Data Router
 Endpoints for accessing market data, forecasts, and historical information.
 """
 
-import sqlite3
 import sys
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 

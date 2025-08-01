@@ -32,7 +32,6 @@ class ParameterRepository(ABC):
         Returns:
             HistoricalData if found, None otherwise
         """
-        pass
 
     @abstractmethod
     def save_historical_data(self, historical_data: HistoricalData) -> None:
@@ -42,7 +41,6 @@ class ParameterRepository(ABC):
         Args:
             historical_data: Historical data to save
         """
-        pass
 
     @abstractmethod
     def get_available_parameters(self, geographic_code: str) -> List[ParameterId]:
@@ -55,7 +53,6 @@ class ParameterRepository(ABC):
         Returns:
             List of available parameter IDs
         """
-        pass
 
     @abstractmethod
     def get_data_completeness(
@@ -72,7 +69,6 @@ class ParameterRepository(ABC):
         Returns:
             Completeness percentage (0.0 to 1.0)
         """
-        pass
 
 
 class ForecastRepository(ABC):
@@ -86,7 +82,6 @@ class ForecastRepository(ABC):
         Args:
             forecast_result: Forecast result to save
         """
-        pass
 
     @abstractmethod
     def get_cached_forecast(
@@ -108,7 +103,6 @@ class ForecastRepository(ABC):
         Returns:
             ForecastResult if found and recent enough, None otherwise
         """
-        pass
 
     @abstractmethod
     def get_forecasts_for_simulation(
@@ -130,7 +124,6 @@ class ForecastRepository(ABC):
         Returns:
             Dictionary mapping parameter IDs to forecast results
         """
-        pass
 
     @abstractmethod
     def delete_old_forecasts(self, older_than_days: int) -> int:
@@ -143,7 +136,6 @@ class ForecastRepository(ABC):
         Returns:
             Number of forecasts deleted
         """
-        pass
 
 
 class CorrelationRepository(ABC):
@@ -168,7 +160,6 @@ class CorrelationRepository(ABC):
             calculation_date: When the matrix was calculated
             window_years: Years of data used for calculation
         """
-        pass
 
     @abstractmethod
     def get_correlation_matrix(
@@ -185,4 +176,3 @@ class CorrelationRepository(ABC):
         Returns:
             Tuple of (matrix, parameter_names, calculation_date) if found, None otherwise
         """
-        pass

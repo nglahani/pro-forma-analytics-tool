@@ -4,13 +4,12 @@ FastAPI Application Entry Point
 Main application configuration and startup for the Pro-Forma Analytics API.
 """
 
-import logging
 import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -36,42 +35,42 @@ app = FastAPI(
     title="Pro-Forma Analytics API",
     description="""
     **Production-ready REST API for real estate DCF analysis and investment modeling.**
-    
-    Transform static Excel-based pro formas into sophisticated financial models using Prophet time series 
+
+    Transform static Excel-based pro formas into sophisticated financial models using Prophet time series
     forecasting and Monte Carlo simulations.
-    
+
     ## Features
-    
+
     * **Complete 4-Phase DCF Engine**: Assumptions → Initial Numbers → Cash Flow → Financial Metrics
     * **Prophet Forecasting**: 11 pro forma parameters with 6-year projections
     * **Monte Carlo Simulation**: 500+ scenarios with economic correlations
     * **Investment Analysis**: NPV, IRR, equity multiples, risk assessment, terminal value
     * **Market Data Access**: 5 major MSAs with 15+ years of historical data (2,174+ data points)
     * **Real-time Analysis**: Sub-second response times for comprehensive property analysis
-    
+
     ## Supported Markets
-    
+
     * **New York** (MSA: 35620) - NYC metro area
-    * **Los Angeles** (MSA: 31080) - LA metro area  
+    * **Los Angeles** (MSA: 31080) - LA metro area
     * **Chicago** (MSA: 16980) - Chicago metro area
     * **Washington DC** (MSA: 47900) - DC metro area
     * **Miami** (MSA: 33100) - Miami metro area
-    
+
     ## Authentication
-    
+
     All endpoints (except health check) require API key authentication via **X-API-Key** header.
-    
+
     ## DCF Methodology
-    
+
     Our 4-phase DCF workflow provides institutional-grade analysis:
-    
+
     1. **DCF Assumptions** - Monte Carlo scenario mapping to financial parameters
-    2. **Initial Numbers** - Acquisition costs, financing terms, and investment requirements  
+    2. **Initial Numbers** - Acquisition costs, financing terms, and investment requirements
     3. **Cash Flow Projections** - 6-year cash flow modeling with waterfall distributions
     4. **Financial Metrics** - NPV, IRR, terminal value, and investment recommendations
-    
+
     ## Rate Limiting
-    
+
     * **Standard Rate**: 100 requests per minute per API key
     * **Burst Handling**: Short-term spikes accommodated with token bucket algorithm
     * **Batch Endpoints**: Use `/analysis/batch` for multiple properties to optimize rate limits
@@ -157,7 +156,7 @@ async def test_endpoint() -> Dict[str, Any]:
 @app.on_event("startup")
 async def startup_event():
     """Application startup event handler."""
-    logger.info(f"Starting Pro-Forma Analytics API v1.5.0")
+    logger.info("Starting Pro-Forma Analytics API v1.5.0")
     logger.info(f"Environment: {settings.environment.value}")
     logger.info(f"API Host: {settings.api.host}:{settings.api.port}")
     logger.info(f"Debug mode: {settings.api.debug}")

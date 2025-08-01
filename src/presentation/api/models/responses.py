@@ -6,7 +6,6 @@ Pydantic models for structuring API response data.
 
 import sys
 from datetime import datetime
-from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -16,7 +15,7 @@ from pydantic import BaseModel, Field
 project_root = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.domain.entities.cash_flow_projection import AnnualCashFlow, CashFlowProjection
+from src.domain.entities.cash_flow_projection import CashFlowProjection
 from src.domain.entities.dcf_assumptions import DCFAssumptions
 from src.domain.entities.financial_metrics import (
     FinancialMetrics,
@@ -269,37 +268,3 @@ class ConfigurationResponse(BaseModel):
     api_version: str = Field(description="Current API version")
 
     last_updated: datetime = Field(description="When configuration was last updated")
-
-
-class MonteCarloResponse(BaseModel):
-    """Response model for Monte Carlo simulation analysis."""
-
-    request_id: str = Field(description="Request identifier for tracking")
-
-    property_id: str = Field(description="Property identifier")
-
-    simulation_date: datetime = Field(description="When the simulation was performed")
-
-    num_scenarios: int = Field(description="Number of scenarios generated")
-
-    horizon_years: int = Field(description="Forecast horizon in years")
-
-    statistical_summary: Dict[str, Dict[str, float]] = Field(
-        description="Statistical summary for each parameter (mean, std, percentiles)"
-    )
-
-    scenario_distribution: Dict[str, int] = Field(
-        description="Count of scenarios by market classification"
-    )
-
-    confidence_intervals: Dict[str, Dict[str, List[float]]] = Field(
-        description="Confidence intervals for parameters at different levels"
-    )
-
-    risk_metrics: Dict[str, float] = Field(
-        description="Risk measures (VaR, Expected Shortfall, etc.)"
-    )
-
-    metadata: Dict[str, Any] = Field(
-        description="Simulation metadata and processing information"
-    )

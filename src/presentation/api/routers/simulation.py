@@ -9,10 +9,9 @@ import time
 import uuid
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi.responses import JSONResponse
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent.parent.parent
@@ -28,11 +27,9 @@ from src.domain.entities.property_data import (
     SimplifiedPropertyInput,
 )
 from src.presentation.api.middleware.auth import require_permission
-from src.presentation.api.models.errors import CalculationError, DataError
 from src.presentation.api.models.examples import (
     EXAMPLE_AUTHENTICATION_ERROR,
     EXAMPLE_CALCULATION_ERROR,
-    EXAMPLE_MONTE_CARLO_REQUEST_ADVANCED,
     EXAMPLE_MONTE_CARLO_RESPONSE,
     EXAMPLE_VALIDATION_ERROR,
 )
@@ -247,102 +244,102 @@ def _create_mock_response(
     summary="Generate Monte Carlo Market Scenarios",
     description="""
     **Generate sophisticated Monte Carlo simulations with economic correlations for scenario analysis.**
-    
-    This endpoint creates thousands of market scenarios using Prophet forecasting and statistical 
+
+    This endpoint creates thousands of market scenarios using Prophet forecasting and statistical
     correlation models to provide comprehensive risk analysis for real estate investments.
-    
+
     ## Simulation Methodology
-    
+
     ### Statistical Foundation
     - **Prophet Forecasting**: AI-powered time series predictions for 11 pro forma parameters
     - **Economic Correlations**: 23 statistical relationships between market variables
     - **Scenario Classification**: Bull/Bear/Neutral/Growth/Stress market identification
     - **Risk Metrics**: VaR, Expected Shortfall, Maximum Drawdown calculations
-    
+
     ### Parameter Coverage
-    
+
     **Interest Rate Environment**:
     - Commercial mortgage rates (historical range: 4.5%-8.5%)
     - 10-year Treasury yields (historical range: 1.8%-6.2%)
     - Federal funds rate (historical range: 0.0%-5.5%)
-    
+
     **Real Estate Market Dynamics**:
     - Cap rates by MSA (historical range: 3.5%-8.5%)
     - Rent growth rates (historical range: -2.0% to +8.5%)
     - Property appreciation (historical range: -5.0% to +12.0%)
     - Vacancy rates (historical range: 2.0%-12.0%)
     - Operating expense growth (historical range: 1.5%-6.0%)
-    
+
     **Financing Parameters**:
     - Loan-to-value ratios (typical range: 65%-85%)
     - Closing cost percentages (typical range: 2.5%-6.0%)
     - Lender reserve requirements (typical range: 2-6 months)
-    
+
     ## Scenario Generation Process
-    
+
     ### Phase 1: Historical Analysis
     - Analyze 15+ years of market data across 5 major MSAs
     - Identify statistical relationships and correlation patterns
     - Train Prophet models on historical parameter trends
-    
-    ### Phase 2: Forecast Generation  
+
+    ### Phase 2: Forecast Generation
     - Generate baseline forecasts for each parameter using Prophet
     - Apply economic correlation matrix to maintain realistic relationships
     - Account for seasonal patterns and long-term trends
-    
+
     ### Phase 3: Monte Carlo Sampling
     - Sample from correlated probability distributions
     - Generate specified number of scenarios (500-10,000 recommended)
     - Classify scenarios by market conditions
-    
+
     ### Phase 4: Statistical Analysis
     - Calculate percentile distributions (5th, 25th, 50th, 75th, 95th)
     - Compute risk metrics and confidence intervals
     - Provide scenario distribution summary
-    
+
     ## Supported Markets
-    
+
     * **New York** (MSA: 35620) - Full parameter coverage with NYC-specific correlations
     * **Los Angeles** (MSA: 31080) - California market dynamics and regulations
-    * **Chicago** (MSA: 16980) - Midwest market characteristics  
+    * **Chicago** (MSA: 16980) - Midwest market characteristics
     * **Washington DC** (MSA: 47900) - Government influence and demographic patterns
     * **Miami** (MSA: 33100) - Florida market dynamics and international investment flows
-    
+
     ## Configuration Options
-    
+
     * **num_scenarios**: Number of scenarios to generate (500-50,000, optimal: 1,000-5,000)
     * **horizon_years**: Forecast horizon (3-10 years, typical: 6-8 years)
     * **use_correlations**: Enable economic correlations (strongly recommended: true)
     * **confidence_level**: Statistical confidence (0.90-0.99, default: 0.95)
-    
+
     ## Response Components
-    
+
     ### Statistical Summary
     - Mean, standard deviation, and percentile distributions for each parameter
     - Historical context and current market positioning
     - Parameter-specific confidence intervals
-    
+
     ### Scenario Distribution
     - Classification of scenarios by market conditions
     - Probability weights for each scenario type
     - Market regime identification and characteristics
-    
+
     ### Risk Metrics
     - **Value at Risk (VaR)**: Potential losses at specified confidence levels
     - **Expected Shortfall**: Average loss beyond VaR threshold
     - **Maximum Drawdown**: Worst-case scenario impact
     - **Volatility**: Standard deviation of returns across scenarios
-    
+
     ## Use Cases
-    
+
     * **Investment Risk Assessment**: Understand potential parameter ranges before DCF analysis
     * **Sensitivity Analysis**: Identify which parameters drive investment outcomes most
     * **Market Timing**: Assess current market position relative to historical patterns
     * **Portfolio Diversification**: Compare risk profiles across different MSAs
     * **Stress Testing**: Evaluate investment performance under adverse scenarios
-    
+
     ## Performance Characteristics
-    
+
     * **Processing Time**: 1-5 seconds for 1,000-5,000 scenarios
     * **Data Sources**: 2,174+ historical data points across all parameters
     * **Accuracy**: 89%+ cross-validation score on Prophet forecasts
@@ -468,7 +465,7 @@ async def monte_carlo_simulation(
             property_data = _create_property_data_from_request(simulation_request)
 
             # Get MSA code from request for forecasting
-            msa_code = simulation_request.msa_code
+            simulation_request.msa_code
 
             # Run Monte Carlo simulation
             results = monte_carlo_engine.generate_scenarios(

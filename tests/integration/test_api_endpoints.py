@@ -10,13 +10,6 @@ from datetime import date
 import pytest
 from fastapi.testclient import TestClient
 
-from src.domain.entities.property_data import (
-    InvestorEquityStructure,
-    RenovationInfo,
-    RenovationStatus,
-    ResidentialUnits,
-    SimplifiedPropertyInput,
-)
 from src.presentation.api.main import app
 
 

@@ -4,10 +4,8 @@ Rate Limiting Middleware
 Token bucket-based rate limiting for API endpoints.
 """
 
-import asyncio
 import sys
 import time
-from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Optional, Tuple
