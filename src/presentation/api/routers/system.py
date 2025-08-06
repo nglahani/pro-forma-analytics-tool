@@ -233,29 +233,29 @@ async def get_system_info(
 ) -> Dict[str, str]:
     """
     Get basic system information.
-    
+
     Returns system status, version, and environment information.
-    
+
     Args:
         _: Read permission check
-        
+
     Returns:
         System information
     """
     try:
         logger.debug("Retrieving system information")
-        
+
         system_info = {
             "version": "1.5.0",
             "environment": "development",
             "status": "operational",
             "timestamp": datetime.now(UTC).isoformat(),
-            "api_version": "v1"
+            "api_version": "v1",
         }
-        
+
         logger.debug("System information retrieved successfully")
         return system_info
-        
+
     except Exception as e:
         logger.error(f"Failed to retrieve system information: {e}", exc_info=True)
         raise
