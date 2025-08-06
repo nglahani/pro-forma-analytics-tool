@@ -1,0 +1,24 @@
+{
+  "name": "pro-forma-analytics-tool",
+  "version": "1.5.0",
+  "private": true,
+  "description": "Production-ready real estate DCF analysis platform",
+  "scripts": {
+    "test:integration": "node test-integration.js",
+    "install:all": "npm install && cd frontend && npm install",
+    "build:all": "cd frontend && npm run build",
+    "dev:backend": "cd src/presentation/api && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "dev:frontend": "cd frontend && npm run dev"
+  },
+  "dependencies": {
+    "axios": "^1.6.7"
+  },
+  "devDependencies": {},
+  "keywords": ["real-estate", "dcf", "monte-carlo", "forecasting", "prophet"],
+  "author": "Pro-Forma Analytics Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.9"
+  }
+}
