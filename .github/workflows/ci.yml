@@ -310,7 +310,7 @@ jobs:
         
         echo "📊 Build size analysis..."
         if [ -d ".next/static" ]; then
-  echo "Frontend build sizes:"
+          echo "Frontend build sizes:"
           if [ -d ".next/static/chunks" ]; then
             du -sh .next/static/chunks/* 2>/dev/null | head -10 || echo "No build chunks to analyze"
             # Check for large bundles (> 1MB warning)
