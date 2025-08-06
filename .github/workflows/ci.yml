@@ -69,7 +69,7 @@ jobs:
     - name: Run backend test suites
       run: |
         echo "🧪 Running backend test suites..."
-        pytest tests/unit/application/ tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src --cov=core --cov=monte_carlo --cov-report=xml --cov-report=term-missing --cov-fail-under=75 -v
+        pytest tests/unit/application/ tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src/application --cov=src/domain --cov=core --cov=monte_carlo --cov-report=xml --cov-report=term-missing --cov-fail-under=75 -v
     
     - name: Validate DCF end-to-end workflow
       run: |
@@ -263,7 +263,7 @@ jobs:
     - name: Enforce backend quality gates
       run: |
         echo "📊 Enforcing backend quality gates..."
-        pytest tests/unit/application/ tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src/application --cov=src/domain --cov=core --cov-fail-under=75
+        pytest tests/unit/application/ tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src/application --cov=src/domain --cov=core --cov=monte_carlo --cov-fail-under=75
     
     - name: Full-stack security validation
       run: |
