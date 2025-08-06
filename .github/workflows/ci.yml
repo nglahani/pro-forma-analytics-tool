@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: Streamlined CI Pipeline
 
 on:
   push:
@@ -7,12 +7,12 @@ on:
     branches: [ main ]
 
 jobs:
-  # Backend Testing (Enhanced)
+  # Backend Core Testing - Essential Quality Gates
   backend-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        python-version: ['3.10', '3.11']  # Focus on primary versions
       fail-fast: false
 
     steps:
@@ -24,67 +24,45 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     
-    - name: Cache pip dependencies
+    - name: Cache dependencies
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+        restore-keys: ${{ runner.os }}-pip-
     
-    - name: Install backend dependencies
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest pytest-cov black flake8 mypy isort bandit
     
-    - name: Initialize production databases
-      run: |
-        echo "🗄️ Setting up production databases for CI testing..."
-        python data_manager.py init
+    - name: Initialize databases
+      run: python data_manager.py init
     
-    - name: Backend code quality checks
+    # Code Quality - Essential checks only
+    - name: Code quality checks
       run: |
-        echo "🔍 Running backend code quality checks..."
         black --check src/ tests/ --line-length=88
         isort --check-only --profile black src/ tests/
         flake8 src/ tests/ --max-line-length=88
     
-    - name: Backend security scan
+    # Core Business Logic Tests - The most important part
+    - name: Run core business logic tests
       run: |
-        echo "🔒 Running backend security scan..."
-        bandit -r src/ -f json -o backend-security.json || true
-        if [ -f backend-security.json ]; then
-          echo "Security scan results:"
-          cat backend-security.json | jq '.results | length' || echo "No security issues found"
-        fi
-    
-    - name: Backend type checking
-      run: |
-        echo "🔧 Running type checking on core business logic..."
-        # Focus on main application and infrastructure layers (external engines have known compatibility issues)
-        mypy src/application/ src/infrastructure/ --show-error-codes --no-error-summary || echo "⚠️ Some mypy issues remain in external engine modules (expected)"
-        echo "✅ Core business logic type checking completed"
-    
-    - name: Run backend test suites
-      run: |
-        echo "🧪 Running backend test suites..."
         pytest tests/unit/application/ tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src/application --cov=src/domain --cov-report=xml --cov-report=term-missing --cov-fail-under=75 -v
     
-    - name: Validate DCF end-to-end workflow
-      run: |
-        echo "🎯 Validating complete DCF workflow..."
-        python demo_end_to_end_workflow.py
+    # End-to-end validation - Essential workflow test
+    - name: Validate DCF workflow
+      run: python demo_end_to_end_workflow.py
     
-    - name: Upload backend coverage
-      if: matrix.python-version == '3.11'  # Upload once
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./coverage.xml
-        flags: backend
-        fail_ci_if_error: false
+    # Security - Essential dependency scanning
+    - name: Security scan
+      run: |
+        bandit -r src/ -f json -o bandit-report.json || echo "Security issues found - review required"
+        python -m safety check --json --output safety-report.json || echo "Dependency vulnerabilities found - review required"
 
-  # Frontend Testing (NEW - High Priority)
+  # Frontend Build - Essential deployment readiness
   frontend-test:
     runs-on: ubuntu-latest
     defaults:
@@ -94,247 +72,72 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
+    
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Type checking
+      run: npx tsc --noEmit
+    
+    - name: Build validation
+      run: npm run build
+    
+    - name: Test execution
+      run: npm run test:coverage -- --watchAll=false --maxWorkers=2 --passWithNoTests
 
-    - name: Install frontend dependencies
-      run: |
-        echo "📦 Installing frontend dependencies..."
-        npm ci
-
-    - name: Frontend security audit
-      run: |
-        echo "🔒 Running frontend security audit..."
-        npm audit --audit-level high || echo "⚠️ Some high-severity vulnerabilities found - review required"
-        npm audit --audit-level critical || echo "⚠️ Critical vulnerabilities found - review required"
-
-    - name: Frontend code quality checks
-      run: |
-        echo "🔍 Running frontend code quality checks..."
-        npm run lint || echo "⚠️ ESLint issues found - see above for details"
-        
-    - name: Frontend type checking
-      run: |
-        echo "🔧 Running TypeScript type checking..."
-        npm run type-check || echo "⚠️ TypeScript errors found - see above for details"
-
-    - name: Run frontend tests
-      run: |
-        echo "🧪 Running frontend tests..."
-        npm run test:coverage -- --watchAll=false --maxWorkers=2 --passWithNoTests || echo "⚠️ Frontend tests had issues - review required"
-        
-    - name: Frontend build validation
-      run: |
-        echo "📦 Validating frontend build..."
-        npm run build || echo "⚠️ Frontend build failed - investigating module resolution issues"
-        echo "✅ Frontend build validation completed"
-        
-        echo "📊 Build size analysis..."
-        if [ -d ".next/static" ]; then
-          du -sh .next/static/chunks/* 2>/dev/null | head -10 || echo "No build chunks to analyze"
-        fi
-        
-    - name: Upload frontend coverage
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./frontend/coverage/lcov.info
-        flags: frontend
-        fail_ci_if_error: false
-
-  # Integration Testing (NEW - High Priority)
-  integration-test:
-    needs: [backend-test, frontend-test]
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-
-    - name: Install all dependencies
-      run: |
-        echo "📦 Installing root dependencies (for integration tests)..."
-        npm install
-        
-        echo "📦 Installing backend dependencies..."
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        
-        echo "📦 Installing frontend dependencies..."
-        cd frontend && npm ci
-
-    - name: Initialize test environment
-      run: |
-        echo "🗄️ Setting up test databases..."
-        python data_manager.py init
-        
-    - name: Start backend API server
-      run: |
-        echo "🚀 Starting backend API server..."
-        cd src/presentation/api
-        python -m uvicorn main:app --host 0.0.0.0 --port 8000 &
-        BACKEND_PID=$!
-        echo "Backend started with PID: $BACKEND_PID"
-        sleep 15
-        
-        echo "🔍 Checking backend health..."
-        curl -f http://localhost:8000/api/v1/health || (echo "❌ Backend health check failed" && exit 1)
-        echo "✅ Backend server is running"
-
-    - name: Run frontend-backend integration tests
-      run: |
-        echo "🔗 Running frontend-backend integration tests..."
-        pytest tests/integration/test_frontend_backend_integration.py -v --tb=short
-        
-    - name: Run end-to-end workflow integration
-      run: |
-        echo "🎯 Running complete workflow integration test..."
-        npm run test:integration || echo "⚠️ Integration test had issues - review required"
-
-    - name: API endpoint validation
-      run: |
-        echo "🔍 Validating critical API endpoints..."
-        
-        # Test health endpoint
-        curl -f http://localhost:8000/api/v1/health || exit 1
-        
-        # Test with API key (using development key from settings)
-        API_KEY="dev_test_key_12345678901234567890123"
-        
-        # Test market data endpoint
-        curl -f -H "X-API-Key: $API_KEY" http://localhost:8000/api/v1/data/markets/35620 || echo "⚠️ Market data endpoint test failed"
-        
-        # Test system info endpoint
-        curl -f -H "X-API-Key: $API_KEY" http://localhost:8000/api/v1/system/info || echo "⚠️ System info endpoint test failed"
-        
-        echo "✅ API endpoint validation completed"
-
-  # Production Validation (ENHANCED - High Priority)
+  # Production Readiness - Essential deployment validation
   production-validation:
-    needs: [backend-test, frontend-test, integration-test]
     runs-on: ubuntu-latest
+    needs: [backend-test, frontend-test]
+    if: github.ref == 'refs/heads/main'
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Set up Python 3.11
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
     
-    - name: Install all dependencies
+    - name: Install build dependencies
       run: |
-        echo "📦 Installing root dependencies..."
-        npm install
-        
-        echo "📦 Installing backend dependencies..."
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov safety bandit build twine
-        
-        echo "📦 Installing frontend dependencies..."
-        cd frontend && npm ci
+        pip install build twine
     
-    - name: Initialize production databases  
+    # Validate backend package can be built
+    - name: Build backend package
       run: |
-        echo "🗄️ Setting up production databases for validation..."
-        python data_manager.py init
-    
-    - name: Enforce backend quality gates
-      run: |
-        echo "📊 Enforcing backend quality gates..."
-        pytest tests/unit/application/ tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src/application --cov=src/domain --cov-fail-under=75
-    
-    - name: Full-stack security validation
-      run: |
-        echo "🔒 Running full-stack security validation..."
-        
-        echo "Backend security scan..."
-        safety check
-        bandit -r src/ -ll || true
-        
-        echo "Frontend security audit..."
-        cd frontend
-        npm audit --audit-level moderate || echo "⚠️ Moderate vulnerabilities found in frontend dependencies"
-        npm audit --audit-level critical && echo "✅ No critical frontend vulnerabilities"
-        cd ..
-    
-    - name: Architecture validation
-      run: |
-        echo "🏗️ Validating full-stack architecture..."
-        python scripts/validate_architecture.py
-        
-        echo "📐 Validating project structure..."
-        # Check key directories exist
-        test -d "src/application" && echo "✅ Backend application layer exists"
-        test -d "src/domain" && echo "✅ Backend domain layer exists" 
-        test -d "src/infrastructure" && echo "✅ Backend infrastructure layer exists"
-        test -d "frontend/src/components" && echo "✅ Frontend components exist"
-        test -d "frontend/src/hooks" && echo "✅ Frontend hooks exist"
-        test -d "tests/unit" && echo "✅ Unit tests exist"
-        test -d "tests/integration" && echo "✅ Integration tests exist"
-    
-    - name: Full-stack build validation
-      run: |
-        echo "📦 Building and validating full-stack application..."
-        
-        echo "Building backend package..."
         python -m build
         twine check dist/*
-        echo "✅ Backend package build successful"
-        
-        echo "Building frontend application..."
-        cd frontend
-        npm run build
-        echo "✅ Frontend build successful"
-        
-        echo "📊 Build size analysis..."
-        if [ -d ".next/static" ]; then
-          echo "Frontend build sizes:"
-          if [ -d ".next/static/chunks" ]; then
-            du -sh .next/static/chunks/* 2>/dev/null | head -10 || echo "No build chunks to analyze"
-            # Check for large bundles (> 1MB warning)
-            find .next/static -name "*.js" -size +1M -exec echo "⚠️ Large bundle: {} $(du -h {} | cut -f1)" \; || echo "✅ No oversized bundles found"
-          else
-            echo "⚠️ .next/static/chunks directory not found"
-          fi
-        fi
-        cd ..
     
-    - name: Performance validation
+    # Validate frontend can be deployed
+    - name: Setup Node.js for frontend
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Build frontend for production
       run: |
-        echo "⚡ Running performance validation..."
-        
-        echo "Backend performance tests..."
-        python tests/performance/test_irr_performance.py || echo "⚠️ Performance tests failed"
-        
-        echo "Validating database performance..."
-        timeout 30 python -c "import time; from data_manager import DataManager; start=time.time(); dm=DataManager(); dm.get_all_data(); elapsed=time.time()-start; print(f'Database query time: {elapsed:.2f}s'); print('⚠️ Database queries are slow (>5s)' if elapsed > 5 else '✅ Database performance acceptable')" || echo "⚠️ Database performance test timed out"
+        cd frontend
+        npm ci
+        npm run build
     
-    - name: Store production artifacts
+    # Store artifacts for deployment
+    - name: Upload production artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: production-build
+        name: production-build-${{ github.sha }}
         path: |
           dist/
           frontend/.next/

@@ -1,0 +1,270 @@
+name: Enhanced Full-Stack CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Backend Testing (Existing - Enhanced)
+  backend-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install backend dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov black flake8 mypy isort bandit
+    
+    - name: Initialize databases
+      run: python data_manager.py init
+    
+    - name: Backend code quality
+      run: |
+        black --check src/ tests/
+        isort --check-only --profile black src/ tests/
+        flake8 src/ tests/ --max-line-length=88
+    
+    - name: Backend security scan
+      run: |
+        bandit -r src/ -f json -o backend-security.json || true
+        cat backend-security.json
+    
+    - name: Backend type checking
+      run: |
+        mypy src/application/ src/infrastructure/ --show-error-codes --no-error-summary || true
+    
+    - name: Run backend tests
+      run: |
+        pytest tests/unit/application/ tests/integration/test_complete_dcf_workflow.py tests/performance/ \
+          --cov=src --cov=core --cov=monte_carlo \
+          --cov-report=xml --cov-report=term-missing \
+          --cov-fail-under=75 -v
+    
+    - name: Validate DCF workflow
+      run: python demo_end_to_end_workflow.py
+    
+    - name: Upload backend coverage
+      if: matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: backend
+        fail_ci_if_error: false
+
+  # Frontend Testing (NEW)
+  frontend-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install frontend dependencies
+      run: npm ci
+
+    - name: Frontend security audit
+      run: |
+        npm audit --audit-level high
+        npm audit fix --dry-run || true
+
+    - name: Frontend code quality
+      run: |
+        npm run lint
+        npm run type-check
+
+    - name: Run frontend tests
+      run: |
+        npm test -- --coverage --watchAll=false --maxWorkers=2
+        
+    - name: Frontend build validation
+      run: |
+        npm run build
+        
+    - name: Upload frontend coverage
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./frontend/coverage/lcov.info
+        flags: frontend
+        fail_ci_if_error: false
+
+  # Integration Testing (NEW)
+  integration-test:
+    needs: [backend-test, frontend-test]
+    runs-on: ubuntu-latest
+
+    services:
+      # Could add external services like Redis, PostgreSQL here if needed
+      backend:
+        # Would use Docker container for backend API
+        options: --health-cmd "curl -f http://localhost:8000/api/v1/health" --health-interval 10s --health-timeout 5s --health-retries 3
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install all dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        cd frontend && npm ci
+
+    - name: Initialize test environment
+      run: |
+        python data_manager.py init
+        
+    - name: Start backend server
+      run: |
+        cd src/presentation/api
+        uvicorn main:app --host 0.0.0.0 --port 8000 &
+        sleep 10
+        curl -f http://localhost:8000/api/v1/health || exit 1
+
+    - name: Run integration tests
+      run: |
+        # Run the integration test that tests frontend-backend communication
+        pytest tests/integration/test_frontend_backend_integration.py -v
+        
+    - name: Run E2E workflow test
+      run: |
+        # Test the complete user workflow
+        node test-integration.js
+
+  # Production Validation (ENHANCED)
+  production-validation:
+    needs: [backend-test, frontend-test, integration-test]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Install all dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install build twine safety bandit
+        cd frontend && npm ci
+    
+    - name: Initialize production databases  
+      run: python data_manager.py init
+    
+    - name: Full-stack security scan
+      run: |
+        echo "🔒 Backend Security Scan..."
+        bandit -r src/ -ll || true
+        safety check
+        
+        echo "🔒 Frontend Security Scan..."
+        cd frontend
+        npm audit --audit-level moderate || true
+    
+    - name: Architecture validation
+      run: |
+        echo "🏗️ Validating full-stack architecture..."
+        python scripts/validate_architecture.py
+        # Could add frontend architecture validation here
+    
+    - name: Full build validation
+      run: |
+        echo "📦 Building backend package..."
+        python -m build
+        twine check dist/*
+        
+        echo "📦 Building frontend application..."
+        cd frontend
+        npm run build
+        
+        echo "📊 Build size analysis..."
+        du -sh .next/static/chunks/* | head -10
+        
+    - name: Performance benchmarks
+      run: |
+        echo "⚡ Running performance tests..."
+        python tests/performance/test_irr_performance.py
+        
+    - name: Store production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: production-build
+        path: |
+          dist/
+          frontend/.next/
+          frontend/out/
+
+  # Deployment (NEW - Optional)
+  deploy-staging:
+    if: github.ref == 'refs/heads/develop'
+    needs: production-validation
+    runs-on: ubuntu-latest
+    environment: staging
+    
+    steps:
+    - name: Deploy to staging
+      run: |
+        echo "🚀 Deploy to staging environment..."
+        # Add actual deployment steps here
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main'
+    needs: production-validation  
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - name: Deploy to production
+      run: |
+        echo "🚀 Deploy to production environment..."
+        # Add actual deployment steps here
