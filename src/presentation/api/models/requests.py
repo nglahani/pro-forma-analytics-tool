@@ -9,7 +9,7 @@ from datetime import date
 from pathlib import Path
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent.parent
@@ -63,17 +63,18 @@ class PropertyAnalysisRequest(BaseModel):
         default=None, description="Client-provided request identifier"
     )
 
-    @validator("options", pre=True, always=True)
-    def set_default_options(cls, v):
-        """Set default options if not provided."""
-        return v or AnalysisOptions()
+    def __init__(self, **data):
+        """Initialize with default options if not provided."""
+        if "options" not in data or data["options"] is None:
+            data["options"] = AnalysisOptions()
+        super().__init__(**data)
 
 
 class BatchAnalysisRequest(BaseModel):
     """Request model for batch property analysis."""
 
     properties: List[PropertyAnalysisRequest] = Field(
-        description="List of properties to analyze", min_items=1, max_items=50
+        description="List of properties to analyze", min_length=1, max_length=50
     )
 
     parallel_processing: bool = Field(
@@ -88,7 +89,8 @@ class BatchAnalysisRequest(BaseModel):
         default=None, description="Client-provided batch identifier"
     )
 
-    @validator("properties")
+    @field_validator("properties")
+    @classmethod
     def validate_properties(cls, v):
         """Validate properties list."""
         if len(v) > 50:
@@ -130,7 +132,8 @@ class MonteCarloRequest(BaseModel):
         default=None, description="Client-provided request identifier"
     )
 
-    @validator("percentiles")
+    @field_validator("percentiles")
+    @classmethod
     def validate_percentiles(cls, v):
         """Validate percentiles are within valid range."""
         for p in v:
@@ -156,7 +159,8 @@ class MarketDataRequest(BaseModel):
         default=None, description="End date for historical data"
     )
 
-    @validator("msa")
+    @field_validator("msa")
+    @classmethod
     def validate_msa(cls, v):
         """Validate MSA is supported."""
         supported_msas = ["NYC", "LA", "Chicago", "DC", "Miami"]
@@ -187,7 +191,8 @@ class ForecastRequest(BaseModel):
         default=True, description="Include historical data in response"
     )
 
-    @validator("msa")
+    @field_validator("msa")
+    @classmethod
     def validate_msa(cls, v):
         """Validate MSA is supported."""
         supported_msas = ["NYC", "LA", "Chicago", "DC", "Miami"]
@@ -195,7 +200,8 @@ class ForecastRequest(BaseModel):
             raise ValueError(f"MSA must be one of: {supported_msas}")
         return v
 
-    @validator("parameter")
+    @field_validator("parameter")
+    @classmethod
     def validate_parameter(cls, v):
         """Validate parameter is supported."""
         supported_parameters = [

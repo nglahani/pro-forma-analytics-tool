@@ -191,7 +191,7 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
     def _generate_request_id(self, api_key: str) -> str:
         """Generate unique request ID."""
         timestamp = str(int(time.time() * 1000))
-        key_hash = hashlib.md5(api_key.encode()).hexdigest()[:8]
+        key_hash = hashlib.md5(api_key.encode(), usedforsecurity=False).hexdigest()[:8]
         return f"req_{timestamp}_{key_hash}"
 
 

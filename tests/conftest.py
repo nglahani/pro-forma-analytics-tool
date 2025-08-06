@@ -32,4 +32,18 @@ def test_logger():
 @pytest.fixture
 def service_factory():
     """Create a fresh service factory for testing."""
-    return ServiceFactory()
+    factory = ServiceFactory()
+    yield factory
+    # Cleanup: Close any database connections
+    try:
+        if hasattr(factory, "_parameter_repository") and factory._parameter_repository:
+            if hasattr(factory._parameter_repository, "_connection"):
+                factory._parameter_repository._connection.close()
+        if (
+            hasattr(factory, "_simulation_repository")
+            and factory._simulation_repository
+        ):
+            if hasattr(factory._simulation_repository, "_connection"):
+                factory._simulation_repository._connection.close()
+    except Exception:
+        pass  # Ignore cleanup errors

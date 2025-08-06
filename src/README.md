@@ -1,6 +1,6 @@
-# Source Code (src/) - v1.3
+# Source Code (src/) - v1.5
 
-Production-ready Clean Architecture implementation with domain-driven design principles for real estate DCF analysis.
+Production-ready Clean Architecture implementation with domain-driven design principles for real estate DCF analysis. Enhanced technical foundation with Pydantic V2, FastAPI lifespan events, and improved Windows compatibility.
 
 ## Architecture Overview
 

@@ -5,9 +5,10 @@ Main application configuration and startup for the Pro-Forma Analytics API.
 """
 
 import sys
-from datetime import datetime
+from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, AsyncGenerator, Dict
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,8 +31,25 @@ from core.logging_config import get_logger
 settings = get_settings()
 logger = get_logger(__name__)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """Application lifespan manager for startup and shutdown events."""
+    # Startup
+    logger.info("Starting Pro-Forma Analytics API v1.5.0")
+    logger.info(f"Environment: {settings.environment.value}")
+    logger.info(f"API Host: {settings.api.host}:{settings.api.port}")
+    logger.info(f"Debug mode: {settings.api.debug}")
+
+    yield
+
+    # Shutdown
+    logger.info("Shutting down Pro-Forma Analytics API")
+
+
 # Create FastAPI application
 app = FastAPI(
+    lifespan=lifespan,
     title="Pro-Forma Analytics API",
     description="""
     **Production-ready REST API for real estate DCF analysis and investment modeling.**
@@ -141,7 +159,7 @@ app.include_router(system.router)
 app.include_router(data.router)
 
 # Application startup time for health checks
-_startup_time = datetime.utcnow()
+_startup_time = datetime.now(UTC)
 
 
 @app.get("/api/v1/test")
@@ -151,21 +169,6 @@ async def test_endpoint() -> Dict[str, Any]:
 
 
 # Enhanced health check is now in system.py router
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Application startup event handler."""
-    logger.info("Starting Pro-Forma Analytics API v1.5.0")
-    logger.info(f"Environment: {settings.environment.value}")
-    logger.info(f"API Host: {settings.api.host}:{settings.api.port}")
-    logger.info(f"Debug mode: {settings.api.debug}")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Application shutdown event handler."""
-    logger.info("Shutting down Pro-Forma Analytics API")
 
 
 @app.exception_handler(Exception)
@@ -178,7 +181,7 @@ async def global_exception_handler(request, exc):
         content={
             "error_code": "internal_server_error",
             "message": "An unexpected error occurred",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "request_id": getattr(request.state, "request_id", "unknown"),
         },
     )

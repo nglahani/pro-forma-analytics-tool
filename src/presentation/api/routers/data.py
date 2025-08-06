@@ -5,7 +5,7 @@ Endpoints for accessing market data, forecasts, and historical information.
 """
 
 import sys
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Optional
 
@@ -168,7 +168,7 @@ async def get_market_data(
             parameter="cap_rate",
             data_points=market_data_points,
             current_value=market_data_points[-1].value if market_data_points else None,
-            last_updated=datetime.utcnow(),
+            last_updated=datetime.now(UTC),
             data_coverage={
                 "historical_years": 15,
                 "parameters_available": 11,
@@ -245,7 +245,7 @@ async def get_forecast_data(
 
         # Create mock forecast data (in production, this would use actual Prophet forecasts)
         forecast_points = []
-        base_date = datetime.utcnow()
+        base_date = datetime.now(UTC)
 
         # Generate forecast points
         for month in range(horizon_years * 12):
@@ -316,7 +316,7 @@ async def get_forecast_data(
                 "external_regressors": ["economic_indicators", "market_trends"],
                 "model_accuracy": "high",
             },
-            forecast_timestamp=datetime.utcnow(),
+            forecast_timestamp=datetime.now(UTC),
         )
 
         logger.debug(

@@ -6,14 +6,14 @@ Endpoints for system configuration, health monitoring, and operational status.
 
 import sqlite3
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Dict
 
 from fastapi import APIRouter, Depends, status
 
 # Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent.parent.parent.parent
+project_root = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from core.logging_config import get_logger
@@ -36,18 +36,22 @@ router = APIRouter(
 
 def check_database_connectivity() -> Dict[str, str]:
     """Check connectivity to all required databases."""
+    # Use current working directory as base path
+    base_path = Path.cwd() / "data" / "databases"
     databases = {
-        "market_data": project_root / "data" / "databases" / "market_data.db",
-        "property_data": project_root / "data" / "databases" / "property_data.db",
-        "economic_data": project_root / "data" / "databases" / "economic_data.db",
-        "forecast_cache": project_root / "data" / "databases" / "forecast_cache.db",
+        "market_data": base_path / "market_data.db",
+        "property_data": base_path / "property_data.db",
+        "economic_data": base_path / "economic_data.db",
+        "forecast_cache": base_path / "forecast_cache.db",
     }
 
     status_results = {}
 
     for db_name, db_path in databases.items():
         try:
+            logger.info(f"Checking database {db_name} at path: {db_path}")
             if not db_path.exists():
+                logger.warning(f"Database {db_name} not found at: {db_path}")
                 status_results[db_name] = "missing"
                 continue
 
@@ -97,16 +101,17 @@ async def enhanced_health_check() -> HealthResponse:
         ]
         overall_status = "degraded" if unhealthy_dbs else "healthy"
 
-        # Get uptime (approximate - based on when this module was loaded)
-        startup_time = getattr(
-            enhanced_health_check, "_startup_time", datetime.utcnow()
-        )
-        uptime_seconds = (datetime.utcnow() - startup_time).total_seconds()
+        # Get uptime (based on fresh startup time)
+        current_time = datetime.now(UTC)
+        if not hasattr(enhanced_health_check, "_startup_time"):
+            enhanced_health_check._startup_time = current_time
+        startup_time = enhanced_health_check._startup_time
+        uptime_seconds = (current_time - startup_time).total_seconds()
 
         health_response = HealthResponse(
             status=overall_status,
-            timestamp=datetime.utcnow(),
-            version="1.0.0",
+            timestamp=datetime.now(UTC),
+            version="1.0.1",
             environment="development",  # Could be loaded from config
             uptime_seconds=uptime_seconds,
             dependencies={
@@ -131,7 +136,7 @@ async def enhanced_health_check() -> HealthResponse:
 
         return HealthResponse(
             status="unhealthy",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             version="1.0.0",
             environment="development",
             uptime_seconds=0.0,
@@ -140,7 +145,7 @@ async def enhanced_health_check() -> HealthResponse:
 
 
 # Set startup time for uptime calculation
-enhanced_health_check._startup_time = datetime.utcnow()
+enhanced_health_check._startup_time = datetime.now(UTC)
 
 
 @router.get(
@@ -211,7 +216,7 @@ async def get_system_configuration(
                 "confidence_level_default": "95%",
             },
             api_version="1.0.0",
-            last_updated=datetime.utcnow(),
+            last_updated=datetime.now(UTC),
         )
 
         logger.debug("System configuration retrieved successfully")
@@ -220,3 +225,26 @@ async def get_system_configuration(
     except Exception as e:
         logger.error(f"Failed to retrieve system configuration: {e}", exc_info=True)
         raise
+
+
+@router.get("/debug-paths", dependencies=[])
+async def debug_paths():
+    """Debug endpoint to check database paths."""
+    from pathlib import Path
+
+    current_file = Path(__file__)
+    calculated_root = current_file.parent.parent.parent.parent.parent
+
+    return {
+        "current_file": str(current_file),
+        "calculated_project_root": str(calculated_root),
+        "resolved_project_root": str(calculated_root.resolve()),
+        "market_data_path": str(
+            calculated_root / "data" / "databases" / "market_data.db"
+        ),
+        "market_data_exists": (
+            calculated_root / "data" / "databases" / "market_data.db"
+        ).exists(),
+        "working_directory": str(Path.cwd()),
+        "relative_db_exists": Path("data/databases/market_data.db").exists(),
+    }

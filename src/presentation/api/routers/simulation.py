@@ -7,7 +7,7 @@ Endpoints for Monte Carlo simulation and scenario analysis.
 import sys
 import time
 import uuid
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -154,7 +154,7 @@ def _convert_monte_carlo_results_to_response(
     return MonteCarloResponse(
         request_id=request_id,
         property_id=request.property_id,
-        simulation_date=datetime.utcnow(),
+        simulation_date=datetime.now(UTC),
         num_scenarios=request.num_scenarios,
         horizon_years=request.horizon_years,
         statistical_summary=statistical_summary,
@@ -163,7 +163,7 @@ def _convert_monte_carlo_results_to_response(
         risk_metrics=risk_metrics,
         metadata={
             "processing_time_seconds": round(processing_time, 3),
-            "simulation_timestamp": datetime.utcnow(),
+            "simulation_timestamp": datetime.now(UTC),
             "correlation_matrix_used": request.use_correlations,
             "confidence_level": request.confidence_level,
             "engine_status": "production" if monte_carlo_engine else "mock",
@@ -183,7 +183,7 @@ def _create_mock_response(
     return MonteCarloResponse(
         request_id=request_id,
         property_id=request.property_id,
-        simulation_date=datetime.utcnow(),
+        simulation_date=datetime.now(UTC),
         num_scenarios=request.num_scenarios,
         horizon_years=request.horizon_years,
         statistical_summary={
@@ -224,7 +224,7 @@ def _create_mock_response(
         },
         metadata={
             "processing_time_seconds": round(processing_time, 3),
-            "simulation_timestamp": datetime.utcnow(),
+            "simulation_timestamp": datetime.now(UTC),
             "correlation_matrix_used": request.use_correlations,
             "confidence_level": request.confidence_level,
             "engine_status": "mock",
@@ -533,6 +533,6 @@ async def monte_carlo_simulation(
                 ],
                 "request_id": request_id,
                 "path": "/api/v1/simulation/monte-carlo",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         ) from e

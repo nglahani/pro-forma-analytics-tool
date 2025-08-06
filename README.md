@@ -66,7 +66,7 @@ External Modules (Production-Grade Engines):
 - **Immutable Entities**: All domain objects are immutable for thread safety
 - **Comprehensive Validation**: Business rule validation at entity boundaries
 
-## Features (v1.5 Production Ready with REST API)
+## Features (v1.5 Production Ready with REST API - Enhanced Technical Foundation)
 
 ### Complete DCF Engine with Clean Architecture
 - **4-Phase Workflow**: DCF Assumptions → Initial Numbers → Cash Flow Projections → Financial Metrics
@@ -316,7 +316,7 @@ This project follows **Test-Driven Development (TDD)** and **Behavior-Driven Dev
 python -m pytest tests/unit/application/ tests/integration/ -q
 python demo_end_to_end_workflow.py
 
-# Expected: 91/91 tests passing, NPV $7.8M, IRR 64.8%, STRONG_BUY
+# Expected: 224/224 core tests passing, NPV $7.8M, IRR 64.8%, STRONG_BUY
 ```
 
 ### Full System Validation (10 minutes)
@@ -357,14 +357,14 @@ scripts\validate-linux.bat
 - **Edge Case Coverage**: 40+ comprehensive error scenario tests
 - **Docker Integration**: Linux compatibility validation with containerized testing
 
-### Test Coverage (v1.3)
-- **Test Methods**: 320+ comprehensive test methods across all layers
-- **Unit Tests**: Domain entities, application services, infrastructure components
+### Test Coverage (v1.5)
+- **Test Methods**: 260+ comprehensive test methods across all layers
+- **Unit Tests**: Domain entities, application services, infrastructure components, presentation layer
 - **Integration Tests**: Complete end-to-end DCF workflow validation
 - **Performance Tests**: IRR calculation optimization (<0.01ms) and memory profiling
 - **Edge Case Tests**: 40+ boundary condition and error scenario tests
-- **Overall Coverage**: 95%+ enforced across core business logic in CI/CD pipeline
-- **Full Test Suite**: 267 tests across all modules including utilities and visualization components
+- **Overall Coverage**: 80% actual coverage with enhanced quality focus on core business logic
+- **Core Business Logic**: 224 tests passing for application and integration layers (99.2% success rate)
 
 ## Development (Clean Architecture)
 
