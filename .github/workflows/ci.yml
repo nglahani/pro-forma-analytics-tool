@@ -84,7 +84,7 @@ jobs:
       run: npm ci
     
     - name: Type checking
-      run: npx tsc --noEmit || echo "⚠️ TypeScript errors found - should be addressed in future iterations"
+      run: npx tsc --noEmit
     
     - name: Build validation
       run: npm run build || echo "⚠️ Frontend build issues - should be addressed but not blocking deployment"
