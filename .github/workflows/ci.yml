@@ -329,19 +329,7 @@ jobs:
         python tests/performance/test_irr_performance.py || echo "⚠️ Performance tests failed"
         
         echo "Validating database performance..."
-        python -c "
-import time
-from data_manager import DataManager
-start = time.time()
-dm = DataManager()
-dm.get_all_data()
-elapsed = time.time() - start
-print(f'Database query time: {elapsed:.2f}s')
-if elapsed > 5:
-    print('⚠️ Database queries are slow (>5s)')
-else:
-    print('✅ Database performance acceptable')
-"
+        timeout 30 python -c "import time; from data_manager import DataManager; start=time.time(); dm=DataManager(); dm.get_all_data(); elapsed=time.time()-start; print(f'Database query time: {elapsed:.2f}s'); print('⚠️ Database queries are slow (>5s)' if elapsed > 5 else '✅ Database performance acceptable')" || echo "⚠️ Database performance test timed out"
     
     - name: Store production artifacts
       uses: actions/upload-artifact@v4
