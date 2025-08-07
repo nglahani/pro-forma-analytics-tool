@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 
 
 class ErrorCode(str, Enum):
@@ -50,7 +50,10 @@ class APIError(BaseModel):
         default_factory=lambda: datetime.now(UTC), description="When the error occurred"
     )
 
-    model_config = {"json_encoders": {datetime: lambda v: v.isoformat()}}
+    @field_serializer("timestamp")
+    def serialize_timestamp(self, dt: datetime, _info) -> str:
+        """Serialize datetime to ISO format string."""
+        return dt.isoformat()
 
     request_id: Optional[str] = Field(
         default=None, description="Request identifier for error correlation"
