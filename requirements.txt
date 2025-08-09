@@ -16,6 +16,7 @@ pydantic>=2.5.0  # Data validation and serialization
 
 # API Requests
 requests>=2.28.0  # Compatible with Python 3.8+
+httpx>=0.24.0  # HTTP client for async requests and testing
 
 # Excel Processing
 openpyxl>=3.0.9  # Compatible with Python 3.8+
