@@ -458,14 +458,12 @@ class TestInitialNumbersEntitiesCoverage:
 
         # Test debt service coverage ratio
         dscr = initial_numbers.calculate_debt_service_coverage_ratio()
-        expected_noi = 200000 - 80000  # 120000
-        expected_dscr = 120000 / 105000
+        expected_dscr = (200000 - 80000) / 105000  # NOI / debt service
         assert dscr == pytest.approx(expected_dscr, rel=0.01)
 
         # Test cash on cash return
         cocr = initial_numbers.calculate_cash_on_cash_return()
-        cash_flow = 120000 - 105000  # NOI - debt service = 15000
-        expected_cocr = 15000 / 500000
+        expected_cocr = (120000 - 105000) / 500000  # Cash flow / total cash
         assert cocr == pytest.approx(expected_cocr, rel=0.01)
 
         # Test price per unit calculation

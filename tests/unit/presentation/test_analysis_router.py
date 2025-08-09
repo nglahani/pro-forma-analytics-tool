@@ -4,10 +4,9 @@ Unit tests for Analysis Router endpoints.
 Tests the analysis router endpoints for DCF analysis functionality.
 """
 
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
-from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from src.presentation.api.main import app
