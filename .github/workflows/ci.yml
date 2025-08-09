@@ -47,10 +47,10 @@ jobs:
         isort --check-only --profile black src/ tests/
         flake8 src/ tests/ --max-line-length=88
     
-    # Core Business Logic Tests - The most important part
-    - name: Run core business logic tests
+    # Comprehensive Test Suite - All tests with accurate coverage measurement
+    - name: Run comprehensive test suite
       run: |
-        pytest tests/unit/application/ tests/integration/test_complete_dcf_workflow.py tests/performance/ --cov=src --cov=core --cov=monte_carlo --cov-report=xml --cov-report=term-missing --cov-fail-under=82 -v
+        pytest tests/unit/ tests/integration/ tests/performance/ --cov=src --cov=core --cov=monte_carlo --cov-report=xml --cov-report=term-missing --cov-fail-under=85 -v
     
     # End-to-end validation - Essential workflow test
     - name: Validate DCF workflow
