@@ -11,9 +11,10 @@ import { DCFAnalysisResult } from '@/types/analysis';
 
 // Mock utility functions
 jest.mock('@/lib/utils', () => ({
-  formatCurrency: (value: number) => `$${value.toLocaleString()}`,
-  formatPercentage: (value: number) => `${(value * 100).toFixed(1)}%`,
-  formatNumber: (value: number) => value.toFixed(1),
+  cn: (...classes: (string | undefined)[]) => classes.filter(Boolean).join(' '),
+  formatCurrency: (value: number) => value ? `$${value.toLocaleString()}` : '$0',
+  formatPercentage: (value: number) => value !== undefined ? `${(value * 100).toFixed(1)}%` : '0.0%',
+  formatNumber: (value: number) => value !== undefined ? value.toFixed(1) : '0',
   getRecommendationStyle: (rec: string) => ({
     color: rec.includes('BUY') ? 'text-green-600' : 'text-red-600',
     bgColor: 'bg-gray-100',
@@ -44,10 +45,26 @@ describe('DCFResultsDashboard', () => {
       total_cash_required: 250000,
       loan_amount: 750000,
     },
-    cash_flow_projections: {
-      annual_projections: [],
-      total_distributions: 300000,
-    },
+    cash_flow_projections: [
+      {
+        year: 1,
+        gross_rental_income: 180000,
+        operating_expenses: 54000,
+        net_operating_income: 126000,
+        debt_service: 48000,
+        net_cash_flow: 78000,
+        cumulative_cash_flow: 78000,
+      },
+      {
+        year: 2,
+        gross_rental_income: 186000,
+        operating_expenses: 55800,
+        net_operating_income: 130200,
+        debt_service: 48000,
+        net_cash_flow: 82200,
+        cumulative_cash_flow: 160200,
+      },
+    ],
   };
 
   it('renders financial metrics correctly', () => {
@@ -60,7 +77,7 @@ describe('DCFResultsDashboard', () => {
   });
 
   it('displays investment recommendation correctly', () => {
-    render(<DCFResultsDashboard result={mockAnalysisResult} />);
+    render(<DCFResultsDashboard analysis={mockAnalysisResult} />);
 
     expect(screen.getByText('STRONG_BUY')).toBeInTheDocument();
     expect(screen.getByText('MODERATE')).toBeInTheDocument(); // Risk level
@@ -69,14 +86,14 @@ describe('DCFResultsDashboard', () => {
   });
 
   it('shows cash flow summary', () => {
-    render(<DCFResultsDashboard result={mockAnalysisResult} />);
+    render(<DCFResultsDashboard analysis={mockAnalysisResult} />);
 
     expect(screen.getByText('$300,000')).toBeInTheDocument(); // Total pre-tax
     expect(screen.getByText('$210,000')).toBeInTheDocument(); // Total after-tax
   });
 
   it('displays scenario analysis results', () => {
-    render(<DCFResultsDashboard result={mockAnalysisResult} />);
+    render(<DCFResultsDashboard analysis={mockAnalysisResult} />);
 
     // Base case
     expect(screen.getByText('$2,500,000')).toBeInTheDocument();
@@ -92,7 +109,7 @@ describe('DCFResultsDashboard', () => {
   });
 
   it('shows sensitivity analysis information', () => {
-    render(<DCFResultsDashboard result={mockAnalysisResult} />);
+    render(<DCFResultsDashboard analysis={mockAnalysisResult} />);
 
     expect(screen.getByText('High sensitivity to rent growth')).toBeInTheDocument();
     expect(screen.getByText('Moderate sensitivity to vacancy')).toBeInTheDocument();
@@ -100,14 +117,14 @@ describe('DCFResultsDashboard', () => {
   });
 
   it('applies correct styling for STRONG_BUY recommendation', () => {
-    render(<DCFResultsDashboard result={mockAnalysisResult} />);
+    render(<DCFResultsDashboard analysis={mockAnalysisResult} />);
 
     const recommendationElement = screen.getByText('STRONG_BUY');
     expect(recommendationElement).toHaveClass('text-green-600');
   });
 
   it('applies correct styling for MODERATE risk level', () => {
-    render(<DCFResultsDashboard result={mockAnalysisResult} />);
+    render(<DCFResultsDashboard analysis={mockAnalysisResult} />);
 
     const riskElement = screen.getByText('MODERATE');
     expect(riskElement).toHaveClass('text-yellow-600');
@@ -123,7 +140,7 @@ describe('DCFResultsDashboard', () => {
       },
     };
 
-    render(<DCFResultsDashboard result={sellResult} />);
+    render(<DCFResultsDashboard analysis={sellResult} />);
 
     const recommendationElement = screen.getByText('SELL');
     expect(recommendationElement).toHaveClass('text-red-600');
@@ -133,7 +150,7 @@ describe('DCFResultsDashboard', () => {
   });
 
   it('displays processing time and metadata', () => {
-    render(<DCFResultsDashboard result={mockAnalysisResult} />);
+    render(<DCFResultsDashboard analysis={mockAnalysisResult} />);
 
     expect(screen.getByText('2.3s')).toBeInTheDocument();
     expect(screen.getByText('1.0.0')).toBeInTheDocument();
@@ -147,7 +164,7 @@ describe('DCFResultsDashboard', () => {
       sensitivity_analysis: undefined,
     };
 
-    render(<DCFResultsDashboard result={incompleteResult} />);
+    render(<DCFResultsDashboard analysis={incompleteResult} />);
 
     // Should still render core financial metrics
     expect(screen.getByText('$2,500,000')).toBeInTheDocument();
@@ -164,7 +181,7 @@ describe('DCFResultsDashboard', () => {
       },
     };
 
-    render(<DCFResultsDashboard result={largeNumberResult} />);
+    render(<DCFResultsDashboard analysis={largeNumberResult} />);
 
     expect(screen.getByText('$15,000,000')).toBeInTheDocument();
   });
@@ -182,14 +199,14 @@ describe('DCFResultsDashboard', () => {
       },
     };
 
-    render(<DCFResultsDashboard result={negativeResult} />);
+    render(<DCFResultsDashboard analysis={negativeResult} />);
 
     expect(screen.getByText('$-500,000')).toBeInTheDocument();
     expect(screen.getByText('STRONG_SELL')).toBeInTheDocument();
   });
 
   it('displays all required financial metrics labels', () => {
-    render(<DCFResultsDashboard result={mockAnalysisResult} />);
+    render(<DCFResultsDashboard analysis={mockAnalysisResult} />);
 
     expect(screen.getByText(/net present value/i)).toBeInTheDocument();
     expect(screen.getByText(/internal rate of return/i)).toBeInTheDocument();
@@ -199,7 +216,7 @@ describe('DCFResultsDashboard', () => {
   });
 
   it('provides accessible content structure', () => {
-    render(<DCFResultsDashboard result={mockAnalysisResult} />);
+    render(<DCFResultsDashboard analysis={mockAnalysisResult} />);
 
     // Should have proper heading structure
     const headings = screen.getAllByRole('heading');
@@ -219,7 +236,7 @@ describe('DCFResultsDashboard', () => {
       },
     };
 
-    render(<DCFResultsDashboard result={highIRRResult} />);
+    render(<DCFResultsDashboard analysis={highIRRResult} />);
 
     expect(screen.getByText('250.0%')).toBeInTheDocument();
   });
@@ -234,7 +251,7 @@ describe('DCFResultsDashboard', () => {
       },
     };
 
-    render(<DCFResultsDashboard result={zeroValuesResult} />);
+    render(<DCFResultsDashboard analysis={zeroValuesResult} />);
 
     expect(screen.getByText('0')).toBeInTheDocument(); // Payback period
     expect(screen.getByText('0.0%')).toBeInTheDocument(); // Cash on cash return

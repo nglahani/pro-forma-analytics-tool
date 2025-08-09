@@ -1,8 +1,8 @@
-# Production Deployment Guide v1.3
+# Production Deployment Guide v1.6
 
 ## Overview
 
-This document provides comprehensive production deployment instructions for the Pro-Forma Analytics Tool v1.3, including CI/CD pipeline configuration, quality gates, automated deployment processes, and infrastructure requirements.
+This document provides comprehensive production deployment instructions for the Pro-Forma Analytics Tool v1.6, including CI/CD pipeline configuration, quality gates, automated deployment processes, and infrastructure requirements.
 
 ## System Requirements
 
@@ -38,7 +38,7 @@ This document provides comprehensive production deployment instructions for the 
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/pro-forma-analytics-tool.git
+git clone https://github.com/nglahani/pro-forma-analytics-tool.git
 cd pro-forma-analytics-tool
 
 # Create and activate virtual environment
@@ -225,7 +225,7 @@ services:
 **Build and Deploy**
 ```bash
 # Build Docker image
-docker build -t pro-forma-analytics:v1.3 .
+docker build -t pro-forma-analytics:v1.6 .
 
 # Run with Docker Compose
 docker-compose up -d
@@ -253,7 +253,7 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install python3.11 python3.11-venv python3-pip sqlite3 nginx -y
 
 # Clone and setup application
-git clone https://github.com/your-org/pro-forma-analytics-tool.git
+git clone https://github.com/nglahani/pro-forma-analytics-tool.git
 cd pro-forma-analytics-tool
 
 # Setup virtual environment
@@ -306,7 +306,7 @@ az group create --name pro-forma-analytics-rg --location eastus
 az container create \
   --resource-group pro-forma-analytics-rg \
   --name pro-forma-analytics \
-  --image your-registry/pro-forma-analytics:v1.3 \
+  --image nglahani/pro-forma-analytics:v1.6 \
   --cpu 2 \
   --memory 4 \
   --restart-policy Always \
@@ -318,11 +318,11 @@ az container create \
 **Cloud Run Deployment**
 ```bash
 # Build and push to Container Registry
-gcloud builds submit --tag gcr.io/your-project/pro-forma-analytics:v1.3
+gcloud builds submit --tag gcr.io/pro-forma-analytics-project/pro-forma-analytics:v1.6
 
 # Deploy to Cloud Run
 gcloud run deploy pro-forma-analytics \
-  --image gcr.io/your-project/pro-forma-analytics:v1.3 \
+  --image gcr.io/pro-forma-analytics-project/pro-forma-analytics:v1.6 \
   --platform managed \
   --region us-central1 \
   --memory 4Gi \
@@ -343,7 +343,7 @@ sudo useradd -m -s /bin/bash proforma
 sudo su - proforma
 
 # Application setup
-git clone https://github.com/your-org/pro-forma-analytics-tool.git
+git clone https://github.com/nglahani/pro-forma-analytics-tool.git
 cd pro-forma-analytics-tool
 
 # Virtual environment and dependencies
@@ -676,4 +676,4 @@ sudo systemctl restart pro-forma-analytics.service
 
 ---
 
-*This deployment guide provides comprehensive production deployment instructions with automated CI/CD pipeline, quality gates, and enterprise-grade infrastructure configuration for the Pro-Forma Analytics Tool v1.3.*
+*This deployment guide provides comprehensive production deployment instructions with automated CI/CD pipeline, quality gates, and enterprise-grade infrastructure configuration for the Pro-Forma Analytics Tool v1.6.*

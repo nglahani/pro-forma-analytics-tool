@@ -4,9 +4,10 @@ FastAPI Application Entry Point
 Main application configuration and startup for the Pro-Forma Analytics API.
 """
 
+import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, AsyncGenerator, Dict
 
@@ -27,9 +28,32 @@ sys.path.insert(0, str(project_root))
 from config.settings import get_settings
 from core.logging_config import get_logger
 
+# Optional Sentry integration
+_sentry_initialized = False
+try:
+    import sentry_sdk  # type: ignore
+    from sentry_sdk.integrations.fastapi import FastAPIIntegration  # type: ignore
+except Exception:  # pragma: no cover
+    FastAPIIntegration = None  # type: ignore
+    sentry_sdk = None  # type: ignore
+
 # Initialize settings and logging
 settings = get_settings()
 logger = get_logger(__name__)
+
+# Configure Sentry if DSN provided
+SENTRY_DSN = os.getenv("SENTRY_DSN", "")
+if SENTRY_DSN and sentry_sdk and FastAPIIntegration:
+    try:
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            integrations=[FastAPIIntegration()],
+            traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+        )
+        _sentry_initialized = True
+        logger.info("Sentry initialized for FastAPI")
+    except Exception as _e:  # pragma: no cover
+        logger.warning(f"Sentry initialization failed: {_e}")
 
 
 @asynccontextmanager
@@ -96,14 +120,14 @@ app = FastAPI(
     version="1.5.0",
     contact={
         "name": "Pro-Forma Analytics API",
-        "url": "https://github.com/your-org/pro-forma-analytics-tool",
+        "url": "https://github.com/nglahani/pro-forma-analytics-tool",
         "email": "api-support@example.com",
     },
     license_info={
         "name": "MIT License",
         "url": "https://opensource.org/licenses/MIT",
     },
-    terms_of_service="https://github.com/your-org/pro-forma-analytics-tool/blob/main/TERMS.md",
+    terms_of_service="https://github.com/nglahani/pro-forma-analytics-tool/blob/main/TERMS.md",
     docs_url="/api/v1/docs",
     redoc_url="/api/v1/redoc",
     openapi_url="/api/v1/openapi.json",
@@ -159,7 +183,7 @@ app.include_router(system.router)
 app.include_router(data.router)
 
 # Application startup time for health checks
-_startup_time = datetime.now(UTC)
+_startup_time = datetime.now(timezone.utc)
 
 
 @app.get("/api/v1/test")
@@ -181,7 +205,7 @@ async def global_exception_handler(request, exc):
         content={
             "error_code": "internal_server_error",
             "message": "An unexpected error occurred",
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "request_id": getattr(request.state, "request_id", "unknown"),
         },
     )

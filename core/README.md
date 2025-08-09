@@ -1,4 +1,4 @@
-# Core Infrastructure - v1.3
+# Core Infrastructure - v1.6
 
 Production-grade shared infrastructure components and utilities providing foundational services across the DCF analysis platform, including comprehensive error handling, structured logging, and legacy compatibility layers.
 
@@ -128,7 +128,7 @@ LOGGING_CONFIG = {
 }
 ```
 
-### Logging Features (v1.3)
+### Logging Features (v1.6)
 - **Automatic Log Rotation**: Prevents log files from consuming excessive disk space
 - **Multi-Handler Support**: Simultaneous logging to files, console, and error streams
 - **JSON Formatting**: Structured logging for automated log analysis and monitoring
@@ -202,7 +202,7 @@ def initialize_application():
     validate_environment_configuration()
     
     logger = logging.getLogger('dcf_engine')
-    logger.info("DCF Analysis Platform v1.3 initialized successfully")
+    logger.info("DCF Analysis Platform v1.6 initialized successfully")
 ```
 
 ### Error Handling Integration

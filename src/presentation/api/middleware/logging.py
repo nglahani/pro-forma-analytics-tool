@@ -45,6 +45,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         self.log_response_body = log_response_body
         self.exclude_paths = exclude_paths or {
             "/api/v1/health",
+            "/api/v1/metrics",
             "/api/v1/docs",
             "/api/v1/redoc",
             "/api/v1/openapi.json",

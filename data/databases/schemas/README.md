@@ -1,8 +1,8 @@
-# Database Schemas - v1.3
+# Database Schemas - v1.6
 
 Production-grade normalized database schema definitions for real estate DCF analysis with optimized indexing, referential integrity, and comprehensive data validation supporting 2,174+ market data points across 11 pro forma parameters.
 
-## Schema Architecture (v1.3)
+## Schema Architecture (v1.6)
 
 ### Core Schema Files
 
@@ -414,7 +414,7 @@ CREATE TABLE schema_version (
 
 -- Current schema version
 INSERT INTO schema_version (version_number, description) 
-VALUES ('v1.3.0', 'Production-grade schema with comprehensive indexing and validation');
+VALUES ('v1.6.0', 'Production-grade schema with comprehensive indexing and validation');
 ```
 
 ### Database Health Monitoring

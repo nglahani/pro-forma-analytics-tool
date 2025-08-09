@@ -84,6 +84,7 @@ jest.mock('@/components/ui/tabs', () => ({
 
 // Mock utils
 jest.mock('@/lib/utils', () => ({
+  cn: (...classes: string[]) => classes.filter(Boolean).join(' '),
   formatCurrency: (value: number) => `$${value.toLocaleString()}`,
   textColors: {
     primary: 'text-gray-900',

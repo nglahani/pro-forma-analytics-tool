@@ -5,10 +5,10 @@
 ### 1. Setup & Installation
 ```bash
 # Clone and setup
-git clone <repo-url>
+git clone https://github.com/nglahani/pro-forma-analytics-tool.git
 cd pro-forma-analytics-tool
 
-# Create virtual environment (Python 3.9-3.11)  
+# Create virtual environment (Python 3.10-3.11)  
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 

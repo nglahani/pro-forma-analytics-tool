@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -101,12 +101,6 @@ export function CashFlowTable({
     { key: 'net_cash_flow', label: 'Net Cash Flow' },
   ];
 
-  const getSelectedMetricData = () => {
-    return projections.map(p => ({
-      year: p.year,
-      value: (p as any)[selectedMetric] || 0,
-    }));
-  };
 
   return (
     <div className="space-y-6">

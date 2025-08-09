@@ -1,14 +1,14 @@
-# Tests - v1.5
+# Tests - v1.6
 
-Comprehensive test suite following TDD/BDD practices with 80% coverage and 260+ test methods, including extensive edge case testing and GitHub Actions CI/CD integration. Enhanced technical foundation with improved code quality and modernized frameworks.
+Comprehensive test suite following TDD/BDD practices with 82% coverage and 320+ test methods, including extensive edge case testing and GitHub Actions CI/CD integration. Enhanced technical foundation with improved code quality and modernized frameworks.
 
-## Quality Metrics (v1.5)
+## Quality Metrics (v1.6)
 
-- **Test Coverage**: 80% across all modules (src, core, monte_carlo) with focus on core business logic
-- **Test Methods**: 260+ individual test methods covering unit, integration, and performance scenarios
+- **Test Coverage**: 82% across all modules (src, core, monte_carlo) with focus on core business logic
+- **Test Methods**: 320+ individual test methods covering unit, integration, and performance scenarios
 - **Core Business Logic**: 224/224 tests passing for critical application and integration layers (99.2% success rate)
 - **Edge Case Coverage**: 40+ comprehensive boundary condition and error path tests
-- **CI/CD Integration**: Fully automated GitHub Actions pipeline with multi-Python version support (3.9-3.11)
+- **CI/CD Integration**: Fully automated GitHub Actions pipeline with multi-Python version support (3.10-3.11)
 - **Performance Testing**: Validated sub-second response times for complex DCF calculations
 - **Technical Modernization**: Pydantic V2, FastAPI lifespan events, enhanced Windows compatibility
 
@@ -117,8 +117,8 @@ pytest tests/performance/ --benchmark-only
 ## GitHub Actions CI/CD Integration
 
 ### Automated Testing Pipeline
-- **Multi-Python Support**: Automated testing across Python 3.9-3.11
-- **Coverage Enforcement**: Pipeline fails if coverage drops below 80%
+- **Multi-Python Support**: Automated testing across Python 3.10-3.11
+- **Coverage Enforcement**: Pipeline fails if coverage drops below 82%
 - **Quality Gates**: Comprehensive linting, type checking, and architecture validation
 - **Performance Monitoring**: Automated performance regression detection
 

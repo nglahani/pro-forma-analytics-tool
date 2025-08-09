@@ -1,0 +1,170 @@
+# Pro-Forma Analytics Tool - Prometheus Alert Rules
+
+groups:
+  - name: proforma.api
+    rules:
+      # API Health Alerts
+      - alert: ProFormaAPIDown
+        expr: up{job="proforma-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pro-Forma Analytics API is down"
+          description: "The Pro-Forma Analytics API has been down for more than 1 minute."
+          runbook_url: "https://docs.proforma.example.com/runbooks/api-down"
+
+      - alert: ProFormaAPIHighLatency
+        expr: proforma_endpoint_avg_response_seconds > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API response latency detected"
+          description: "API endpoint {{ $labels.endpoint }} has average response time of {{ $value }}s (>5s threshold)"
+          runbook_url: "https://docs.proforma.example.com/runbooks/high-latency"
+
+      - alert: ProFormaAPIHighErrorRate
+        expr: rate(proforma_total_errors[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High API error rate detected"
+          description: "API error rate is {{ $value | humanizePercentage }} (>10% threshold)"
+          runbook_url: "https://docs.proforma.example.com/runbooks/high-error-rate"
+
+      # DCF Analysis Performance
+      - alert: ProFormaDCFAnalysisSlowdown
+        expr: proforma_endpoint_avg_response_seconds{endpoint=~".*/analysis/dcf.*"} > 30
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DCF analysis performance degradation"
+          description: "DCF analysis taking {{ $value }}s (>30s threshold) on average"
+          runbook_url: "https://docs.proforma.example.com/runbooks/dcf-slowdown"
+
+      - alert: ProFormaMonteCarloTimeout
+        expr: proforma_endpoint_avg_response_seconds{endpoint=~".*/monte-carlo.*"} > 120
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Monte Carlo simulation performance issues"
+          description: "Monte Carlo simulations taking {{ $value }}s (>120s threshold) on average"
+          runbook_url: "https://docs.proforma.example.com/runbooks/monte-carlo-timeout"
+
+  - name: proforma.infrastructure
+    rules:
+      # Database Health
+      - alert: ProFormaDatabaseConnectionFailed
+        expr: proforma_db_connection_errors > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection failures detected"
+          description: "{{ $value }} database connection failures in the last minute"
+          runbook_url: "https://docs.proforma.example.com/runbooks/db-connection-failed"
+
+      # Memory Usage
+      - alert: ProFormaHighMemoryUsage
+        expr: (container_memory_usage_bytes{name="proforma-api"} / container_spec_memory_limit_bytes{name="proforma-api"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on Pro-Forma API"
+          description: "Memory usage is {{ $value | humanizePercentage }} (>85% threshold)"
+          runbook_url: "https://docs.proforma.example.com/runbooks/high-memory"
+
+      # CPU Usage
+      - alert: ProFormaHighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total{name="proforma-api"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on Pro-Forma API"
+          description: "CPU usage is {{ $value | humanizePercentage }} (>80% threshold)"
+          runbook_url: "https://docs.proforma.example.com/runbooks/high-cpu"
+
+      # Disk Space
+      - alert: ProFormaLowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/app/data"} / node_filesystem_size_bytes{mountpoint="/app/data"}) * 100 < 15
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space on data volume"
+          description: "Disk space on data volume is {{ $value | humanizePercentage }} available (<15% threshold)"
+          runbook_url: "https://docs.proforma.example.com/runbooks/low-disk-space"
+
+  - name: proforma.business
+    rules:
+      # Request Volume
+      - alert: ProFormaLowRequestVolume
+        expr: rate(proforma_total_requests[15m]) < 0.1
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: "Unusually low request volume"
+          description: "Request rate is {{ $value }} requests/second (<0.1 threshold) for 10+ minutes"
+          runbook_url: "https://docs.proforma.example.com/runbooks/low-volume"
+
+      - alert: ProFormaHighRequestVolume
+        expr: rate(proforma_total_requests[5m]) > 50
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request volume detected"
+          description: "Request rate is {{ $value }} requests/second (>50 threshold)"
+          runbook_url: "https://docs.proforma.example.com/runbooks/high-volume"
+
+      # Analysis Success Rate
+      - alert: ProFormaDCFAnalysisFailures
+        expr: rate(proforma_endpoint_request_count{endpoint=~".*/analysis/dcf.*",status=~"4.*|5.*"}[10m]) / rate(proforma_endpoint_request_count{endpoint=~".*/analysis/dcf.*"}[10m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High DCF analysis failure rate"
+          description: "DCF analysis failure rate is {{ $value | humanizePercentage }} (>5% threshold)"
+          runbook_url: "https://docs.proforma.example.com/runbooks/dcf-failures"
+
+  - name: proforma.dependencies
+    rules:
+      # Redis Health
+      - alert: ProFormaRedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis cache is down"
+          description: "Redis cache has been down for more than 1 minute"
+          runbook_url: "https://docs.proforma.example.com/runbooks/redis-down"
+
+      - alert: ProFormaRedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis memory usage is {{ $value | humanizePercentage }} (>90% threshold)"
+          runbook_url: "https://docs.proforma.example.com/runbooks/redis-memory"
+
+      # External APIs
+      - alert: ProFormaFREDAPIErrors
+        expr: increase(proforma_external_api_errors{api="fred"}[5m]) > 3
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "FRED API experiencing errors"
+          description: "{{ $value }} FRED API errors in the last 5 minutes"
+          runbook_url: "https://docs.proforma.example.com/runbooks/fred-api-errors"

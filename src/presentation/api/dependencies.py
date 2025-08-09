@@ -67,14 +67,16 @@ def get_financial_metrics_service() -> FinancialMetricsService:
 
 
 def get_forecasting_service():
-    """FastAPI dependency for forecasting service - placeholder."""
-    # For now, return None as these services need complex initialization
+    """FastAPI dependency for forecasting service - requires complex initialization."""
+    # These services require repository dependencies and complex initialization
+    # For now, return None to indicate they need to be initialized elsewhere
     return None
 
 
 def get_monte_carlo_service():
-    """FastAPI dependency for Monte Carlo service - placeholder."""
-    # For now, return None as these services need complex initialization
+    """FastAPI dependency for Monte Carlo service - requires complex initialization."""
+    # These services require repository dependencies and complex initialization
+    # For now, return None to indicate they need to be initialized elsewhere
     return None
 
 

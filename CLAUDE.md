@@ -1,810 +1,357 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+> **Operational Guide for Claude Code** — Spec‑first, architecture‑faithful, test‑driven development for the pro‑forma analytics platform.
 
-## Purpose
+---
 
-This document serves as a technical specification and development guide for AI assistants working on the pro-forma-analytics-tool. It provides context about the current implementation state, architectural decisions, and development standards to ensure consistent and informed code contributions.
+## 0) Golden Rules (Read First)
 
-## Repository Overview
+1. **Spec before code.** Produce `requirements.md` → `design.md` → `tasks.md` for every feature. Do not write code until the spec is approved.
+2. **Honor Clean Architecture.** Domain/application/infrastructure/presentation layering is inviolable. No cross‑layer leaks.
+3. **TDD/BDD only.** Write failing tests first. Keep tests green as you implement. Maintain ≥82% coverage.
+4. **Ask clarifying questions early.** If anything is ambiguous, stop and ask. Document answers immediately.
+5. **No broken CI.** Never bypass failing checks. Fix locally, then push. Treat warnings as errors.
+6. **Keep docs current.** Update this file and `/docs/*` whenever behavior or interfaces change.
 
-**pro-forma-analytics-tool** - A production-ready real estate DCF analysis platform that transforms static Excel-based pro formas into sophisticated financial models using Prophet time series forecasting and Monte Carlo simulations.
+---
 
-## Current Implementation Status
+## 1) Repository Overview (for Orientation)
 
-**Status**: Enhanced Technical Foundation (v1.5) - Production-ready with modernized frameworks
-**Quality**: A+ (98/100) - Enhanced technical debt resolution and framework modernization
-**Architecture**: Clean Architecture with domain-driven design + environment configuration system
-**Testing**: 80% coverage with 260+ test methods across BDD/TDD framework with 224/224 core tests passing
-**Data Coverage**: 100% parameter completion with production-grade validation
-**CI/CD**: Fully debugged GitHub Actions pipeline with multi-Python version support (3.9-3.11) and CLI integration
-**Configuration**: Multi-environment support (dev/test/prod) with security best practices
+**pro‑forma‑analytics‑tool** — A production‑ready real‑estate DCF analysis platform using Prophet forecasting and Monte Carlo simulation.
 
 ### Core Capabilities
-- **Complete 4-Phase DCF Engine**: Assumptions → Initial Numbers → Cash Flow → Financial Metrics
-- **Prophet Forecasting**: 11 pro forma parameters with 6-year projections
-- **Monte Carlo Simulation**: 500+ scenarios with economic correlations
-- **Investment Analysis**: NPV, IRR, equity multiples, risk assessment, terminal value
-- **Data Infrastructure**: 4 SQLite databases with 2,174+ production-grade historical data points
-- **Environment Configuration**: Multi-environment support with security best practices and FastAPI preparation
 
-## Technical Architecture
+- **4‑Phase DCF Engine:** Assumptions → Initial Numbers → Cash Flow → Financial Metrics
+- **Forecasting:** Prophet‑based projections on key pro‑forma parameters
+- **Monte Carlo:** 500+ scenarios with economic correlations
+- **Investment Analytics:** NPV, IRR, equity multiple, risk/terminal value
+- **Data Infra:** 4 SQLite DBs with validated historical data
 
-### Clean Architecture Implementation
+### Technical Architecture (Clean Architecture)
+
 ```
 src/
-├── domain/              # Core business logic (no external dependencies)
-│   ├── entities/        # Immutable business entities
-│   └── repositories/    # Abstract repository interfaces
-├── application/         # Use case orchestration
-│   └── services/        # 6 DCF service classes
-├── infrastructure/      # External concerns
-│   ├── repositories/    # SQLite repository implementations
-│   └── container.py     # Dependency injection
-└── presentation/        # Visualization components
+├─ domain/              # Business logic (no external deps)
+│  ├─ entities/         # Immutable business entities
+│  └─ repositories/     # Abstract repository interfaces
+├─ application/         # Use case orchestration
+│  └─ services/         # DCF/forecast/MC services
+├─ infrastructure/      # External concerns (SQLite, DI)
+│  ├─ repositories/
+│  └─ container.py
+└─ presentation/        # Visualization components
 ```
 
-### Key Services
-1. **DCFAssumptionsService** - Monte Carlo to DCF parameter mapping
-2. **InitialNumbersService** - Acquisition costs and financing calculations  
-3. **CashFlowProjectionService** - 6-year cash flow modeling with waterfall distributions
-4. **FinancialMetricsService** - NPV, IRR, terminal value, investment recommendations
-5. **ForecastingService** - Prophet-based time series forecasting
-6. **MonteCarloService** - Probabilistic scenario generation
+**Key Services:** `DCFAssumptionsService`, `InitialNumbersService`, `CashFlowProjectionService`, `FinancialMetricsService`, `ForecastingService`, `MonteCarloService`
 
-### Database Schema
-- **market_data.db**: National economic indicators (interest rates, treasury yields)
-- **property_data.db**: MSA-specific rental market data and operating expenses
-- **economic_data.db**: Regional growth metrics and lending requirements  
-- **forecast_cache.db**: Prophet forecasts and Monte Carlo simulation results
+### Data Stores
 
-### Data Coverage
-- **5 Major MSAs**: NYC, LA, Chicago, DC, Miami
-- **11 Pro Forma Metrics**: Interest rates, cap rates, vacancy, rent growth, expense growth, property growth, LTV ratios, closing costs, lender reserves
-- **Historical Depth**: 15+ years (2010-2025) with 2,174+ data points
-- **Parameter Completion**: 100% coverage across all 11 parameters
-- **Data Quality**: Production-grade validation with comprehensive test coverage
-- **Geographic Coverage**: 5+ MSAs for all location-dependent parameters
-- **Validation Status**: Complete data coverage, statistical validation passed
+- `market_data.db` – national indicators
+- `property_data.db` – MSA rent & opex
+- `economic_data.db` – regional growth & lending
+- `forecast_cache.db` – Prophet & Monte Carlo cache
 
-## Development Standards
+### Environment & Config
 
-### Code Quality Requirements
-- **Test Coverage**: 80%+ actual coverage with focus on core business logic
-- **Architecture**: Strict adherence to Clean Architecture principles
-- **Type Safety**: Comprehensive type hints with mypy validation
-- **Error Handling**: Consistent ValidationError usage with detailed messages
-- **Documentation**: Docstrings for all public interfaces
+- `PRO_FORMA_ENV` controls environment (dev/test/prod)
+- Secrets via environment variables (e.g., `FRED_API_KEY`)
+- FastAPI‑ready settings (CORS/rate limiting/auth)
 
-### Testing Framework
-- **Unit Tests**: `tests/unit/` - Isolated component testing with 280+ test methods
-- **Integration Tests**: `tests/integration/` - End-to-end workflow validation
-- **Performance Tests**: `tests/performance/` - Load and performance validation
-- **Edge Case Tests**: `tests/unit/*/test_edge_cases.py` - 40+ comprehensive error scenario tests
-- **BDD/TDD**: Behavior-driven development with given/when/then patterns
+---
 
-### Build Commands
+## 2) Operating Modes for Claude Code
 
-#### Local Development (Windows)
+**Default: Spec Mode**
+
+- Deliver `requirements.md`, `design.md`, `tasks.md` under `.kiro/specs/{feature}/`.
+- Block coding until user approves the spec.
+
+**Implement Mode** (after spec approval)
+
+- Generate code as **unified diffs** or precise **patch plans** per task.
+- For each commit:
+  - Add/extend tests → run tests → implement → refactor → re‑run tests.
+  - Provide commands to run the same checks locally.
+
+**Refactor Mode**
+
+- Identify code smells and architecture drifts. Propose minimal, safe refactors with tests proving behavioral equivalence.
+
+**Debug Mode**
+
+- Form 3–5 hypotheses. Add targeted logs/tests to isolate root cause. Propose surgical fix. Prove with tests.
+
+**Doc Mode**
+
+- Update `/docs` and this file when APIs, calculations, parameters, or workflows change.
+
+---
+
+## 3) Kiro‑Style Spec‑Driven Development
+
+Each feature follows three artifacts and hard gates:
+
+### Phase 1 — `requirements.md` (Definition of Ready)
+
+- **User story(ies)**: “As a [role], I want [feature], so that [benefit].”
+- **Acceptance criteria (EARS):** `WHEN … THEN system SHALL …`
+- **Out‑of‑scope** and **assumptions**.
+- **Open questions** (to be resolved before design).
+- **Approval Gate:** All acceptance criteria are testable; ambiguities resolved.
+
+### Phase 2 — `design.md`
+
+- **Architecture placement** (domain/app/infra), dependency flow, interfaces.
+- **Data model changes** (schema/migrations), validation rules.
+- **Algorithms & formulas** (e.g., DCF, IRR, MC distributions, correlations).
+- **Error handling & edge cases**.
+- **Testing strategy**: unit/integration/perf/architecture tests.
+- **Non‑functionals:** performance, security, compatibility.
+- **Approval Gate:** Design maps 1‑to‑1 to requirements; no layer violations.
+
+### Phase 3 — `tasks.md`
+
+- Numbered checklist (1, 1.1, 1.2…).
+- Each task references the requirement(s) it fulfills.
+- Include test additions & doc updates.
+- **Exit Gate (Definition of Done):**
+  - All tasks complete; tests pass locally & in CI; coverage ≥82%.
+  - Docs updated; architecture validators clean; no perf regression.
+
+---
+
+## 4) Change Playbooks
+
+### A) Add a New **Pro‑Forma Parameter** or **Metric**
+
+**Impact map**: `config/parameters.py` → DB schema in `data/databases/` → `forecasting/prophet_engine.py` → `monte_carlo/simulation_engine.py` (correlations) → mapping in `src/application/services/dcf_assumptions_service.py` → consumers (e.g., `FinancialMetricsService`). **Tests**: unit for mapping & metrics, integration (complete workflow), update performance/edge tests as needed. **Risks**: inconsistent defaults, missing cache invalidation, derived metrics drift.
+
+### B) Change **DCF Calculations**
+
+**Impact**: new/updated entities in `src/domain/entities/` → application services → metrics/reporting. **Tests**: golden cases vs. benchmarks; edge cases; integration. **Risks**: breaking financial invariants; rounding/precision; time‑horizon assumptions.
+
+### C) Update **Monte Carlo** or **Forecasting**
+
+**Impact**: distributions, correlations, scenario classification, Prophet configs, cache. **Tests**: distribution shape tests, correlation assertions, determinism for seeds, perf. **Risks**: non‑determinism flaking tests; perf regressions; invalid cached forecasts.
+
+### D) Introduce a **New Application Service**
+
+**Impact**: service module under `src/application/services/`, DI registration in `infrastructure/container.py`, potential new domain entities. **Tests**: unit per public method; integration to prove orchestration; architecture compliance. **Risks**: leaking infra concerns into app/domain; wide interfaces; untyped boundaries.
+
+### E) **Database/Schema** Change
+
+**Impact**: migrations, repo interfaces, data managers, seed/caches. **Tests**: migration up/down; backward compatibility; repo contract tests. **Risks**: data loss; mismatched schema vs. entities; long‑running migrations.
+
+---
+
+## 5) TDD/BDD Implementation Checklist
+
+-
+
+**Quality Gates (must pass locally before push):**
+
 ```bash
-# Test execution
-python -m pytest tests/ -v
+# Tests & coverage
+pytest --cov=src --cov=core --cov=monte_carlo --cov-fail-under=82 -q
+# End‑to‑end demo
 python demo_end_to_end_workflow.py
-
-# Code quality
-black src/ tests/
-isort src/ tests/
+# Format, lint, type
+black --check src/ tests/
+isort --check-only src/ tests/
 flake8 src/ tests/
 mypy src/
-
-# Coverage analysis
-pytest --cov=src --cov=core --cov=monte_carlo
+# Architecture & docs validity
+python scripts/validate_architecture.py
+python scripts/validate_docs.py
+# Performance (no regression)
+python tests/performance/test_irr_performance.py
 ```
 
-#### Linux Compatibility Validation
-```bash
-# Validate Linux compatibility before pushing
-scripts\validate-linux.bat    # Windows
-./scripts/validate-linux.sh   # Unix/Mac
+---
 
-# Manual Docker validation
+## 6) CI/CD & Release Expectations
+
+- **Linux‑focused CI** on Python 3.10–3.11.
+- Enforces: coverage ≥82%, zero architecture violations, doc accuracy, no dependency vulns, perf regression detection.
+- Release: semantic versioning; auto release notes; GitHub release artifacts.
+
+**Never ignore a red pipeline.** Fix locally, re‑run, and push only when green.
+
+---
+
+## 7) Clarifying Questions Protocol (for Claude Code)
+
+Trigger this protocol whenever:
+
+- Business logic is complex, requirements have gaps, multiple interpretations exist, domain expertise is needed, or integrations are unclear.
+
+**How to ask:**
+
+- Be specific. Reference exact files/lines or formulas. Share your current understanding and the implications of options A vs. B. Batch related questions. After answers, immediately update the spec/docs.
+
+**Example:**
+
+```
+I see parameter X used in Y. Should the calc be A×B/C or (A×B)/(C+D)?
+My understanding: … This conflicts with … If A, we need … If B, we need …
+Preferred? Any edge cases?
+```
+
+---
+
+## 8) Documentation Standards (MECE & Centralized)
+
+- Write for technical audiences; declarative tone; no emojis.
+- Keep topics non‑overlapping; place docs in `/docs` with an index in `/docs/README.md`.
+- Update docs **with** code changes; record architectural decisions; provide examples.
+- Perform repo‑wide markdown review when updating docs (glob, cross‑reference, gap & redundancy analysis).
+
+---
+
+## 9) Commands & Developer Ergonomics
+
+**Quick local cycle**
+
+```bash
+python -m pytest tests/ -q
+python demo_end_to_end_workflow.py
+```
+
+**Linux compatibility (pre‑push)**
+
+```bash
+scripts\validate-linux.bat   # Windows
+./scripts/validate-linux.sh  # Unix/Mac
+# Optional Docker validation
 docker build -f Dockerfile.test -t proforma-test .
 ```
 
-## Recent Enhancements (v1.3)
-
-### Code Quality Improvements
-- **Comprehensive Linting Cleanup**: Fixed 100+ flake8 violations including unused imports, trailing whitespace, and undefined names
-- **Type Safety Enhancements**: Improved TYPE_CHECKING imports and forward references for better type checking
-- **Error Handling**: Replaced bare except clauses with specific exception handling
-- **Code Consolidation**: Removed redundant imports and variables across 20+ files
-
-### CI/CD Pipeline Enhancements
-- **GitHub Actions Debugging**: Implemented CLI-based debugging with `gh` tool integration
-- **Python Version Compatibility**: Resolved pandas compatibility issues for Python 3.8+ support
-- **Automated Quality Gates**: Enhanced pipeline with comprehensive validation steps
-- **Configuration Optimization**: Fixed flake8 configuration parsing and simplified workflow commands
-
-### Testing Infrastructure
-- **Edge Case Coverage**: Added 40+ new test cases for error scenarios and boundary conditions
-- **Infrastructure Testing**: Comprehensive database error handling and configuration edge cases
-- **Application Testing**: Extreme scenario testing for financial calculations and business logic
-- **Performance Validation**: IRR calculation performance testing with batch processing
-
-### Development Experience
-- **Documentation Accuracy**: Improved inline documentation and code comments
-- **Windows Compatibility**: Fixed file handling issues in validation scripts
-- **Debugging Tools**: Enhanced error tracking and resolution capabilities
-- **Automated Formatting**: Consistent code formatting across entire codebase
-
-## Key Implementation Details
-
-### DCF Engine Workflow
-1. **Phase 1**: Convert Monte Carlo scenarios to DCF assumptions using economic parameter mapping
-2. **Phase 2**: Calculate acquisition costs, financing terms, and initial investment requirements
-3. **Phase 3**: Generate 6-year cash flow projections with waterfall distributions and growth modeling
-4. **Phase 4**: Compute financial metrics (NPV, IRR, terminal value) and investment recommendations
-
-### Monte Carlo Integration
-- **Correlation Modeling**: 23 economic relationships (e.g., interest rates → cap rates)
-- **Scenario Classification**: Bull/Bear/Neutral/Growth/Stress market identification
-- **Risk Metrics**: Growth scores (0.376-0.557), Risk scores (0.385-0.593)
-- **Quality Assurance**: 5/5 statistical validation checks passed
-
-### Property Input System
-- **Current**: `SimplifiedPropertyInput` in `src/domain/entities/property_data.py`
-- **Legacy**: `PropertyInputData` has been removed and replaced with modern implementation
-- **Required Fields**: 7 core inputs (residential units, renovation time, commercial units, equity share, rent rates, cash percentage)
-
-### Environment Configuration System
-- **Configuration File**: Enhanced `config/settings.py` with multi-environment support
-- **Environment Types**: Development, Testing, Production with automatic detection
-- **Environment Variable**: `PRO_FORMA_ENV` controls environment (defaults to development)
-- **Security**: Environment variable-based secrets management (no hardcoded API keys)
-- **API Preparation**: FastAPI-ready configuration with CORS, rate limiting, authentication settings
-- **Validation**: Automatic configuration validation prevents production misconfigurations
-- **External APIs**: Secure FRED API key management via `FRED_API_KEY` environment variable
-
-## CI/CD Pipeline and Development Workflow
-
-### Streamlined Linux-Focused CI/CD
-
-**Pipeline Design**: Optimized for Linux deployment with simplified validation workflow
-- **Platform**: Ubuntu Linux only (eliminates cross-platform complexity)
-- **Python Versions**: 3.9, 3.10, 3.11 (focused on production-relevant versions)
-- **Execution Time**: ~3-5 minutes (reduced from 10+ minutes)
-- **Jobs**: 2 parallel jobs (test + production-validation)
-
-### Development Workflow
-
-#### 1. Local Development (Windows)
-```bash
-# Normal development cycle
-python -m pytest tests/ -v           # Quick local testing
-python demo_end_to_end_workflow.py   # Validate DCF engine
-black src/ tests/                    # Code formatting
-```
-
-#### 2. Linux Compatibility Check (Pre-Push)
-```bash
-# Validate Linux compatibility
-scripts\validate-linux.bat           # Full Linux validation
-git push origin main                 # Push with confidence
-```
-
-#### 3. CI/CD Pipeline (Automatic)
-- **Test Job**: Code quality, type checking, comprehensive tests across Python versions
-- **Production Validation**: Security, architecture, build validation, 80% coverage enforcement
-
-### Docker Integration
-
-**Purpose**: Local Linux compatibility validation without workflow disruption
-- **File**: `Dockerfile.test` - Lightweight Linux testing container
-- **Usage**: On-demand validation before pushing changes
-- **Benefits**: Catch platform-specific issues early, maintain Windows development workflow
-
-## Development Guidelines
-
-### When Working with This Codebase
-
-1. **Always read existing code** before making changes to understand patterns and conventions
-2. **Follow Clean Architecture** - maintain dependency flow (presentation/infrastructure → application → domain)
-3. **Write tests first** for new functionality using BDD/TDD patterns
-4. **Use domain entities** from `src/domain/entities/` rather than legacy classes
-5. **Maintain backwards compatibility** when modifying public interfaces
-
-### **MANDATORY POST-FEATURE WORKFLOW**
-
-**After ANY major feature addition or codebase change, you MUST complete the following steps in order:**
-
-#### 1. **Update Technical Documentation**
-- Update relevant documentation files (CLAUDE.md, README.md, etc.)
-- Document new configuration options, environment variables, or settings
-- Update architecture diagrams or API specifications if applicable
-- Ensure all code examples and references remain accurate
-
-#### 2. **Add/Update Test Cases** 
-- Write comprehensive unit tests for new functionality
-- Add integration tests for cross-component features
-- Update edge case tests for new error scenarios
-- Ensure test coverage remains ≥80% overall with focus on core business logic
-
-#### 3. **Run Complete Local Testing Workflow**
-- Execute full test suite: `python -m pytest tests/ -v`
-- Validate end-to-end functionality: `python demo_end_to_end_workflow.py`
-- Run code quality checks: `black`, `isort`, `flake8`, `mypy`
-- Verify Linux Compatibility with Docker Runs
-- Verify performance tests pass without regression
-
-#### 4. **Push to GitHub with CI/CD Validation**
-- Commit with descriptive message explaining the change
-- Push to GitHub: `git push origin main`
-- **Monitor CI/CD pipeline results closely**
-- Debug and fix any pipeline failures immediately
-- **Never ignore or bypass failing CI/CD checks**
-
-#### 5. **Pipeline Debugging Protocol**
-- Review GitHub Actions logs for specific failure points
-- Fix issues locally and re-test before pushing again
-- Update CI/CD configuration if environment changes require it
-- Ensure all automated quality gates pass
-
-**This workflow ensures:**
-- ✅ Documentation stays current and accurate
-- ✅ Test coverage remains comprehensive
-- ✅ CI/CD pipeline continues to function
-- ✅ Code quality standards are maintained
-- ✅ Production deployments remain stable
-
-**Failure to follow this workflow may result in:**
-- ❌ Broken CI/CD pipelines
-- ❌ Outdated documentation
-- ❌ Production deployment failures
-- ❌ Reduced code quality and reliability
-
-### Common Development Tasks
-
-**Adding New Pro Forma Metrics**:
-1. Update parameter definitions in `config/parameters.py`
-2. Add database schema changes in `data/databases/`
-3. Update forecasting logic in `forecasting/prophet_engine.py`
-4. Modify Monte Carlo correlations in `monte_carlo/simulation_engine.py`
-5. Update DCF mapping in `src/application/services/dcf_assumptions_service.py`
-
-**Adding New DCF Calculations**:
-1. Create new domain entities in `src/domain/entities/`
-2. Implement business logic in application services
-3. Add comprehensive unit tests in `tests/unit/application/`
-4. Update integration tests in `tests/integration/`
-
-### Reference Materials
-
-- **Excel Analysis**: `Reference_ Docs/MultiFamily_RE_Pro_Forma.xlsx` - Original pro forma structure
-- **Validation Charts**: `validation_charts/` - Monte Carlo statistical validation results
-- **Demo Workflow**: `demo_end_to_end_workflow.py` - Complete implementation example
-
-## Production Deployment Notes
-
-**Ready for Production**: The DCF engine is fully implemented and validated
-**Dependencies**: Python 3.8+, SQLite (no external database required)
-**Performance**: Handles 500+ Monte Carlo scenarios with sub-second response times
-**Scalability**: Clean architecture supports horizontal scaling and microservice decomposition
-
-## CI/CD Pipeline and Testing Requirements
-
-### Mandatory Testing and Quality Assurance
-
-**CRITICAL**: When making any code changes, you MUST update tests and maintain CI/CD pipeline compliance:
-
-### 1. Test-Driven Development Requirements
-
-**For ANY code changes, you MUST:**
-
-1. **Write Tests First** (TDD/BDD Pattern):
-   ```bash
-   # Create failing test that describes desired behavior
-   pytest tests/unit/[relevant_test_file].py::test_new_functionality -v
-   
-   # Implement feature to make test pass
-   # Refactor while keeping tests green
-   ```
-
-2. **Update All Relevant Test Types**:
-   - **Unit Tests**: `tests/unit/` - Test individual components in isolation
-   - **Integration Tests**: `tests/integration/` - Test end-to-end workflows  
-   - **Performance Tests**: `tests/performance/` - Validate performance requirements
-   - **Architecture Tests**: Validated automatically by `scripts/validate_architecture.py`
-
-3. **Maintain Test Coverage**:
-   ```bash
-   # Coverage must remain ≥80% overall
-   pytest --cov=src --cov=core --cov=monte_carlo --cov-fail-under=80
-   ```
-
-### 2. CI/CD Pipeline Compliance
-
-**Before any code commit, ensure:**
-
-1. **All Quality Checks Pass**:
-   ```bash
-   # Code formatting
-   black --check src/ tests/
-   isort --check-only src/ tests/
-   
-   # Linting
-   flake8 src/ tests/
-   
-   # Type checking  
-   mypy src/
-   
-   # Architecture validation
-   python scripts/validate_architecture.py
-   
-   # Documentation validation
-   python scripts/validate_docs.py
-   ```
-
-2. **End-to-End Workflow Validation**:
-   ```bash
-   # MUST pass before any commit
-   python demo_end_to_end_workflow.py
-   ```
-
-3. **Performance Regression Check**:
-   ```bash
-   # Ensure no performance degradation
-   python tests/performance/test_irr_performance.py
-   ```
-
-### 3. Specific Testing Requirements by Change Type
-
-**When Adding New Services**:
-1. Create comprehensive unit tests in `tests/unit/application/` following existing patterns
-2. Add integration tests in `tests/integration/test_complete_dcf_workflow.py`
-3. Update performance tests if the service affects calculation speed
-4. Validate Clean Architecture compliance
-
-**When Modifying Domain Entities**:
-1. Update entity tests in `tests/unit/domain/` following existing patterns
-2. Ensure immutability and validation rules are tested
-3. Update integration tests that use the entity
-4. Verify serialization/deserialization works correctly
-
-**When Changing DCF Calculations**:
-1. Add specific test cases for edge cases and boundary conditions
-2. Include realistic property scenarios in integration tests
-3. Validate financial calculations against known benchmarks
-4. Test error handling for invalid inputs
-
-**When Adding New Pro Forma Parameters**:
-1. Update `tests/unit/domain/test_forecast_entities.py`
-2. Add Monte Carlo correlation tests
-3. Update end-to-end workflow validation
-4. Test database schema changes
-
-### 4. CI/CD Pipeline Files
-
-**Pipeline Configuration** (`.github/workflows/`):
-- `ci.yml` - Main CI pipeline with multi-Python version testing
-- `quality.yml` - Code quality and security checks
-- `release.yml` - Automated release and deployment
-
-**Validation Scripts** (`scripts/`):
-- `validate_architecture.py` - Clean Architecture compliance checking
-- `validate_docs.py` - Documentation accuracy validation
-- `profile_memory.py` - Memory usage profiling
-- `generate_release_notes.py` - Automated release documentation
-
-### 5. Automated Quality Gates
-
-**The CI/CD pipeline enforces**:
-- **Python 3.8-3.13 compatibility** across all code changes
-- **80% test coverage** threshold overall
-- **Zero architecture violations** in Clean Architecture patterns
-- **No security vulnerabilities** in dependencies
-- **Performance regression detection** for DCF calculations
-- **Documentation accuracy** for all code examples
-
-### 6. Release Process
-
-**For version releases**:
-1. Tag with semantic versioning: `git tag v1.1.0`
-2. Push tag: `git push origin v1.1.0`
-3. CI/CD automatically runs full validation suite
-4. Generates release notes from commit history
-5. Creates GitHub release with build artifacts
-6. Optionally deploys to PyPI (if configured)
-
-### 7. Failure Response Protocol
-
-**If CI/CD pipeline fails**:
-1. **Never ignore pipeline failures** - fix immediately
-2. **Review specific failure logs** in GitHub Actions
-3. **Run failing checks locally** to reproduce and debug
-4. **Update tests** if business requirements changed
-5. **Maintain architectural compliance** - no shortcuts
-
-**Common Failure Resolutions**:
-- **Test failures**: Update test expectations or fix implementation
-- **Coverage drops**: Add tests for uncovered code paths
-- **Architecture violations**: Refactor to maintain Clean Architecture
-- **Performance regression**: Optimize or update performance thresholds
-- **Documentation outdated**: Update examples and references
-
-## Next Development Priorities
-
-**Current Status**: Infrastructure and code quality improvements completed ✅
-
-1. **RESTful API Layer** - Ready to begin development of external integrations layer
-2. **Web-based Dashboard** - Property input and analysis user interface 
-3. **Investment Reporting** - PDF export and Excel integration capabilities
-4. **Portfolio Optimization** - Enhanced IRR calculations for larger property sets
-5. **Advanced Analytics** - Machine learning features for investment recommendations
-
-**Remember**: Every code change must include corresponding test updates and pass all CI/CD quality gates before merging.
-
-## Comprehensive Testing Procedures
-
-### Quick Test Validation (5 minutes)
-```bash
-# Core business logic validation
-python -m pytest tests/unit/application/ tests/integration/ -q
-python demo_end_to_end_workflow.py
-
-# Expected: 91/91 tests passing, NPV $7.8M, IRR 64.8%, STRONG_BUY
-```
-
-### Full System Validation (10 minutes)
-Run complete test suite after significant codebase changes:
+**CI status**
 
 ```bash
-# 1. Environment & Database
-python --version && python data_manager.py status
-
-# 2. All Test Suites (91 tests total)
-python -m pytest tests/unit/application/ -v           # 74 tests
-python -m pytest tests/unit/infrastructure/test_edge_cases.py -v  # 12 tests  
-python -m pytest tests/integration/test_complete_dcf_workflow.py -v  # 1 test
-python -m pytest tests/performance/ -v                # 4 tests
-
-# 3. End-to-End Demo
-python demo_end_to_end_workflow.py
-
-# 4. Code Quality
-black --check src/ tests/
-isort --check-only --profile black src/ tests/
-flake8 src/ tests/
-
-# 5. Linux Compatibility (Docker)
-docker build -f Dockerfile.test -t proforma-linux-test .
-```
-
-### CI/CD Pipeline Validation
-```bash
-# Check pipeline status
 gh run list --limit 3
 ```
 
-### Expected Results Summary
-- **Tests**: 91/91 passing across all categories
-- **Performance**: All tests complete in <2 seconds
-- **Financial Results**: NPV $7,847,901, IRR 64.8%, Equity Multiple 9.79x
-- **Environments**: Windows (local), Linux (Docker), CI/CD (GitHub Actions)
-- **Databases**: 4 databases, 2,176+ historical records
+---
 
-### Test Categories
-1. **Local Environment** - Python compatibility
-2. **Database System** - Connectivity, data availability  
-3. **Core Business Logic** - 74 application service tests
-4. **Infrastructure Edge Cases** - 12 resilience tests
-5. **DCF Integration** - Complete 4-phase workflow
-6. **Performance** - IRR calculations, batch processing
-7. **End-to-End Demo** - Real-world scenario validation
-8. **Code Quality** - Black, isort, flake8 standards
-9. **Type Safety** - mypy validation (core modules)
-10. **CI/CD Pipeline** - Multi-Python version support
-11. **Documentation** - Onboarding resources
-12. **System Performance** - Resource usage validation
-13. **Docker Linux** - Production environment compatibility
+## 10) Self‑Review Checklist (before opening a PR)
 
-**Detailed procedures**: See `TESTING_PROCEDURES.md` for step-by-step instructions
+-
 
 ---
 
-## Development Workflow - Kiro-Style Spec-Driven Development
+## 11) Output Formats (what Claude should produce)
 
-### How Kiro Works
-
-Kiro is an AI assistant that helps build features systematically through a structured spec-driven development process. CLAUDE CODE SHOULD REPLICATE KIRO's DEVELOPMENT PHILOSOPHY.
-
-### Core Philosophy
-
-Instead of jumping straight into code, Kiro guides development through three phases:
-
-1. **Requirements** - What needs to be built
-2. **Design** - How it will be built  
-3. **Tasks** - Step-by-step implementation plan
-
-This ensures every feature is well-planned before implementation begins.
-
-### The Spec Structure
-
-Each feature gets its own folder in `.kiro/specs/{feature-name}/` containing:
-
-- **`requirements.md`** - User stories and acceptance criteria
-- **`design.md`** - Technical architecture and implementation approach
-- **`tasks.md`** - Actionable coding checklist
-
-### Workflow Process
-
-#### Phase 1: Requirements Gathering
-
-1. Create initial requirements based on feature idea
-2. Use user stories format: *"As a [role], I want [feature], so that [benefit]"*
-3. Include acceptance criteria in EARS format (Easy Approach to Requirements Syntax)
-   - Example: *"WHEN user clicks submit THEN system SHALL validate all fields"*
-4. Iterate until requirements are approved
-
-#### Phase 2: Design Documentation
-
-1. Research and create comprehensive `design.md`
-2. Cover architecture, components, data models, error handling, testing strategy
-3. May include Mermaid diagrams for visual representation
-4. Address all requirements from the previous phase
-5. Iterate until design is approved
-
-#### Phase 3: Task Planning
-
-1. Break down design into actionable coding tasks in `tasks.md`
-2. Create numbered checklist items (1.1, 1.2, etc.)
-3. Each task references specific requirements
-4. Focus only on code implementation activities
-5. Prioritize incremental, testable progress
-6. Iterate until task list is approved
-
-### Key Features
-
-- **Iterative Approval** - Explicit approval required for each document before moving to next phase
-- **Requirement Traceability** - Tasks link back to specific requirements
-- **Incremental Development** - Tasks build on each other progressively
-- **Code-Focused** - Tasks only include activities a coding agent can execute
-
-### Task Execution
-
-Once spec is complete, execute tasks by:
-
-1. Opening the `tasks.md` file
-2. Clicking "Start task" next to individual task items
-3. Implement one task at a time, stopping for review between tasks
-
-### Getting Started
-
-To begin a new feature spec:
-1. Describe your feature idea
-2. I'll guide you through the three-phase process
-3. For existing specs, I can help review, update any phase, or execute implementation tasks
-
-### Pro-Forma Analytics Specific Guidelines
-
-#### Business Domain Context
-- **Real Estate Investment Analysis** - Focus on investor decision-making workflows
-- **Financial Modeling** - Emphasis on accuracy, validation, and risk assessment
-- **Data-Driven Decisions** - Replace manual assumptions with statistical forecasting
-
-#### Architecture Constraints
-- **Clean Architecture** - Maintain domain/application/infrastructure separation
-- **TDD/BDD Testing** - All features must include comprehensive test coverage
-- **Prophet + Monte Carlo** - Leverage existing forecasting and simulation infrastructure
-
-#### Feature Prioritization
-1. **Financial Calculation Engine** (highest priority - missing core business logic)
-2. **Investment Decision Framework** (high priority - complete user workflow)
-3. **Visualization & Reporting** (medium priority - user experience)
-4. **API & Integration** (lower priority - external access)
+- **Specs** — `.kiro/specs/{feature}/requirements.md|design.md|tasks.md` with:
+  - Requirements: user stories, EARS acceptance criteria, assumptions, OOS.
+  - Design: placement, interfaces, data models, algorithms, errors, tests, non‑functionals.
+  - Tasks: numbered, atomic, each linked to requirements; includes tests & docs.
+- **Patches** — Unified diffs for code/doc changes; highlight file paths; note any migrations.
+- **Test Artifacts** — New/updated test files with clear Given/When/Then comments.
+- **Docs** — Updates to `/docs`, this file, and any READMEs impacted.
 
 ---
 
-## Documentation Standards
+## 12) Appendix — Known Expectations & Budgets
 
-### Writing Guidelines
-
-When creating or updating documentation in this repository, adhere to the following standards:
-
-#### Professional Tone Requirements
-- Maintain professional, technical language throughout all documentation
-- Avoid emojis, exclamation marks, or overly casual expressions
-- Use declarative statements rather than conversational tone
-- Write for technical audiences with appropriate domain expertise
-
-#### MECE Principle (Mutually Exclusive, Completely Exhaustive)
-- Structure documentation to eliminate overlap between sections
-- Ensure each topic is covered in exactly one authoritative location
-- Organize content hierarchically with clear boundaries between topics
-- Verify that all relevant aspects of a topic are addressed comprehensively
-
-#### Centralized Documentation Structure
-- All documentation must reside in the `/docs` folder
-- Use clear, descriptive filenames following the pattern: `TOPIC_NAME.md`
-- Maintain a master index in `/docs/README.md` linking to all documentation
-- Reference external documentation through standardized linking conventions
-
-#### Redundancy Elimination
-- Consolidate duplicate information into single authoritative sources
-- Use cross-references rather than repeating content across documents
-- Maintain a single source of truth for each technical concept
-- Review existing documentation before creating new files to prevent duplication
-
-#### Implementation Requirements
-- Update documentation concurrently with code changes
-- Include technical specifications, API references, and architectural decisions
-- Provide clear examples and usage patterns where applicable
-- Maintain version compatibility information and migration guides
-
-### Comprehensive Documentation Analysis Protocol
-
-When analyzing or updating documentation, Claude Code MUST perform comprehensive analysis across ALL markdown files in the repository:
-
-#### Required Documentation Analysis Steps
-1. **Repository-Wide Search**: Use `Glob` tool to find all `**/*.md` files across the entire repository
-2. **Comprehensive Review**: Read ALL relevant documentation files, not just root-level files
-3. **Cross-Reference Analysis**: Check for consistency across all documentation sources
-4. **Gap Identification**: Identify missing or outdated information across all docs
-5. **Redundancy Detection**: Find duplicate or conflicting information across files
-
-#### Documentation File Categories to Analyze
-- **Root Level**: README.md, CLAUDE.md, CONTRIBUTING.md
-- **Primary Docs**: `/docs/*.md` - All technical documentation
-- **Module Docs**: `/src/README.md`, `/tests/README.md`, `/core/README.md`, etc.
-- **Database Docs**: `/data/databases/README.md`, `/data/databases/schemas/README.md`
-- **Specialized Docs**: `/scripts/README.md`, `/validation_charts/*.md`
-- **Configuration Docs**: Any workflow or config documentation
-
-#### Documentation Consistency Requirements
-- **Testing Commands**: Ensure all documentation shows consistent, current testing procedures
-- **CI/CD References**: Validate all pipeline documentation matches actual workflows
-- **Installation Procedures**: Verify setup instructions are consistent across all docs
-- **Architecture References**: Ensure all architectural documentation aligns
-- **Development Workflows**: Validate development process documentation consistency
-
-#### Analysis Output Requirements
-- **Status Assessment**: Current vs. required documentation state
-- **Gap Analysis**: Missing or outdated information identification
-- **Consistency Review**: Cross-document alignment validation
-- **Update Recommendations**: Specific files and sections requiring updates
-- **Priority Classification**: Critical vs. minor documentation issues
+- End‑to‑end demo should complete cleanly. Expected financial outputs in demo scenario must remain within tested ranges. Update golden values only with justification and spec changes.
+- Performance: Monte Carlo/IRR paths must not regress materially; justify any variance with data.
 
 ---
 
-## Collaborative Development Workflow
+> **Use this file when prompting:** Start requests with: *“Implement {feature} using the Kiro spec workflow. Follow CLAUDE.md for Clean Architecture and TDD. Ask clarifying questions if anything is ambiguous.”*
 
-### Clarifying Questions Protocol
 
-When working with domain experts and stakeholders, Claude Code should actively engage in iterative clarification to ensure accurate implementation. This collaborative approach prevents costly rework and ensures technical solutions align with business requirements. THIS IS A CRITICAL REQUIREMENT FOR CLAUDE CODE TO REPLICATE.
 
-#### Best Practices for Clarifying Questions
+---
 
-**When to Ask Questions:**
-- Complex business logic requires implementation
-- Technical specifications have ambiguities or gaps
-- Multiple interpretation paths exist for requirements
-- Domain-specific knowledge is required
-- Integration points between systems are unclear
+## 13) Appendix A — Repository Facts (Preserved from Prior CLAUDE.md)
 
-**How to Structure Questions:**
-- Be specific and technical rather than generic
-- Reference concrete examples from the codebase or documentation
-- Provide your current understanding for validation
-- Ask multiple related questions in logical sequence
-- Include technical implications of different approaches
+**Implementation Status:** Enhanced Technical Foundation (v1.6); Quality: A+ (98/100); Architecture: Clean Architecture with DDD + environment configuration; Testing: 82% coverage with **320+ test methods** across BDD/TDD; Data Coverage: 100% parameter completion; CI/CD: multi‑Python (3.10–3.11) with CLI integration; Configuration: multi‑environment with security best practices.
 
-**Documentation-First Approach:**
-- Document answers immediately in appropriate codebase locations
-- Update architectural decisions and specifications
-- Maintain traceability between questions and implementation
-- Create searchable knowledge base for future reference
+**Core Capabilities:** 4‑phase DCF engine; Prophet forecasting (11 parameters, 6‑year projections); Monte Carlo (500+ scenarios with economic correlations); Investment analysis (NPV, IRR, equity multiples, terminal value, risk); Data infra (4 SQLite DBs with 2,174+ historical points).
 
-#### Example Workflow Pattern
+**Data Coverage Detail:** 5 MSAs (NYC, LA, Chicago, DC, Miami); 11 pro‑forma metrics (interest rates, cap rates, vacancy, rent growth, expense growth, property growth, LTV ratios, closing costs, lender reserves, etc.); Historical depth: 2010–2025 (15+ years); Geographic coverage: ≥5 MSAs for location‑dependent parameters; Validation status: statistical validation passed.
+
+**Property Input System:** Current: `SimplifiedPropertyInput` in `src/domain/entities/property_data.py`; Legacy removed; Required fields: 7 core inputs (residential units, renovation time, commercial units, equity share, rent rates, cash percentage, etc.).
+
+**Environment Configuration:** `config/settings.py` with dev/test/prod; `PRO_FORMA_ENV` env var; secrets via env (e.g., `FRED_API_KEY`); FastAPI‑ready (CORS, rate limiting, auth); automatic config validation.
+
+## 14) Appendix B — Recent Enhancements (v1.6)
+
+**Code Quality:** Fixed 100+ flake8 issues; improved TYPE\_CHECKING and forward refs; replaced bare `except`; removed redundant imports/vars.
+
+**CI/CD Pipeline:** Debuggable GitHub Actions; Python 3.8+/3.10+ compatibility work; automated quality gates; simplified workflows; resolved pandas compat; flake8 config parsing fix.
+
+**Testing Infrastructure:** +40 edge‑case tests; infra error‑handling tests; application extreme‑scenario tests; IRR perf tests with batch processing.
+
+**Dev Experience:** Documentation accuracy; Windows file‑handling fixes; enhanced error tracking; automated formatting consistency.
+
+## 15) Appendix C — Monte Carlo & Forecasting Details
+
+**Correlation Modeling:** \~23 economic relationships (e.g., rates → cap rates). **Scenario classes:** Bull, Bear, Neutral, Growth, Stress. **Risk/Growth Scores:** representative ranges previously used: Growth ≈ 0.376–0.557; Risk ≈ 0.385–0.593. **QA:** 5/5 statistical validation checks passed.
+
+**Forecast Cache:** `forecast_cache.db` stores Prophet forecasts and Monte Carlo results with cache invalidation rules implied by parameter/schema changes.
+
+## 16) Appendix D — Comprehensive Testing Procedures (Golden Paths)
+
+**Quick Validation (\~5 min):**
 
 ```
-1. Identify Ambiguity
-   └── "I see parameter X, but need clarification on calculation Y"
-
-2. Form Specific Questions  
-   └── "Is the calculation: A × B ÷ C, or (A × B) ÷ (C + D)?"
-
-3. Provide Current Understanding
-   └── "My understanding is X, but this conflicts with Y"
-
-4. Ask for Validation/Correction
-   └── "Should I implement approach A or B?"
-
-5. Document Answers Immediately
-   └── Update relevant .md files in /docs folder
-
-6. Confirm Understanding
-   └── "Let me summarize to ensure alignment..."
+python -m pytest tests/unit/application/ tests/integration/ -q
+python demo_end_to_end_workflow.py
 ```
 
-#### Documentation Update Workflow
+**Expected demo outputs (reference values):** NPV ≈ **\$7,847,901**, IRR ≈ **64.8%**, Equity Multiple ≈ **9.79×**.
 
-**Immediate Documentation:**
-- Technical clarifications → Architecture documentation
-- Business logic clarifications → Process flow documentation
-- Integration clarifications → API and interface documentation
-- Implementation decisions → Technical decision logs
+**Full System Validation (\~10 min):**
 
-**Documentation Standards:**
-- Use clear, technical language appropriate for developers
-- Include code examples and implementation patterns
-- Reference specific files, functions, and line numbers when applicable
-- Maintain MECE structure with cross-references
-- Update table of contents and indexes
+1. Env & DB: `python --version && python data_manager.py status`
+2. Test suites: unit app (\~74 tests), infra edge (\~12), integration (1), performance (\~4) — **\~91 tests total**.
+3. End‑to‑end demo: `python demo_end_to_end_workflow.py`
+4. Code quality: Black/isort/flake8
+5. Linux compat (Docker): `docker build -f Dockerfile.test -t proforma-linux-test .`
 
-#### Iterative Refinement Process
+**Test Categories:** local env compat; database system; core business logic; infra resilience; DCF integration; performance; e2e demo; code quality; type safety; CI multi‑Python; docs; system performance; Docker Linux.
 
-**Clarification Loop:**
-1. Ask specific technical questions
-2. Receive domain expert answers
-3. Document answers in codebase immediately
-4. Confirm understanding with summary
-5. Identify follow-up questions if needed
-6. Repeat until complete clarity achieved
+## 17) Appendix E — CI/CD Files & Validation Scripts
 
-**Knowledge Capture:**
-- Each clarification session should result in permanent documentation
-- Technical decisions should be traceable to business requirements
-- Implementation patterns should be documented for consistency
-- Edge cases and special conditions should be explicitly documented
+**Workflows (**``**):** `ci.yml` (multi‑Python tests), `quality.yml` (code quality & security), `release.yml` (release/deploy).
 
-#### Communication Guidelines
+**Validation Scripts (**``**):** `validate_architecture.py`, `validate_docs.py`, `profile_memory.py`, `generate_release_notes.py`.
 
-**Effective Question Patterns:**
-- "My understanding is X, but I need clarification on Y"
-- "Should the system handle scenario A by doing X or Y?"
-- "When condition Z occurs, what is the expected behavior?"
-- "Are there any edge cases for calculation X that I should consider?"
+**Automated Gates Enforce:** Python 3.10–3.11 compat; ≥82% coverage; zero architecture violations; dependency vuln checks; perf regression detection; documentation accuracy.
 
-**Avoid:**
-- Generic questions without technical context
-- Yes/no questions that don't advance understanding
-- Questions that could be answered by reading existing documentation
-- Multiple unrelated topics in single question set
+## 18) Appendix F — Release & Failure Protocols
 
-#### Success Indicators
+**Release Process:** Tag with SemVer (`vX.Y.Z`), push tag, CI runs full validation, generates release notes, creates GitHub release, optional PyPI publish.
 
-**Quality Metrics:**
-- Technical implementation matches business requirements
-- Edge cases are identified and handled appropriately
-- Documentation accurately reflects implemented behavior
-- Future developers can understand design decisions
-- Domain experts can validate technical specifications
+**Failure Response:** Never ignore failures. Review Actions logs; reproduce locally; update tests if business rules changed; preserve architecture; address performance regressions; update docs if examples drift. **Common resolutions:** fix failing tests/expectations; add coverage for new paths; refactor for architecture compliance; optimize hot paths; correct docs/examples.
 
-**Process Metrics:**
-- Reduced rework due to misunderstood requirements
-- Faster onboarding for new team members
-- Consistent implementation patterns across features
-- Comprehensive knowledge base for maintenance
+## 19) Appendix G — Documentation Analysis Protocol (Repo‑Wide)
 
-#### Debugging Standards
+- Glob search **all** `**/*.md` across repo.
+- Cross‑reference for consistency (testing commands, CI references, setup, architecture, workflows).
+- Identify gaps/outdated info; collapse duplicates into authoritative sources under `/docs`.
+- Output: status assessment, gap analysis, consistency review, prioritized update plan.
 
-**Systematic Diagnosis**: Consider 5-7 potential problem sources, narrow to 1-2 most likely causes, then validate with targeted logging before implementing fixes.
+## 20) Appendix H — Debugging Standards (Expanded)
 
-**Root Cause Analysis**: Examine error messages, logs, and system behavior comprehensively. Form multiple hypotheses and test methodically. Document analysis before proposing solutions.
+- **Systematic diagnosis:** list 5–7 plausible causes → narrow to 1–2 → add targeted logs/tests.
+- **Root‑cause first:** trust logs & repro, not hunches; document before fixing.
+- **Surgical fixes:** minimal surface area; preserve behavior; keep patterns; prove with tests.
+- **Database verification:** confirm schemas, migrations, query plans before changes.
+- **Component reuse:** prefer extension/parameterization over duplication.
+- **Data‑flow tracing:** instrument critical transitions; handle cache invalidation; add error boundaries.
+- **API integration:** retries/backoff, types, CORS, auth; comprehensive error handling.
+- **Error handling:** specific exceptions; user‑friendly messages; deep logs.
+- **Housekeeping:** remove dead code; clean imports; eliminate unreachable branches.
 
-**Code Cleanliness**: Remove unused code completely rather than commenting out. Verify no dependencies exist before deletion. Clean up imports, orphaned components, and unreachable conditions.
+## 21) Appendix I — Next Development Priorities (Preserved)
 
-**Surgical Fixes**: Target specific issues while preserving existing functionality. Use minimal changes and maintain codebase patterns. Validate fixes resolve problems without introducing new bugs.
+1. RESTful API layer (external integrations)
+2. Web dashboard (inputs & analysis UI)
+3. Investment reporting (PDF/Excel exports)
+4. Portfolio optimization (enhanced IRR across property sets)
+5. Advanced analytics (ML‑driven recommendations)
 
-**Database Verification**: Check existing schemas before suggesting modifications. Understand current structure through models and migrations. Optimize queries within existing architecture.
-
-**Component Reuse**: Inventory existing elements before creating new ones. Extend or parameterize existing components rather than duplicating. Follow DRY principles.
-
-**Data Flow Tracking**: Monitor data pipeline from database to UI. Implement proper invalidation patterns and error boundaries. Add strategic logging at critical transition points.
-
-**API Integration**: Handle requests, responses, and errors comprehensively. Implement retry mechanisms, proper typing, and CORS configuration. Document endpoints thoroughly.
-
-**Error Handling Strategy**: Use targeted try/catch blocks and graceful degradation. Provide user-friendly messages while maintaining detailed logging for debugging.
-
-**Complex Problem Approach**: Step back for multiple perspectives when standard fixes fail. Consider unconventional sources like environment or race conditions. Break problems into verifiable components.
-
-**Codebase Consistency**: Follow existing patterns, naming conventions, and architectural decisions. Maintain project standards for error handling, logging, and testing approaches.

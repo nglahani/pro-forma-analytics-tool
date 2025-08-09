@@ -1,8 +1,8 @@
-# Data Infrastructure - v1.3
+# Data Infrastructure - v1.6
 
 Production-grade market data infrastructure with 2,174+ validated historical data points, comprehensive database schemas, and automated data management components supporting real estate DCF analysis.
 
-## Quality Metrics (v1.3)
+## Quality Metrics (v1.6)
 
 - **Data Coverage**: 2,174+ production-grade historical data points
 - **Parameter Completion**: 100% coverage across all 11 pro forma metrics
@@ -136,7 +136,7 @@ python scripts/document_schemas.py --output schema_docs/
 - **Scenario Generation**: Data-driven parameter bounds for realistic simulations
 - **Result Validation**: Historical backtesting against actual market outcomes
 
-## Production Data Migration (v1.3)
+## Production Data Migration (v1.6)
 
 ### Mock Data Elimination
 - **Complete Cleanup**: Removed 462+ synthetic/mock data records

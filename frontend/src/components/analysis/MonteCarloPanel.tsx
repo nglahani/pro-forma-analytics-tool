@@ -17,7 +17,6 @@ import {
   Activity,
   Play,
   Square,
-  RefreshCw,
   Settings,
   TrendingUp,
   AlertCircle,
@@ -89,7 +88,7 @@ export function MonteCarloPanel({
   // Simulation history state
   const [previousResults, setPreviousResults] = useState<MonteCarloResult[]>([]);
 
-  const handleSettingsChange = useCallback((key: keyof MonteCarloSettings, value: any) => {
+  const handleSettingsChange = useCallback((key: keyof MonteCarloSettings, value: string | number | boolean) => {
     setSettings(prev => ({
       ...prev,
       [key]: value,
@@ -240,14 +239,6 @@ export function MonteCarloPanel({
     setPreviousResults(prev => [mockResults, ...prev.slice(0, 4)]); // Keep last 5 runs
   };
 
-  const getProgressColor = () => {
-    switch (progressStatus.stage) {
-      case 'error': return 'bg-red-500';
-      case 'complete': return 'bg-green-500';
-      case 'running': return 'bg-blue-500';
-      default: return 'bg-amber-500';
-    }
-  };
 
   const getStageIcon = () => {
     switch (progressStatus.stage) {

@@ -4,7 +4,7 @@ API Error Models
 Pydantic models for structured error responses.
 """
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -47,7 +47,8 @@ class APIError(BaseModel):
     )
 
     timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="When the error occurred"
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="When the error occurred",
     )
 
     @field_serializer("timestamp")

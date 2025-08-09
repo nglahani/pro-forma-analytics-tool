@@ -8,7 +8,7 @@ import asyncio
 import sys
 import time
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, Request, status
@@ -285,7 +285,7 @@ async def single_property_dcf_analysis(
         # Create analysis metadata
         metadata = AnalysisMetadata(
             processing_time_seconds=round(processing_time, 3),
-            analysis_timestamp=datetime.now(UTC),
+            analysis_timestamp=datetime.now(timezone.utc),
             data_sources={
                 "market_data": "SQLite Database",
                 "forecasting": "Prophet Engine",
@@ -303,7 +303,7 @@ async def single_property_dcf_analysis(
         response = DCFAnalysisResponse(
             request_id=request_id,
             property_id=analysis_request.property_data.property_id,
-            analysis_date=datetime.now(UTC),
+            analysis_date=datetime.now(timezone.utc),
             financial_metrics=financial_metrics,
             cash_flows=(
                 cash_flows if analysis_request.options.detailed_cash_flows else None
@@ -437,7 +437,7 @@ async def process_single_property_async(
 
     metadata = AnalysisMetadata(
         processing_time_seconds=round(property_processing_time, 3),
-        analysis_timestamp=datetime.now(UTC),
+        analysis_timestamp=datetime.now(timezone.utc),
         data_sources={
             "market_data": "SQLite Database",
             "forecasting": "Prophet Engine",
@@ -452,7 +452,7 @@ async def process_single_property_async(
     return DCFAnalysisResponse(
         request_id=property_request_id,
         property_id=property_request.property_data.property_id,
-        analysis_date=datetime.now(UTC),
+        analysis_date=datetime.now(timezone.utc),
         financial_metrics=financial_metrics,
         cash_flows=cash_flows if property_request.options.detailed_cash_flows else None,
         dcf_assumptions=dcf_assumptions,
@@ -675,7 +675,7 @@ async def batch_property_dcf_analysis(
                         property_id=property_request.property_data.property_id,
                         error_code="calculation_error",
                         error_message=f"Analysis failed: {e}",
-                        timestamp=datetime.now(UTC),
+                        timestamp=datetime.now(timezone.utc),
                     )
                     return {"success": False, "result": error_response}
 
@@ -727,7 +727,7 @@ async def batch_property_dcf_analysis(
                     property_id=property_request.property_data.property_id,
                     error_code="calculation_error",
                     error_message=f"Analysis failed: {e}",
-                    timestamp=datetime.now(UTC),
+                    timestamp=datetime.now(timezone.utc),
                 )
                 results.append(error_response)
                 failed_analyses += 1
@@ -738,7 +738,7 @@ async def batch_property_dcf_analysis(
     # Create batch response
     batch_response = BatchAnalysisResponse(
         batch_id=batch_id,
-        batch_timestamp=datetime.now(UTC),
+        batch_timestamp=datetime.now(timezone.utc),
         total_properties=total_properties,
         successful_analyses=successful_analyses,
         failed_analyses=failed_analyses,

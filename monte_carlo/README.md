@@ -1,4 +1,4 @@
-# Monte Carlo Simulation - v1.3
+# Monte Carlo Simulation - v1.6
 
 Production-grade probabilistic scenario generation with sophisticated economic correlation modeling, market regime classification, and comprehensive statistical validation for real estate investment risk assessment.
 
@@ -290,7 +290,7 @@ for scenario in scenarios:
 - **Downside Risk Metrics**: Value-at-Risk (VaR) and Conditional VaR calculations
 - **Stress Test Results**: Performance under adverse market conditions
 
-## Performance and Scalability (v1.3)
+## Performance and Scalability (v1.6)
 
 ### Optimization Features
 - **Vectorized Operations**: NumPy-based calculations for maximum performance

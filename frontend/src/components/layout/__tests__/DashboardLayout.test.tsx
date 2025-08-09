@@ -8,6 +8,41 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { DashboardLayout } from '../DashboardLayout';
 
+// Mock all accessibility hooks to avoid provider issues
+jest.mock('@/components/common/AccessibilityProvider', () => ({
+  useAccessibility: () => ({
+    announce: jest.fn(),
+    focusElement: jest.fn(),
+    trapFocus: jest.fn(),
+    registerSkipLink: jest.fn(),
+    unregisterSkipLink: jest.fn(),
+    reducedMotion: false,
+    highContrast: false,
+    setReducedMotion: jest.fn(),
+    setHighContrast: jest.fn(),
+    enableKeyboardNavigation: true,
+    setEnableKeyboardNavigation: jest.fn(),
+  }),
+  useSkipLinks: () => {},
+  useFocusManagement: () => {},
+}));
+
+// Mock keyboard utilities
+jest.mock('@/lib/accessibility', () => ({
+  keyboard: {
+    keys: {
+      TAB: 'Tab',
+      ESCAPE: 'Escape',
+      ENTER: 'Enter',
+      SPACE: ' ',
+      ARROW_UP: 'ArrowUp',
+      ARROW_DOWN: 'ArrowDown',
+      HOME: 'Home',
+      END: 'End',
+    },
+  },
+}));
+
 // Mock child components
 jest.mock('../Sidebar', () => ({
   Sidebar: ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => (

@@ -1,7 +1,7 @@
 # Pro-Forma Analytics Tool
 
-[![Tests](https://github.com/your-org/pro-forma-analytics-tool/workflows/tests/badge.svg)](https://github.com/your-org/pro-forma-analytics-tool/actions)
-[![Code Quality](https://github.com/your-org/pro-forma-analytics-tool/workflows/quality/badge.svg)](https://github.com/your-org/pro-forma-analytics-tool/actions)
+[![Tests](https://github.com/nglahani/pro-forma-analytics-tool/workflows/tests/badge.svg)](https://github.com/nglahani/pro-forma-analytics-tool/actions)
+[![Code Quality](https://github.com/nglahani/pro-forma-analytics-tool/workflows/quality/badge.svg)](https://github.com/nglahani/pro-forma-analytics-tool/actions)
 
 A production-ready real estate DCF analysis platform that transforms traditional Excel-based pro formas into sophisticated financial models using time series forecasting and Monte Carlo simulations.
 
@@ -66,7 +66,7 @@ External Modules (Production-Grade Engines):
 - **Immutable Entities**: All domain objects are immutable for thread safety
 - **Comprehensive Validation**: Business rule validation at entity boundaries
 
-## Features (v1.5 Production Ready with REST API - Enhanced Technical Foundation)
+## Features (v1.6 Production Ready with REST API - Enhanced Technical Foundation)
 
 ### Complete DCF Engine with Clean Architecture
 - **4-Phase Workflow**: DCF Assumptions → Initial Numbers → Cash Flow Projections → Financial Metrics
@@ -127,17 +127,17 @@ Each simulation incorporates economic correlations between variables, ensuring r
 ## Installation
 
 ### Prerequisites
-- Python 3.8-3.11 (full CI/CD pipeline support)
+- Python 3.10-3.11 (full CI/CD pipeline support)
 - SQLite 3.x
 - Git (for CI/CD integration)
 
 ### Setup
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/pro-forma-analytics-tool.git
+git clone https://github.com/nglahani/pro-forma-analytics-tool.git
 cd pro-forma-analytics-tool
 
-# Create virtual environment (Python 3.9-3.11 supported)
+# Create virtual environment (Python 3.10-3.11 supported)
 python -m venv venv
 source venv/bin/activate  # Windows: venv\\Scripts\\activate
 
@@ -224,7 +224,7 @@ curl http://localhost:8000/api/v1/health
 
 The tool provides a complete 4-phase DCF workflow accessible through Python services. To run a complete analysis, instantiate the required services and process your property through each phase. The demo workflow in `demo_end_to_end_workflow.py` provides a working example that processes a sample property through all phases, generating NPV, IRR calculations, and investment recommendations. For detailed implementation examples, refer to the test files in `tests/integration/` which demonstrate various property configurations and market scenarios.
 
-### Complete DCF Workflow (Production-Ready v1.3)
+### Complete DCF Workflow (Production-Ready v1.6)
 
 The tool implements a comprehensive 4-phase DCF workflow with Clean Architecture and domain-driven design:
 
@@ -297,12 +297,12 @@ print(f"Risk Level: {financial_metrics.risk_level.value}")
 # Run complete end-to-end demonstration
 python demo_end_to_end_workflow.py
 
-# Expected Output (v1.3 Production Results):
+# Expected Output (v1.6 Production Results):
 # NPV: $2,503,000 | IRR: 64.8% | Multiple: 9.79x
 # Recommendation: STRONG_BUY | Risk Level: MODERATE
 # SUCCESS: END-TO-END WORKFLOW TEST PASSED
 # ✅ Production-grade validation with 2,174+ historical data points
-# ✅ 96%+ test coverage with 320+ comprehensive test methods
+# ✅ 82% test coverage with 320+ comprehensive test methods
 # ✅ Sub-second analysis with optimized IRR calculations (<0.01ms)
 ```
 
@@ -351,13 +351,13 @@ scripts\validate-linux.bat
 ```
 
 ### CI/CD Pipeline Integration
-- **Multi-Python Support**: Automated testing across Python 3.9-3.11
+- **Multi-Python Support**: Automated testing across Python 3.10-3.11
 - **Quality Gates**: 95%+ coverage enforcement for core business logic, architecture validation
 - **Performance Testing**: IRR calculations <0.01ms validation
 - **Edge Case Coverage**: 40+ comprehensive error scenario tests
 - **Docker Integration**: Linux compatibility validation with containerized testing
 
-### Test Coverage (v1.5)
+### Test Coverage (v1.6)
 - **Test Methods**: 260+ comprehensive test methods across all layers
 - **Unit Tests**: Domain entities, application services, infrastructure components, presentation layer
 - **Integration Tests**: Complete end-to-end DCF workflow validation
@@ -368,7 +368,7 @@ scripts\validate-linux.bat
 
 ## Development (Clean Architecture)
 
-### Code Quality Standards (v1.3)
+### Code Quality Standards (v1.6)
 ```bash
 # Code formatting (required before commits)
 black src/ tests/
@@ -395,7 +395,7 @@ python tests/performance/test_irr_performance.py
 2. **Clean Architecture**: Maintain domain/application/infrastructure separation
 3. **Quality Gates**: All CI/CD pipeline checks must pass locally
 4. **Performance Standards**: No regression in IRR calculation speed (<0.01ms)
-5. **Test Coverage**: Maintain 96%+ coverage with comprehensive edge cases
+5. **Test Coverage**: Maintain 82%+ coverage with comprehensive edge cases
 
 ## Production Database Architecture
 
@@ -441,15 +441,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Production Status
 
-**Current Version**: v1.3 - Production Ready + Enhanced Quality
+**Current Version**: v1.6 - Production Ready + Enhanced Quality + Frontend Integration
 - **Complete 4-Phase DCF Engine**: Fully implemented and validated with Clean Architecture
 - **Production-Grade Data**: 2,174+ historical data points across 5 major MSAs with statistical validation
 - **Performance Optimized**: IRR calculations under 0.01ms, sub-second complete analysis
-- **Multi-Python Support**: Python 3.9-3.11 compatibility with comprehensive CI/CD pipeline
-- **Comprehensive Testing**: 320+ test methods with 96%+ coverage enforcement
+- **Multi-Python Support**: Python 3.10-3.11 compatibility with comprehensive CI/CD pipeline
+- **Comprehensive Testing**: 320+ backend test methods with 82% coverage + 30%+ frontend coverage
 - **Quality Assurance**: Automated GitHub Actions pipeline with quality gates and performance monitoring
 - **Clean Architecture**: Domain-driven design with dependency injection and comprehensive type safety
 - **Docker Integration**: Linux compatibility validation with containerized testing workflow
+- **Frontend Integration**: Next.js/React TypeScript frontend with comprehensive component testing
+- **API Authentication**: Production-ready FastAPI with key-based authentication and rate limiting
 
 **Validated Performance**: $3.5M Chicago mixed-use property analysis produces:
 - **NPV**: $2,503,000 

@@ -1,0 +1,42 @@
+# Production-only dependencies for Pro-Forma Analytics Tool
+
+# Production ASGI Server
+uvicorn[standard]==0.24.0
+gunicorn==21.2.0
+
+# Monitoring and Observability
+prometheus-client==0.19.0
+sentry-sdk[fastapi]==1.40.0
+
+# Security Enhancements
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Production Database Support (optional)
+psycopg2-binary==2.9.8
+asyncpg==0.29.0
+sqlalchemy[asyncio]==2.0.23
+
+# Caching
+redis==5.0.1
+aioredis==2.0.1
+
+# Performance Monitoring
+memory-profiler==0.61.0
+psutil==5.9.6
+
+# Logging Enhancements
+python-json-logger==2.0.8
+structlog==23.2.0
+
+# Configuration Management
+pydantic-settings==2.1.0
+
+# Health Checks and Utilities
+httpx==0.25.2
+tenacity==8.2.3
+
+# Production Optimizations
+orjson==3.9.10
+msgpack==1.0.7

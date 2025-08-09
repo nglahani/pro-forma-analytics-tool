@@ -194,3 +194,406 @@ class TestForecastingApplicationService:
             assert (
                 getattr(service, attr) is not None
             ), f"Service attribute {attr} is None"
+
+    def test_generate_forecast_with_cached_result(self, service):
+        """Test generate_forecast returns cached result when available."""
+        from src.domain.entities.forecast import (
+            ForecastRequest,
+            ForecastResult,
+            ParameterId,
+            ParameterType,
+        )
+
+        # Setup mocks
+        parameter_id = ParameterId(
+            name="interest_rate",
+            geographic_code="NYC",
+            parameter_type=ParameterType.INTEREST_RATE,
+        )
+        request = ForecastRequest(
+            parameter_id=parameter_id,
+            horizon_years=5,
+            model_type="prophet",
+            confidence_level=0.95,
+        )
+
+        cached_result = Mock(spec=ForecastResult)
+        service._forecast_repo.get_cached_forecast.return_value = cached_result
+
+        # Execute
+        result = service.generate_forecast(request)
+
+        # Verify
+        assert result == cached_result
+        service._forecast_repo.get_cached_forecast.assert_called_once()
+        service._parameter_repo.get_historical_data.assert_not_called()
+        service._forecasting_engine.generate_forecast.assert_not_called()
+
+    def test_generate_forecast_with_no_cache(self, service):
+        """Test generate_forecast generates new forecast when no cache exists."""
+        from src.domain.entities.forecast import (
+            DataPoint,
+            ForecastRequest,
+            HistoricalData,
+            ParameterId,
+            ParameterType,
+        )
+
+        # Setup mocks
+        parameter_id = ParameterId(
+            name="interest_rate",
+            geographic_code="NYC",
+            parameter_type=ParameterType.INTEREST_RATE,
+        )
+        request = ForecastRequest(
+            parameter_id=parameter_id,
+            horizon_years=5,
+            model_type="prophet",
+            confidence_level=0.95,
+        )
+
+        # Mock historical data with sufficient points
+        data_points = [Mock(spec=DataPoint) for _ in range(30)]
+        historical_data = Mock(spec=HistoricalData)
+        historical_data.data_points = data_points
+
+        service._forecast_repo.get_cached_forecast.return_value = None
+        service._parameter_repo.get_historical_data.return_value = historical_data
+
+        forecast_result = Mock()
+        service._forecasting_engine.generate_forecast.return_value = forecast_result
+
+        # Execute
+        result = service.generate_forecast(request)
+
+        # Verify
+        assert result == forecast_result
+        service._forecast_repo.get_cached_forecast.assert_called_once()
+        service._parameter_repo.get_historical_data.assert_called_once_with(
+            parameter_id
+        )
+        service._forecasting_engine.generate_forecast.assert_called_once_with(
+            request, historical_data
+        )
+        service._forecast_repo.save_forecast.assert_called_once_with(forecast_result)
+
+    def test_generate_forecast_no_historical_data(self, service):
+        """Test generate_forecast raises error when no historical data exists."""
+        from core.exceptions import DataNotFoundError
+        from src.domain.entities.forecast import (
+            ForecastRequest,
+            ParameterId,
+            ParameterType,
+        )
+
+        # Setup mocks
+        parameter_id = ParameterId(
+            name="interest_rate",
+            geographic_code="NYC",
+            parameter_type=ParameterType.INTEREST_RATE,
+        )
+        request = ForecastRequest(
+            parameter_id=parameter_id,
+            horizon_years=5,
+            model_type="prophet",
+            confidence_level=0.95,
+        )
+
+        service._forecast_repo.get_cached_forecast.return_value = None
+        service._parameter_repo.get_historical_data.return_value = None
+
+        # Execute & Verify
+        with pytest.raises(DataNotFoundError, match="No historical data found"):
+            service.generate_forecast(request)
+
+    def test_generate_forecast_insufficient_historical_data(self, service):
+        """Test generate_forecast raises error when historical data is insufficient."""
+        from core.exceptions import DataNotFoundError
+        from src.domain.entities.forecast import (
+            DataPoint,
+            ForecastRequest,
+            HistoricalData,
+            ParameterId,
+            ParameterType,
+        )
+
+        # Setup mocks
+        parameter_id = ParameterId(
+            name="interest_rate",
+            geographic_code="NYC",
+            parameter_type=ParameterType.INTEREST_RATE,
+        )
+        request = ForecastRequest(
+            parameter_id=parameter_id,
+            horizon_years=5,
+            model_type="prophet",
+            confidence_level=0.95,
+        )
+
+        # Mock insufficient historical data (< 24 points)
+        data_points = [Mock(spec=DataPoint) for _ in range(12)]
+        historical_data = Mock(spec=HistoricalData)
+        historical_data.data_points = data_points
+
+        service._forecast_repo.get_cached_forecast.return_value = None
+        service._parameter_repo.get_historical_data.return_value = historical_data
+
+        # Execute & Verify
+        with pytest.raises(DataNotFoundError, match="Insufficient historical data"):
+            service.generate_forecast(request)
+
+    def test_generate_forecast_engine_failure(self, service):
+        """Test generate_forecast handles engine failures gracefully."""
+        from core.exceptions import ForecastError
+        from src.domain.entities.forecast import (
+            DataPoint,
+            ForecastRequest,
+            HistoricalData,
+            ParameterId,
+            ParameterType,
+        )
+
+        # Setup mocks
+        parameter_id = ParameterId(
+            name="interest_rate",
+            geographic_code="NYC",
+            parameter_type=ParameterType.INTEREST_RATE,
+        )
+        request = ForecastRequest(
+            parameter_id=parameter_id,
+            horizon_years=5,
+            model_type="prophet",
+            confidence_level=0.95,
+        )
+
+        data_points = [Mock(spec=DataPoint) for _ in range(30)]
+        historical_data = Mock(spec=HistoricalData)
+        historical_data.data_points = data_points
+
+        service._forecast_repo.get_cached_forecast.return_value = None
+        service._parameter_repo.get_historical_data.return_value = historical_data
+        service._forecasting_engine.generate_forecast.side_effect = Exception(
+            "Engine failed"
+        )
+
+        # Execute & Verify
+        with pytest.raises(ForecastError, match="Failed to generate forecast"):
+            service.generate_forecast(request)
+
+    def test_generate_multiple_forecasts_success(self, service):
+        """Test generate_multiple_forecasts successfully processes multiple parameters."""
+        from src.domain.entities.forecast import (
+            ForecastResult,
+            ParameterId,
+            ParameterType,
+        )
+
+        # Setup
+        param_ids = [
+            ParameterId(
+                name="interest_rate",
+                geographic_code="NYC",
+                parameter_type=ParameterType.INTEREST_RATE,
+            ),
+            ParameterId(
+                name="cap_rate",
+                geographic_code="LA",
+                parameter_type=ParameterType.MARKET_METRIC,
+            ),
+        ]
+
+        service._forecast_repo.get_forecasts_for_simulation.return_value = {}
+
+        # Mock successful forecast generation
+        forecast_results = {
+            param_ids[0]: Mock(spec=ForecastResult),
+            param_ids[1]: Mock(spec=ForecastResult),
+        }
+
+        service.generate_forecast = Mock(
+            side_effect=lambda req: forecast_results[req.parameter_id]
+        )
+
+        # Execute
+        results = service.generate_multiple_forecasts(param_ids, 5)
+
+        # Verify
+        assert len(results) == 2
+        assert param_ids[0] in results
+        assert param_ids[1] in results
+
+    def test_generate_multiple_forecasts_with_cached(self, service):
+        """Test generate_multiple_forecasts uses cached results when available."""
+        from src.domain.entities.forecast import (
+            ForecastResult,
+            ParameterId,
+            ParameterType,
+        )
+
+        # Setup
+        param_ids = [
+            ParameterId(
+                name="interest_rate",
+                geographic_code="NYC",
+                parameter_type=ParameterType.INTEREST_RATE,
+            ),
+            ParameterId(
+                name="cap_rate",
+                geographic_code="LA",
+                parameter_type=ParameterType.MARKET_METRIC,
+            ),
+        ]
+
+        cached_result = Mock(spec=ForecastResult)
+        service._forecast_repo.get_forecasts_for_simulation.return_value = {
+            param_ids[0]: cached_result
+        }
+
+        new_result = Mock(spec=ForecastResult)
+        service.generate_forecast = Mock(return_value=new_result)
+
+        # Execute
+        results = service.generate_multiple_forecasts(param_ids, 5)
+
+        # Verify
+        assert results[param_ids[0]] == cached_result  # Cached
+        assert results[param_ids[1]] == new_result  # New
+        service.generate_forecast.assert_called_once()
+
+    def test_generate_multiple_forecasts_partial_failures(self, service):
+        """Test generate_multiple_forecasts handles partial failures."""
+        from src.domain.entities.forecast import (
+            ForecastResult,
+            ParameterId,
+            ParameterType,
+        )
+
+        # Setup
+        param_ids = [
+            ParameterId(
+                name="interest_rate",
+                geographic_code="NYC",
+                parameter_type=ParameterType.INTEREST_RATE,
+            ),
+            ParameterId(
+                name="cap_rate",
+                geographic_code="LA",
+                parameter_type=ParameterType.MARKET_METRIC,
+            ),
+        ]
+
+        service._forecast_repo.get_forecasts_for_simulation.return_value = {}
+
+        success_result = Mock(spec=ForecastResult)
+
+        def mock_generate_forecast(request):
+            if request.parameter_id == param_ids[0]:
+                return success_result
+            else:
+                raise Exception("Forecast failed")
+
+        service.generate_forecast = Mock(side_effect=mock_generate_forecast)
+
+        # Execute
+        results = service.generate_multiple_forecasts(param_ids, 5)
+
+        # Verify
+        assert len(results) == 1
+        assert results[param_ids[0]] == success_result
+
+    def test_validate_forecast_quality_passes(self, service):
+        """Test validate_forecast_quality returns True for good forecast."""
+        from src.domain.entities.forecast import ForecastResult, ModelPerformance
+
+        # Setup
+        model_performance = Mock(spec=ModelPerformance)
+        model_performance.is_acceptable.return_value = True
+
+        forecast_result = Mock(spec=ForecastResult)
+        forecast_result.model_performance = model_performance
+
+        # Execute
+        result = service.validate_forecast_quality(forecast_result)
+
+        # Verify
+        assert result is True
+        model_performance.is_acceptable.assert_called_once()
+
+    def test_validate_forecast_quality_fails(self, service):
+        """Test validate_forecast_quality returns False for poor forecast."""
+        from src.domain.entities.forecast import ForecastResult, ModelPerformance
+
+        # Setup
+        model_performance = Mock(spec=ModelPerformance)
+        model_performance.is_acceptable.return_value = False
+        model_performance.mae = 0.2
+        model_performance.mape = 25.0
+        model_performance.rmse = 0.3
+        model_performance.r_squared = 0.5
+
+        forecast_result = Mock(spec=ForecastResult)
+        forecast_result.forecast_id = "test_forecast_123"
+        forecast_result.model_performance = model_performance
+
+        # Execute
+        result = service.validate_forecast_quality(forecast_result)
+
+        # Verify
+        assert result is False
+
+    def test_get_data_completeness_report_success(self, service):
+        """Test get_data_completeness_report returns completeness percentages."""
+        from datetime import date
+
+        from src.domain.entities.forecast import ParameterId, ParameterType
+
+        # Setup
+        param_ids = [
+            ParameterId(
+                name="interest_rate",
+                geographic_code="NYC",
+                parameter_type=ParameterType.INTEREST_RATE,
+            ),
+            ParameterId(
+                name="cap_rate",
+                geographic_code="LA",
+                parameter_type=ParameterType.MARKET_METRIC,
+            ),
+        ]
+
+        service._parameter_repo.get_data_completeness.side_effect = [0.95, 0.87]
+
+        # Execute
+        start_date = date(2020, 1, 1)
+        end_date = date(2023, 12, 31)
+        report = service.get_data_completeness_report(param_ids, start_date, end_date)
+
+        # Verify
+        assert report[param_ids[0]] == 0.95
+        assert report[param_ids[1]] == 0.87
+
+    def test_get_data_completeness_report_with_errors(self, service):
+        """Test get_data_completeness_report handles errors gracefully."""
+        from datetime import date
+
+        from src.domain.entities.forecast import ParameterId, ParameterType
+
+        # Setup
+        param_ids = [
+            ParameterId(
+                name="interest_rate",
+                geographic_code="NYC",
+                parameter_type=ParameterType.INTEREST_RATE,
+            )
+        ]
+        service._parameter_repo.get_data_completeness.side_effect = Exception(
+            "DB error"
+        )
+
+        # Execute
+        start_date = date(2020, 1, 1)
+        end_date = date(2023, 12, 31)
+        report = service.get_data_completeness_report(param_ids, start_date, end_date)
+
+        # Verify
+        assert report[param_ids[0]] == 0.0

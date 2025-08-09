@@ -1,0 +1,100 @@
+# Production Dockerfile for Pro-Forma Analytics Tool
+FROM python:3.11-slim as builder
+
+# Build arguments
+ARG BUILD_DATE
+ARG GIT_COMMIT
+ARG VERSION
+
+# Set environment variables for build
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create application user
+RUN groupadd -r proforma && useradd -r -g proforma proforma
+
+# Set working directory
+WORKDIR /app
+
+# Install Python dependencies
+COPY requirements.txt requirements-prod.txt ./
+RUN pip install --no-deps -r requirements.txt && \
+    pip install --no-deps -r requirements-prod.txt
+
+# Production stage
+FROM python:3.11-slim as production
+
+# Build metadata
+LABEL org.opencontainers.image.title="Pro-Forma Analytics Tool" \
+      org.opencontainers.image.description="Real Estate DCF Analysis Platform" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${GIT_COMMIT}" \
+      org.opencontainers.image.vendor="Pro-Forma Analytics" \
+      org.opencontainers.image.licenses="MIT"
+
+# Production environment variables
+ENV PRO_FORMA_ENV=production \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH="/app" \
+    PATH="/app/.local/bin:$PATH"
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create application user and directories
+RUN groupadd -r proforma && useradd -r -g proforma proforma \
+    && mkdir -p /app/data /app/logs /app/backups /app/cache \
+    && chown -R proforma:proforma /app
+
+# Copy Python packages from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Set working directory
+WORKDIR /app
+
+# Copy application code
+COPY --chown=proforma:proforma . .
+
+# Create necessary directories with proper permissions
+RUN mkdir -p data/databases logs backups cache \
+    && chown -R proforma:proforma data logs backups cache
+
+# Copy production configuration
+COPY --chown=proforma:proforma config/production.py config/
+COPY --chown=proforma:proforma scripts/entrypoint.sh scripts/
+RUN chmod +x scripts/entrypoint.sh
+
+# Switch to application user
+USER proforma
+
+# Initialize databases (run as application user)
+RUN python data_manager.py setup --environment=production
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:8000/api/v1/health').raise_for_status()" || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Set entrypoint
+ENTRYPOINT ["./scripts/entrypoint.sh"]
+
+# Default command
+CMD ["uvicorn", "src.presentation.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

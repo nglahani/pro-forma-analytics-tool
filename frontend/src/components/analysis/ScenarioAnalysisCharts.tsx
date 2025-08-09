@@ -19,25 +19,18 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ComposedChart,
-  Area,
-  AreaChart,
   Bar,
   BarChart,
-  Cell,
   ReferenceLine,
 } from 'recharts';
 import {
-  TrendingUp,
-  TrendingDown,
   Target,
   Filter,
   BarChart3,
-  Scatter as ScatterIcon,
   Activity,
 } from 'lucide-react';
-import { ScenarioDistribution, MarketClassification } from '@/types/analysis';
-import { formatCurrency, formatPercentage, textColors } from '@/lib/utils';
+import { ScenarioDistribution } from '@/types/analysis';
+import { formatCurrency, formatPercentage } from '@/lib/utils';
 
 interface ScenarioAnalysisChartsProps {
   distribution: ScenarioDistribution[];
@@ -175,7 +168,7 @@ export function ScenarioAnalysisCharts({
     }
   }
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; dataKey: string; color: string; payload: Record<string, unknown> }>; label?: string }) => {
     if (active && payload && payload.length > 0) {
       const data = payload[0].payload;
       return (
@@ -254,7 +247,7 @@ export function ScenarioAnalysisCharts({
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
-                <ScatterIcon className="h-5 w-5 mr-2 text-blue-600" />
+                <Activity className="h-5 w-5 mr-2 text-blue-600" />
                 NPV vs IRR Analysis
               </CardTitle>
               <CardDescription>

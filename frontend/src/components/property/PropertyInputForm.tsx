@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ import {
   PropertyValidationErrors 
 } from '@/types/property';
 import { textColors } from '@/lib/utils';
+import { aria, focusRing, accessibleColors, keyboard, validationMessages, screenReader } from '@/lib/accessibility';
 import { AddressValidator } from './AddressValidator';
 import { useMarketDefaults } from '@/hooks/useMarketDefaults';
 import { MarketDefaultsPanel } from './MarketDefaultsPanel';
@@ -46,6 +47,12 @@ const STEP_CONFIG = {
 export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputFormProps) {
   const [currentStep, setCurrentStep] = useState<FormStep>('basic');
   const [isAddressValid, setIsAddressValid] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [announcements, setAnnouncements] = useState<string>('');
+  
+  // Refs for focus management
+  const stepContentRef = useRef<HTMLDivElement>(null);
+  const firstFieldRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<Partial<SimplifiedPropertyInput>>({
     property_id: `prop_${Date.now()}`,
     analysis_date: new Date().toISOString().split('T')[0],
@@ -65,12 +72,22 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
   // Market defaults hook
   const { data: marketDefaults, loading: loadingDefaults } = useMarketDefaults(formData.msa_code);
 
-  const totalSteps = 5;
+  const totalSteps = 6;
   const currentStepNumber = STEP_CONFIG[currentStep].step;
   const progress = (currentStepNumber / totalSteps) * 100;
 
   const updateFormData = (updates: Partial<SimplifiedPropertyInput>) => {
     setFormData(prev => ({ ...prev, ...updates }));
+    
+    // Clear related validation errors when field is updated
+    const updatedFields = Object.keys(updates);
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      updatedFields.forEach(field => {
+        delete newErrors[field];
+      });
+      return newErrors;
+    });
   };
 
   const handleAddressChange = (addressData: any) => {
@@ -93,25 +110,50 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
     }
   };
 
-  const canProceedFromStep = (step: FormStep): boolean => {
+  const validateStep = (step: FormStep): Record<string, string> => {
+    const errors: Record<string, string> = {};
+    
     switch (step) {
       case 'basic':
-        return !!(formData.property_name && formData.property_name.trim() && isAddressValid);
+        if (!formData.property_name?.trim()) {
+          errors.property_name = validationMessages.required('Property name');
+        }
+        if (!isAddressValid) {
+          errors.address = 'Please enter a valid address with supported MSA';
+        }
+        break;
       case 'units':
-        const hasResidential = !template.formConfig.showResidentialUnits || 
-          !!(formData.residential_units?.total_units && formData.residential_units.total_units > 0);
-        const hasCommercial = !template.formConfig.showCommercialUnits || 
-          !!(formData.commercial_units?.total_units && formData.commercial_units.total_units > 0);
-        return hasResidential && hasCommercial;
+        if (template.formConfig.showResidentialUnits && (!formData.residential_units?.total_units || formData.residential_units.total_units <= 0)) {
+          errors.residential_units = validationMessages.range('Number of residential units', 1);
+        }
+        if (template.formConfig.showCommercialUnits && (!formData.commercial_units?.total_units || formData.commercial_units.total_units <= 0)) {
+          errors.commercial_units = validationMessages.range('Number of commercial units', 1);
+        }
+        break;
       case 'renovation':
-        return !!(formData.renovation_info?.anticipated_duration_months && 
-                 formData.renovation_info.estimated_cost !== undefined);
+        if (!formData.renovation_info?.anticipated_duration_months) {
+          errors.renovation_months = validationMessages.required('Renovation duration');
+        }
+        if (formData.renovation_info?.estimated_cost === undefined || formData.renovation_info.estimated_cost < 0) {
+          errors.renovation_cost = validationMessages.range('Renovation budget', 0);
+        }
+        break;
       case 'equity':
-        return !!(formData.equity_structure?.investor_equity_share_pct && 
-                 formData.equity_structure.self_cash_percentage);
-      default:
-        return true;
+        if (!formData.equity_structure?.investor_equity_share_pct) {
+          errors.investor_equity = validationMessages.required('Investor equity share');
+        }
+        if (!formData.equity_structure?.self_cash_percentage) {
+          errors.self_cash = validationMessages.required('Self cash percentage');
+        }
+        break;
     }
+    
+    return errors;
+  };
+  
+  const canProceedFromStep = (step: FormStep): boolean => {
+    const errors = validateStep(step);
+    return Object.keys(errors).length === 0;
   };
 
   const getNextStep = (step: FormStep): FormStep | null => {
@@ -127,9 +169,19 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
   };
 
   const handleNext = () => {
+    const errors = validateStep(currentStep);
+    
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setAnnouncements('Please fix the errors below before continuing');
+      return;
+    }
+    
     const nextStep = getNextStep(currentStep);
     if (nextStep) {
       setCurrentStep(nextStep);
+      setValidationErrors({});
+      setAnnouncements(screenReader.announcements.navigation(`${STEP_CONFIG[nextStep].title} step`));
     }
   };
 
@@ -137,13 +189,22 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
     const previousStep = getPreviousStep(currentStep);
     if (previousStep) {
       setCurrentStep(previousStep);
+      setValidationErrors({});
+      setAnnouncements(screenReader.announcements.navigation(`${STEP_CONFIG[previousStep].title} step`));
     }
   };
 
   const handleSubmit = () => {
-    if (canProceedFromStep('equity')) {
-      onSubmit(formData as SimplifiedPropertyInput);
+    const errors = validateStep('equity');
+    
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setAnnouncements('Please fix the errors before submitting');
+      return;
     }
+    
+    setAnnouncements('Submitting property for DCF analysis...');
+    onSubmit(formData as SimplifiedPropertyInput);
   };
 
   const renderStepContent = () => {
@@ -153,13 +214,30 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="property_name">Property Name *</Label>
+                <Label 
+                  htmlFor="property_name"
+                  className={validationErrors.property_name ? `text-red-700` : ''}
+                >
+                  Property Name *
+                </Label>
                 <Input
+                  ref={firstFieldRef}
                   id="property_name"
                   value={formData.property_name || ''}
                   onChange={(e) => updateFormData({ property_name: e.target.value })}
                   placeholder="e.g., Sunset Apartments"
+                  className={`${focusRing.input} ${validationErrors.property_name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                  {...aria.validation.required(true)}
+                  {...aria.validation.invalid(!!validationErrors.property_name)}
+                  {...aria.validation.describedBy(
+                    validationErrors.property_name ? 'property_name-error' : undefined
+                  )}
                 />
+                {validationErrors.property_name && (
+                  <p id="property_name-error" className="text-sm text-red-700 mt-1" role="alert">
+                    {validationErrors.property_name}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -170,7 +248,13 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
                   value={formData.purchase_price || ''}
                   onChange={(e) => updateFormData({ purchase_price: e.target.value ? Number(e.target.value) : undefined })}
                   placeholder="2500000"
+                  className={focusRing.input}
+                  aria-label="Purchase price in dollars"
+                  aria-describedby="purchase-price-help"
                 />
+                <p id="purchase-price-help" className="text-xs text-gray-500">
+                  Enter the total acquisition cost (optional)
+                </p>
               </div>
             </div>
 
@@ -547,6 +631,15 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
 
   return (
     <div className="space-y-6">
+      {/* Screen reader announcements */}
+      <div 
+        className="sr-only" 
+        aria-live="polite" 
+        aria-atomic="true"
+        role="status"
+      >
+        {announcements}
+      </div>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -565,11 +658,17 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <StepIcon className="w-5 h-5 text-blue-600" />
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 
+              id="step-title"
+              className="text-xl font-bold text-gray-900"
+            >
               {STEP_CONFIG[currentStep].title}
             </h2>
           </div>
-          <span className="text-sm text-gray-500">
+          <span 
+            id="step-description"
+            className="text-sm text-gray-500"
+          >
             Step {currentStepNumber} of {totalSteps}
           </span>
         </div>
@@ -579,7 +678,14 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
       {/* Form Content */}
       <Card>
         <CardContent className="p-6">
-          {renderStepContent()}
+          <div 
+            ref={stepContentRef}
+            role="region"
+            aria-labelledby="step-title"
+            aria-describedby="step-description"
+          >
+            {renderStepContent()}
+          </div>
         </CardContent>
       </Card>
 
@@ -589,8 +695,10 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
           variant="outline"
           onClick={handlePrevious}
           disabled={currentStep === 'basic'}
+          className={focusRing.button}
+          aria-label={`Go to previous step: ${getPreviousStep(currentStep) ? STEP_CONFIG[getPreviousStep(currentStep)!].title : ''}`}
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" />
           Previous
         </Button>
 
@@ -598,6 +706,8 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
           <Button
             onClick={handleSubmit}
             disabled={!canProceedFromStep('equity')}
+            className={focusRing.button}
+            aria-label="Submit property for DCF analysis"
           >
             Submit for Analysis
           </Button>
@@ -605,9 +715,11 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
           <Button
             onClick={handleNext}
             disabled={!canProceedFromStep(currentStep)}
+            className={focusRing.button}
+            aria-label={`Go to next step: ${getNextStep(currentStep) ? STEP_CONFIG[getNextStep(currentStep)!].title : ''}`}
           >
             Next
-            <ArrowRight className="w-4 h-4 ml-2" />
+            <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
           </Button>
         )}
       </div>

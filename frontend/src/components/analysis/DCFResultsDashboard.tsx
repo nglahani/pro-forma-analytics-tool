@@ -16,8 +16,6 @@ import {
   Percent, 
   Calendar,
   Download,
-  Share,
-  Calculator,
   AlertTriangle,
   CheckCircle,
   Activity
@@ -26,7 +24,7 @@ import { DCFAnalysisResult, InvestmentRecommendation, RiskAssessment } from '@/t
 import { 
   formatCurrency, 
   formatPercentage, 
-  formatNumber, 
+ 
   getRecommendationStyle,
   textColors 
 } from '@/lib/utils';
@@ -79,7 +77,7 @@ export function DCFResultsDashboard({
     title: string;
     value: string;
     subtitle?: string;
-    icon: any;
+    icon: React.ComponentType<{ className?: string }>;
     trend?: 'up' | 'down' | 'neutral';
     color?: 'blue' | 'green' | 'red' | 'amber';
   }) => {

@@ -8,7 +8,7 @@ import hashlib
 import sys
 import time
 from pathlib import Path
-from typing import Dict, Optional, Set
+from typing import Any, Dict, Optional, Set
 
 from fastapi import HTTPException, Request, status
 from fastapi.security import HTTPBearer
@@ -31,10 +31,10 @@ class APIKeyManager:
     """Manages API key validation and permissions."""
 
     def __init__(self):
-        self._valid_keys: Dict[str, Dict[str, any]] = self._load_api_keys()
-        self._rate_limits: Dict[str, Dict[str, any]] = {}
+        self._valid_keys: Dict[str, Dict[str, Any]] = self._load_api_keys()
+        self._rate_limits: Dict[str, Dict[str, Any]] = {}
 
-    def _load_api_keys(self) -> Dict[str, Dict[str, any]]:
+    def _load_api_keys(self) -> Dict[str, Dict[str, Any]]:
         """Load valid API keys from configuration."""
         # In production, this would load from a secure store (database, vault, etc.)
         # For now, using environment-based configuration
@@ -67,7 +67,7 @@ class APIKeyManager:
 
         return api_keys
 
-    def validate_api_key(self, api_key: str) -> Optional[Dict[str, any]]:
+    def validate_api_key(self, api_key: str) -> Optional[Dict[str, Any]]:
         """
         Validate an API key and return its metadata.
 
@@ -126,6 +126,7 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.exclude_paths = exclude_paths or {
             "/api/v1/health",
+            "/api/v1/metrics",
             "/api/v1/docs",
             "/api/v1/redoc",
             "/api/v1/openapi.json",
@@ -232,7 +233,7 @@ def require_permission(permission: str):
     return check_permission_dependency
 
 
-def get_authenticated_user(request: Request) -> Dict[str, any]:
+def get_authenticated_user(request: Request) -> Dict[str, Any]:
     """
     Get authenticated user information from request.
 

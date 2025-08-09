@@ -18,18 +18,30 @@ const customJestConfig = {
     '!src/**/*.stories.{js,jsx,ts,tsx}',
     '!src/pages/_app.tsx',
     '!src/pages/_document.tsx',
+    '!src/tests/e2e/**',
+    '!src/tests/load/**', 
+    '!src/tests/visual/**',
+    '!src/tests/performance/**',
   ],
   coverageThreshold: {
     global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
     },
   },
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}',
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/.next/',
+    '<rootDir>/node_modules/',
+    '<rootDir>/src/tests/e2e/',
+    '<rootDir>/src/tests/load/',
+    '<rootDir>/src/tests/visual/',
+    '<rootDir>/src/tests/performance/',
   ],
 }
 

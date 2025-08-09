@@ -182,6 +182,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.default_refill_rate = default_refill_rate
         self.exclude_paths = exclude_paths or {
             "/api/v1/health",
+            "/api/v1/metrics",
             "/api/v1/docs",
             "/api/v1/redoc",
             "/api/v1/openapi.json",

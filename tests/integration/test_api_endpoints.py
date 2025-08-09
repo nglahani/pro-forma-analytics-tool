@@ -113,6 +113,32 @@ class TestHealthEndpoint:
         assert response.status_code == 200
 
 
+class TestMetricsEndpoint:
+    """Test metrics endpoint."""
+
+    def test_metrics_no_auth_required(self, client):
+        """Metrics should be accessible without authentication."""
+        response = client.get("/api/v1/metrics")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] in ["ok", "error"]
+        assert "timestamp" in data
+        # When ok, expect core metric fields
+        if data["status"] == "ok":
+            assert "uptime_seconds" in data
+            assert "total_requests" in data
+            assert "endpoint_statistics" in data
+
+    def test_metrics_prometheus_format(self, client):
+        """Prometheus format should return text/plain and metrics lines."""
+        response = client.get("/api/v1/metrics?format=prometheus")
+        assert response.status_code == 200
+        assert response.headers.get("content-type", "").startswith("text/plain")
+        body = response.text
+        assert "proforma_uptime_seconds" in body
+        assert "proforma_total_requests" in body
+
+
 class TestAuthentication:
     """Test API authentication middleware."""
 

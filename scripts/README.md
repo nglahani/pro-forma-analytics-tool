@@ -1,8 +1,8 @@
-# Scripts - v1.3
+# Scripts - v1.6
 
 Comprehensive automation scripts for GitHub Actions CI/CD pipeline, validation frameworks, and development workflows supporting production-grade real estate DCF analysis with multi-Python version compatibility and extensive quality assurance.
 
-## CI/CD Pipeline Integration (v1.3)
+## CI/CD Pipeline Integration (v1.6)
 
 ### GitHub Actions Automation
 - **Multi-Python Version Support**: Automated testing across Python 3.8-3.11
@@ -97,7 +97,7 @@ python scripts/profile_memory.py --report memory_profile.html --detailed
 - **Resource Utilization**: Monitor CPU and I/O usage during intensive calculations
 - **Regression Detection**: Compare performance against historical benchmarks
 
-#### `profile_performance.py` (New in v1.3)
+#### `profile_performance.py` (Enhanced in v1.6)
 **Purpose**: Comprehensive performance profiling and regression detection
 ```bash
 # Performance regression testing
@@ -116,7 +116,7 @@ python scripts/profile_performance.py --report performance_analysis.html
 **Purpose**: Automated release notes generation from git commits with semantic versioning
 ```bash
 # Generate release notes for specific version
-python scripts/generate_release_notes.py v1.3.0
+python scripts/generate_release_notes.py v1.6.0
 
 # Generate release notes since last tag
 python scripts/generate_release_notes.py --since-last-tag
@@ -132,7 +132,7 @@ python scripts/generate_release_notes.py --changelog --output CHANGELOG.md
 - **Contributor Recognition**: Automatic contributor attribution and statistics
 - **Format Options**: Generate release notes in markdown, HTML, or JSON formats
 
-#### `bump_version.py` (New in v1.3)
+#### `bump_version.py` (Enhanced in v1.6)
 **Purpose**: Automated version bumping with validation and tagging
 ```bash
 # Bump patch version

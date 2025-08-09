@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING, Dict, List, Optional
 if TYPE_CHECKING:
     from forecasting.prophet_engine import ProFormaProphetEngine
 
+from core.exceptions import DataNotFoundError, ForecastError
+
 from ...domain.entities.forecast import (
     ForecastRequest,
     ForecastResult,
@@ -234,10 +236,4 @@ class ForecastingApplicationService:
         return completeness_report
 
 
-# Custom exceptions for the application layer
-class ForecastError(Exception):
-    """Raised when forecast generation fails."""
-
-
-class DataNotFoundError(Exception):
-    """Raised when required data is not found."""
+# Note: Exceptions now imported from core.exceptions for consistency

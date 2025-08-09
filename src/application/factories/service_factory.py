@@ -6,7 +6,7 @@ Creates service instances with minimal configuration.
 """
 
 import logging
-from typing import Optional
+from typing import Dict, Optional
 
 from ..services.cash_flow_projection_service import CashFlowProjectionService
 from ..services.dcf_assumptions_service import DCFAssumptionsService
@@ -50,6 +50,45 @@ class ServiceFactory:
     def create_financial_metrics_service(self) -> FinancialMetricsService:
         """Create financial metrics service."""
         return FinancialMetricsService()
+
+    def validate_services_health(self) -> Dict[str, bool]:
+        """
+        Validate that all core services can be created successfully.
+
+        Returns:
+            Dict mapping service names to health status (True if healthy)
+        """
+        health_status = {}
+
+        try:
+            self.create_dcf_assumptions_service()
+            health_status["dcf_assumptions"] = True
+        except Exception as e:
+            self.logger.error(f"DCF Assumptions Service health check failed: {e}")
+            health_status["dcf_assumptions"] = False
+
+        try:
+            self.create_initial_numbers_service()
+            health_status["initial_numbers"] = True
+        except Exception as e:
+            self.logger.error(f"Initial Numbers Service health check failed: {e}")
+            health_status["initial_numbers"] = False
+
+        try:
+            self.create_cash_flow_projection_service()
+            health_status["cash_flow_projection"] = True
+        except Exception as e:
+            self.logger.error(f"Cash Flow Projection Service health check failed: {e}")
+            health_status["cash_flow_projection"] = False
+
+        try:
+            self.create_financial_metrics_service()
+            health_status["financial_metrics"] = True
+        except Exception as e:
+            self.logger.error(f"Financial Metrics Service health check failed: {e}")
+            health_status["financial_metrics"] = False
+
+        return health_status
 
 
 # Global factory instance

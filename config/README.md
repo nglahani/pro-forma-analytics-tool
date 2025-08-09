@@ -1,4 +1,4 @@
-# Configuration - v1.3
+# Configuration - v1.6
 
 Comprehensive application configuration system with production-grade parameter definitions, geographic mappings, and environment-specific settings supporting the complete DCF analysis engine.
 
@@ -202,7 +202,7 @@ LOGGING_CONFIG = {
 }
 ```
 
-## Configuration Management (v1.3)
+## Configuration Management (v1.6)
 
 ### Environment-Specific Overrides
 - **Development**: Enhanced debugging, mock data sources, relaxed validation

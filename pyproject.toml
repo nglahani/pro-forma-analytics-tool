@@ -55,10 +55,10 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-org/pro-forma-analytics-tool"
-Repository = "https://github.com/your-org/pro-forma-analytics-tool"
-Issues = "https://github.com/your-org/pro-forma-analytics-tool/issues"
-Documentation = "https://your-org.github.io/pro-forma-analytics-tool/"
+Homepage = "https://github.com/nglahani/pro-forma-analytics-tool"
+Repository = "https://github.com/nglahani/pro-forma-analytics-tool"
+Issues = "https://github.com/nglahani/pro-forma-analytics-tool/issues"
+Documentation = "https://nglahani.github.io/pro-forma-analytics-tool/"
 
 [project.scripts]
 proforma = "src.presentation.cli:main"

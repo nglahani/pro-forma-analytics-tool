@@ -6,11 +6,12 @@ Endpoints for system configuration, health monitoring, and operational status.
 
 import sqlite3
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Depends, status
+from fastapi.responses import PlainTextResponse
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent.parent
@@ -18,6 +19,7 @@ sys.path.insert(0, str(project_root))
 
 from core.logging_config import get_logger
 from src.presentation.api.middleware.auth import require_permission
+from src.presentation.api.middleware.logging import get_performance_metrics
 from src.presentation.api.models.responses import ConfigurationResponse, HealthResponse
 
 logger = get_logger(__name__)
@@ -102,7 +104,7 @@ async def enhanced_health_check() -> HealthResponse:
         overall_status = "degraded" if unhealthy_dbs else "healthy"
 
         # Get uptime (based on fresh startup time)
-        current_time = datetime.now(UTC)
+        current_time = datetime.now(timezone.utc)
         if not hasattr(enhanced_health_check, "_startup_time"):
             enhanced_health_check._startup_time = current_time
         startup_time = enhanced_health_check._startup_time
@@ -110,7 +112,7 @@ async def enhanced_health_check() -> HealthResponse:
 
         health_response = HealthResponse(
             status=overall_status,
-            timestamp=datetime.now(UTC),
+            timestamp=datetime.now(timezone.utc),
             version="1.0.1",
             environment="development",  # Could be loaded from config
             uptime_seconds=uptime_seconds,
@@ -136,7 +138,7 @@ async def enhanced_health_check() -> HealthResponse:
 
         return HealthResponse(
             status="unhealthy",
-            timestamp=datetime.now(UTC),
+            timestamp=datetime.now(timezone.utc),
             version="1.0.0",
             environment="development",
             uptime_seconds=0.0,
@@ -145,7 +147,79 @@ async def enhanced_health_check() -> HealthResponse:
 
 
 # Set startup time for uptime calculation
-enhanced_health_check._startup_time = datetime.now(UTC)
+enhanced_health_check._startup_time = datetime.now(timezone.utc)
+
+
+def _metrics_to_prometheus_text(metrics_data: Dict[str, Any]) -> str:
+    """Convert internal metrics dict to Prometheus exposition text."""
+    lines: list[str] = []
+    # Core gauges/counters
+    uptime = metrics_data.get("uptime_seconds", 0)
+    total_requests = metrics_data.get("total_requests", 0)
+    total_errors = metrics_data.get("total_errors", 0)
+    lines.append("# HELP proforma_uptime_seconds API uptime in seconds")
+    lines.append("# TYPE proforma_uptime_seconds gauge")
+    lines.append(f"proforma_uptime_seconds {uptime}")
+
+    lines.append("# HELP proforma_total_requests Total number of API requests")
+    lines.append("# TYPE proforma_total_requests counter")
+    lines.append(f"proforma_total_requests {total_requests}")
+
+    lines.append("# HELP proforma_total_errors Total number of API error responses")
+    lines.append("# TYPE proforma_total_errors counter")
+    lines.append(f"proforma_total_errors {total_errors}")
+
+    # Endpoint stats
+    endpoint_stats: Dict[str, Any] = metrics_data.get("endpoint_statistics", {})
+    lines.append("# HELP proforma_endpoint_request_count Requests per endpoint")
+    lines.append("# TYPE proforma_endpoint_request_count counter")
+    for endpoint, stats in endpoint_stats.items():
+        esc = endpoint.replace("\\", "\\\\").replace('"', '\\"')
+        request_count = stats.get("request_count", 0)
+        lines.append(
+            f'proforma_endpoint_request_count{{endpoint="{esc}"}} {request_count}'
+        )
+
+    lines.append(
+        "# HELP proforma_endpoint_avg_response_seconds Average response time per endpoint"
+    )
+    lines.append("# TYPE proforma_endpoint_avg_response_seconds gauge")
+    for endpoint, stats in endpoint_stats.items():
+        esc = endpoint.replace("\\", "\\\\").replace('"', '\\"')
+        lines.append(
+            f'proforma_endpoint_avg_response_seconds{{endpoint="{esc}"}} {stats.get("avg_response_time", 0.0)}'
+        )
+
+    return "\n".join(lines) + "\n"
+
+
+@router.get("/metrics", status_code=status.HTTP_200_OK)
+async def metrics(format: Optional[str] = None):
+    """
+    Return current API performance metrics.
+
+    Includes uptime, total requests, total errors, and per-endpoint statistics.
+    """
+    try:
+        metrics_data = get_performance_metrics()
+        if (format or "").lower() == "prometheus":
+            text = _metrics_to_prometheus_text(metrics_data)
+            return PlainTextResponse(
+                content=text, media_type="text/plain; version=0.0.4"
+            )
+        else:
+            return {
+                "status": "ok",
+                "timestamp": datetime.now(timezone.utc),
+                **metrics_data,
+            }
+    except Exception as e:
+        logger.error(f"Failed to retrieve metrics: {e}", exc_info=True)
+        return {
+            "status": "error",
+            "timestamp": datetime.now(timezone.utc),
+            "message": str(e),
+        }
 
 
 @router.get(
@@ -216,7 +290,7 @@ async def get_system_configuration(
                 "confidence_level_default": "95%",
             },
             api_version="1.0.0",
-            last_updated=datetime.now(UTC),
+            last_updated=datetime.now(timezone.utc),
         )
 
         logger.debug("System configuration retrieved successfully")
@@ -249,7 +323,7 @@ async def get_system_info(
             "version": "1.5.0",
             "environment": "development",
             "status": "operational",
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "api_version": "v1",
         }
 

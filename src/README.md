@@ -1,4 +1,4 @@
-# Source Code (src/) - v1.5
+# Source Code (src/) - v1.6
 
 Production-ready Clean Architecture implementation with domain-driven design principles for real estate DCF analysis. Enhanced technical foundation with Pydantic V2, FastAPI lifespan events, and improved Windows compatibility.
 
@@ -82,7 +82,7 @@ presentation/ → application/ → domain/
 - **`container.py`** - Dependency injection container with service registration
 - **`cache/query_cache.py`** - Query result caching for performance optimization
 
-## Quality Metrics (v1.3)
+## Quality Metrics (v1.6)
 
 - **Test Coverage**: 96%+ across all business logic
 - **Architecture Compliance**: 100% Clean Architecture adherence validated by CI/CD

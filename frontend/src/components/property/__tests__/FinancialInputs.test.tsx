@@ -37,10 +37,17 @@ jest.mock('@/hooks/useMarketDefaults', () => ({
 
 // Mock utility functions
 jest.mock('@/lib/utils', () => ({
+  cn: (...classes: string[]) => classes.filter(Boolean).join(' '),
   textColors: {
     success: 'text-green-600',
     warning: 'text-yellow-600',
     error: 'text-red-600',
+    primary: 'text-gray-900',
+    secondary: 'text-gray-700',
+    body: 'text-gray-800',
+    muted: 'text-gray-600',
+    placeholder: 'text-gray-500',
+    disabled: 'text-gray-500',
   },
   formatPercentage: (value: number) => `${(value * 100).toFixed(2)}%`,
   formatCurrency: (value: number) => `$${value.toLocaleString()}`,

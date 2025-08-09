@@ -72,3 +72,12 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   unobserve: jest.fn(),
   disconnect: jest.fn(),
 }))
+
+// Global mock for @/lib/utils to avoid repetitive mocking in test files
+jest.mock('@/lib/utils', () => {
+  const actual = jest.requireActual('@/lib/utils')
+  return {
+    ...actual,
+    cn: (...classes) => classes.filter(Boolean).join(' '),
+  }
+})

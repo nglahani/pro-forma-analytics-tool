@@ -24,7 +24,7 @@ Guidelines for contributing to the Pro-Forma Analytics Tool v1.3.
 ### Setup
 ```bash
 # Fork and clone the repository
-git clone https://github.com/your-username/pro-forma-analytics-tool.git
+git clone https://github.com/nglahani/pro-forma-analytics-tool.git
 cd pro-forma-analytics-tool
 
 # Create virtual environment

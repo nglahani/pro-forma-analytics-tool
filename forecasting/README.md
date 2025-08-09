@@ -1,4 +1,4 @@
-# Forecasting Engine - v1.3
+# Forecasting Engine - v1.6
 
 Production-grade time series forecasting using Meta's Prophet model for pro forma parameter prediction, providing 6-year projections with uncertainty quantification and comprehensive validation for real estate DCF analysis.
 
@@ -109,7 +109,7 @@ class ForecastValidator:
 - **Business Rule Validation**: Parameter bounds and relationship consistency
 - **Historical Backtesting**: Out-of-sample performance validation
 
-### Advanced Features (v1.3)
+### Advanced Features (v1.6)
 
 #### Multi-Parameter Correlation Modeling
 ```python
@@ -209,7 +209,7 @@ class ForecastResult:
 - **Validation Reports**: Comprehensive model performance reporting
 - **Scenario Comparison**: Side-by-side comparison of different forecast scenarios
 
-## Performance and Scalability (v1.3)
+## Performance and Scalability (v1.6)
 
 ### Optimization Features
 - **Model Serialization**: Persistent storage of trained Prophet models

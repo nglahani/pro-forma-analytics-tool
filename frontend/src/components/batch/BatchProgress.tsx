@@ -97,7 +97,7 @@ export function BatchProgress({
 
   // Filter and sort results
   const filteredResults = useMemo(() => {
-    let filtered = results.filter(result => {
+    const filtered = results.filter(result => {
       if (!showCompleted && result.status === 'completed') return false;
       if (!showFailed && result.status === 'error') return false;
       return true;

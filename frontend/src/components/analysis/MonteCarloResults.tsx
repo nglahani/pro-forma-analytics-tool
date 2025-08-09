@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
 import {
   BarChart,
   Bar,
@@ -19,28 +18,21 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
-  Area,
-  AreaChart,
   PieChart,
   Pie,
   Cell,
 } from 'recharts';
 import {
   TrendingUp,
-  TrendingDown,
   Target,
   AlertTriangle,
   Activity,
-  BarChart3,
-  PieChart as PieChartIcon,
   Download,
   RefreshCw,
+  BarChart3,
 } from 'lucide-react';
-import { MonteCarloResult, ScenarioDistribution } from '@/types/analysis';
+import { MonteCarloResult } from '@/types/analysis';
 import { formatCurrency, formatPercentage, textColors } from '@/lib/utils';
-import { validateMonteCarloResults } from '@/lib/validation/monteCarloValidation';
 import { ScenarioAnalysisCharts } from './ScenarioAnalysisCharts';
 
 interface MonteCarloResultsProps {
@@ -58,8 +50,6 @@ export function MonteCarloResults({
 }: MonteCarloResultsProps) {
   const [selectedMetric, setSelectedMetric] = useState<'npv' | 'irr' | 'cashflow'>('npv');
 
-  // Validate results on component mount
-  const validation = validateMonteCarloResults(results);
   
   const percentiles = results.percentiles;
   const distribution = results.distribution;
@@ -123,12 +113,6 @@ export function MonteCarloResults({
     }
   };
 
-  const getPercentileColor = (percentile: number) => {
-    if (percentile >= 75) return 'text-green-600 bg-green-50';
-    if (percentile >= 50) return 'text-blue-600 bg-blue-50';
-    if (percentile >= 25) return 'text-amber-600 bg-amber-50';
-    return 'text-red-600 bg-red-50';
-  };
 
   const getRiskLevelColor = (risk: string) => {
     switch (risk.toLowerCase()) {
