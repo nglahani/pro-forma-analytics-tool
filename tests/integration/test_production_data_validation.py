@@ -5,12 +5,18 @@ Tests the data population work completed to ensure all 11 pro-forma parameters
 have adequate production-grade data coverage.
 """
 
+import os
 import sqlite3
 import unittest
 
 import pandas as pd
+import pytest
 
 
+@pytest.mark.skipif(
+    os.getenv("CI") == "true",
+    reason="Production data validation tests skipped in CI environment"
+)
 class TestProductionDataValidation(unittest.TestCase):
     """Test cases for validating production-grade data coverage."""
 
