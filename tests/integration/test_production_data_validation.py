@@ -15,7 +15,7 @@ import pytest
 
 @pytest.mark.skipif(
     os.getenv("CI") == "true",
-    reason="Production data validation tests skipped in CI environment"
+    reason="Production data validation tests skipped in CI environment",
 )
 class TestProductionDataValidation(unittest.TestCase):
     """Test cases for validating production-grade data coverage."""
