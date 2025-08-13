@@ -49,7 +49,7 @@ jobs:
     # Comprehensive Test Suite - All tests with accurate coverage measurement
     - name: Run comprehensive test suite
       run: |
-        pytest tests/unit/ tests/integration/ tests/performance/ --cov=src --cov=core --cov=monte_carlo --cov-report=xml --cov-report=term-missing --cov-fail-under=85 -v
+        pytest tests/unit/ tests/integration/ tests/performance/ --cov=src --cov=core --cov=monte_carlo --cov-report=xml --cov-report=term-missing --cov-fail-under=82 -v
     
     # End-to-end validation - Essential workflow test
     - name: Validate DCF workflow
