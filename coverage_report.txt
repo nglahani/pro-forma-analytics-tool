@@ -1,0 +1,149 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.0, pytest-8.4.1, pluggy-1.6.0
+rootdir: C:\Users\nlaha\OneDrive\Documents\Personal\Real Estate\pro-forma-analytics-tool
+configfile: pytest.ini
+plugins: anyio-4.9.0, cov-6.2.1, mock-3.14.1
+collected 348 items
+
+tests\integration\test_api_endpoints.py ...................              [  5%]
+tests\integration\test_complete_dcf_workflow.py .                        [  5%]
+tests\integration\test_frontend_backend_integration.py s..sss....        [  8%]
+tests\integration\test_production_data_validation.py ............        [ 12%]
+tests\performance\test_api_performance_endpoints.py .......              [ 14%]
+tests\performance\test_irr_performance.py ....                           [ 15%]
+tests\unit\application\factories\test_service_factory.py ......          [ 16%]
+tests\unit\application\test_cash_flow_projection_service.py .......      [ 18%]
+tests\unit\application\test_dcf_assumptions_service.py ..........        [ 21%]
+tests\unit\application\test_edge_cases.py ...........                    [ 25%]
+tests\unit\application\test_financial_metrics_service.py .............   [ 28%]
+tests\unit\application\test_forecasting_service.py ..................... [ 34%]
+.                                                                        [ 35%]
+tests\unit\application\test_initial_numbers_service.py ...............   [ 39%]
+tests\unit\application\test_monte_carlo_service.py ..........            [ 42%]
+tests\unit\application\test_service_factory_comprehensive.py ........... [ 45%]
+.............                                                            [ 49%]
+tests\unit\config\test_settings.py ......................                [ 55%]
+tests\unit\core\test_exceptions.py .....................                 [ 61%]
+tests\unit\domain\test_forecast_entities.py ...............              [ 65%]
+tests\unit\domain\test_initial_numbers_coverage.py ..........            [ 68%]
+tests\unit\domain\test_monte_carlo_coverage.py .............             [ 72%]
+tests\unit\domain\test_property_data_coverage.py ................        [ 77%]
+tests\unit\monte_carlo\test_simulation_engine.py ............            [ 80%]
+tests\unit\presentation\test_analysis_router.py ............             [ 83%]
+tests\unit\presentation\test_api_models.py .................             [ 88%]
+tests\unit\presentation\test_data_router.py ............................ [ 96%]
+.                                                                        [ 97%]
+tests\unit\presentation\test_dependencies.py .                           [ 97%]
+tests\unit\presentation\test_exceptions_handlers.py .....                [ 98%]
+tests\unit\presentation\test_simulation_router.py ....                   [100%]
+
+============================== warnings summary ===============================
+tests/integration/test_api_endpoints.py::TestMetricsEndpoint::test_metrics_no_auth_required
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\datastructures.py:610: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B83F8130>
+    for idx, (item_key, item_value) in enumerate(self._list):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_api_endpoints.py::TestMetricsEndpoint::test_metrics_no_auth_required
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\datastructures.py:610: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B83F8310>
+    for idx, (item_key, item_value) in enumerate(self._list):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_api_endpoints.py::TestMetricsEndpoint::test_metrics_no_auth_required
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\datastructures.py:610: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B83F8220>
+    for idx, (item_key, item_value) in enumerate(self._list):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_api_endpoints.py::TestMetricsEndpoint::test_metrics_no_auth_required
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\datastructures.py:610: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B83F84F0>
+    for idx, (item_key, item_value) in enumerate(self._list):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_api_endpoints.py::TestMetricsEndpoint::test_metrics_no_auth_required
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\datastructures.py:610: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B83F9300>
+    for idx, (item_key, item_value) in enumerate(self._list):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_api_endpoints.py::TestMetricsEndpoint::test_metrics_no_auth_required
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\datastructures.py:610: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B83F94E0>
+    for idx, (item_key, item_value) in enumerate(self._list):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_api_endpoints.py::TestMetricsEndpoint::test_metrics_no_auth_required
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\datastructures.py:610: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B83F93F0>
+    for idx, (item_key, item_value) in enumerate(self._list):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_api_endpoints.py::TestMetricsEndpoint::test_metrics_no_auth_required
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\datastructures.py:610: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B83F96C0>
+    for idx, (item_key, item_value) in enumerate(self._list):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/performance/test_api_performance_endpoints.py::test_dcf_latency_under_3000ms
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py:550: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B83FBE20>
+    def _check_closed(self):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/performance/test_api_performance_endpoints.py::test_dcf_latency_under_3000ms
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py:550: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B84436A0>
+    def _check_closed(self):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/performance/test_api_performance_endpoints.py::test_dcf_latency_under_3000ms
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py:550: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B8443E20>
+    def _check_closed(self):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/performance/test_api_performance_endpoints.py::test_dcf_latency_under_3000ms
+  C:\Users\nlaha\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py:550: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000213B8443C40>
+    def _check_closed(self):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.13.0-final-0 _______________
+
+Name                                                       Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------------------------------------
+core\exceptions.py                                           125      0     44      6    96%   185->187, 261->263, 263->265, 265->268, 311->313, 313->316
+core\logging_config.py                                        34      2      6      2    90%   45, 63
+monte_carlo\simulation_engine.py                             246     14     88     18    90%   74, 206-209, 237, 385->384, 388->381, 417, 419, 429->436, 436->443, 443->450, 450->457, 462, 483->493, 493->505, 517, 525, 544->553, 553->561, 567, 600-601
+src\application\factories\service_factory.py                  61      4      4      1    92%   29-34
+src\application\services\cash_flow_projection_service.py     132     16     46      7    85%   315->318, 367, 374, 384, 391->405, 396, 398-403, 411-428, 436-437
+src\application\services\dcf_assumptions_service.py           91     12     38      5    87%   156-159, 167, 194->193, 204, 228, 238-239, 257->271, 306-307, 316-317
+src\application\services\financial_metrics_service.py        243     34    114     24    83%   193, 257, 271, 287, 319, 336, 359-360, 365, 376, 388, 417, 473->477, 480, 490, 500, 523-524, 525->530, 534-535, 536->541, 545-546, 547->552, 556-557, 566->571, 574, 578, 599-616, 655-656
+src\application\services\forecasting_service.py               74      3     18      1    96%   109-110, 168
+src\application\services\initial_numbers_service.py          133     13     38     11    86%   214, 323, 345, 384, 388->392, 392->403, 398, 400, 407, 411, 415-420, 430-431
+src\application\services\monte_carlo_service.py               88     10     18      7    82%   79->84, 85->91, 141, 149, 206, 210-211, 234, 258-263
+src\domain\entities\cash_flow_projection.py                  184     34     68     26    75%   63, 70, 75, 94, 98, 106, 108, 113, 121, 129, 169, 187, 198, 206, 253, 255, 260, 262, 267, 271, 278, 284, 313, 321, 335->331, 355, 438-493, 505
+src\domain\entities\dcf_assumptions.py                        95     19     38     15    74%   59, 61, 63, 80, 82, 102->exit, 106, 114, 116, 118, 123, 125, 127, 132, 147, 163, 191-197, 223, 259
+src\domain\entities\financial_metrics.py                     142     26     38     13    76%   70, 74, 76, 122, 124, 126, 200, 202, 207, 209, 211, 216, 222, 282-285, 303, 352-381, 417
+src\domain\entities\forecast.py                              104     12     18      0    85%   87, 133-141, 146, 151, 156-158
+src\domain\entities\initial_numbers.py                       135     19     58     16    82%   90, 111, 116, 118, 120, 125, 133, 138, 140, 142, 144, 160, 164, 172, 186, 202, 248, 289-295
+src\domain\entities\monte_carlo.py                           120      4     38      4    95%   75, 176, 181, 187
+src\domain\entities\property_data.py                         256     42     64      4    82%   218, 244, 246, 250, 353-379, 384, 474-482, 488, 492, 496, 504, 508, 531-554, 559, 578-592
+src\domain\repositories\parameter_repository.py               27      0      0      0   100%
+src\domain\repositories\simulation_repository.py              17      0      0      0   100%
+src\presentation\api\exceptions.py                            87     10     22      9    81%   64-65, 81->84, 125, 127->130, 132->120, 145->148, 191->194, 250->253, 295->298, 319-346
+src\presentation\api\main.py                                  59     15      4      2    73%   35, 47-54, 63-71, 201-203, 215-217
+src\presentation\api\models\errors.py                         63      0      0      0   100%
+src\presentation\api\models\examples.py                       16      0      0      0   100%
+src\presentation\api\models\requests.py                      106      3     28      4    95%   96->99, 139, 212, 315
+src\presentation\api\models\responses.py                     120      1      6      1    98%   53
+src\presentation\api\routers\analysis.py                     176     31     24      3    81%   306-307, 389, 398-404, 422-423, 569->572, 837-838, 884-922, 993, 1007
+src\presentation\api\routers\data.py                          91     15     22      3    82%   154, 162->147, 187-191, 280-301, 329-334
+------------------------------------------------------------------------------------------------------
+TOTAL                                                       3025    339    842    182    85%
+Coverage HTML written to dir htmlcov
+================ 344 passed, 4 skipped, 12 warnings in 17.18s =================

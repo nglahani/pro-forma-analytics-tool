@@ -307,7 +307,7 @@ python demo_end_to_end_workflow.py
 **Full System Validation (\~10 min):**
 
 1. Env & DB: `python --version && python data_manager.py status`
-2. Test suites: unit app (\~74 tests), infra edge (\~12), integration (1), performance (\~4) — **\~91 tests total**.
+2. Test suites: unit app (~122 tests), infra edge (~12), integration (~20), performance (~8), presentation (~68) — **~348 tests total**.
 3. End‑to‑end demo: `python demo_end_to_end_workflow.py`
 4. Code quality: Black/isort/flake8
 5. Linux compat (Docker): `docker build -f Dockerfile.test -t proforma-linux-test .`

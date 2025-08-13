@@ -2,7 +2,7 @@
 Unit tests for API models (requests, responses, errors).
 """
 
-from datetime import UTC, date, datetime
+from datetime import date, datetime, timezone
 
 import pytest
 
@@ -255,7 +255,7 @@ class TestResponseModels:
         """Test AnalysisMetadata model."""
         metadata = AnalysisMetadata(
             processing_time_seconds=12.5,
-            analysis_timestamp=datetime.now(UTC),
+            analysis_timestamp=datetime.now(timezone.utc),
             data_sources={"market_data": "FRED API", "forecasts": "Prophet"},
             assumptions_summary={"interest_rate": 5.5, "cap_rate": 6.0},
         )
@@ -268,7 +268,7 @@ class TestResponseModels:
         """Test HealthResponse model."""
         health = HealthResponse(
             status="healthy",
-            timestamp=datetime.now(UTC),
+            timestamp=datetime.now(timezone.utc),
             version="1.0.0",
             environment="testing",
             uptime_seconds=3600.0,
@@ -287,7 +287,7 @@ class TestResponseModels:
             analysis_limits={"max_batch_size": 50, "max_simulations": 50000},
             dcf_methodology={"phases": "4", "framework": "Clean Architecture"},
             api_version="1.0.0",
-            last_updated=datetime.now(UTC),
+            last_updated=datetime.now(timezone.utc),
         )
 
         assert len(config.supported_msas) == 5

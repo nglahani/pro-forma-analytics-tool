@@ -101,7 +101,7 @@ class APIClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const config: RequestInit = {
       ...options,
       headers: {
@@ -113,12 +113,12 @@ class APIClient {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         throw new Error(
-          errorData?.detail || 
-          errorData?.message || 
+          errorData?.detail ||
+          errorData?.message ||
           `HTTP ${response.status}: ${response.statusText}`
         );
       }
@@ -138,10 +138,11 @@ class APIClient {
   }
 
   // DCF Analysis
-  async runDCFAnalysis(propertyData: SimplifiedPropertyInput): Promise<DCFAnalysisResponse> {
-    return this.makeRequest<DCFAnalysisResponse>('/api/v1/analysis/dcf', {
+  async runDCFAnalysis(propertyData: SimplifiedPropertyInput): Promise<any> {
+    // Backend expects { property_data, options? }
+    return this.makeRequest<any>('/api/v1/analysis/dcf', {
       method: 'POST',
-      body: JSON.stringify(propertyData),
+      body: JSON.stringify({ property_data: propertyData }),
     });
   }
 
@@ -151,11 +152,10 @@ class APIClient {
     if (limit) {
       queryParams.append('limit', limit.toString());
     }
-    
-    const endpoint = `/api/v1/analysis/history${
-      queryParams.toString() ? `?${queryParams.toString()}` : ''
-    }`;
-    
+
+    const endpoint = `/api/v1/analysis/history${queryParams.toString() ? `?${queryParams.toString()}` : ''
+      }`;
+
     return this.makeRequest<DCFAnalysisResponse[]>(endpoint);
   }
 
@@ -165,10 +165,10 @@ class APIClient {
   }
 
   // Batch DCF Analysis
-  async runBatchDCFAnalysis(properties: SimplifiedPropertyInput[]): Promise<DCFAnalysisResponse[]> {
-    return this.makeRequest<DCFAnalysisResponse[]>('/api/v1/analysis/batch', {
+  async runBatchDCFAnalysis(properties: SimplifiedPropertyInput[]): Promise<any> {
+    return this.makeRequest<any>('/api/v1/analysis/batch', {
       method: 'POST',
-      body: JSON.stringify({ properties }),
+      body: JSON.stringify({ properties: properties.map(p => ({ property_data: p })) }),
     });
   }
 
@@ -189,28 +189,26 @@ class APIClient {
     options: {
       numScenarios?: number;
       includeCorrelations?: boolean;
-      includeMarketCycles?: boolean;
       randomSeed?: number;
       confidenceLevel?: number;
     } = {}
-  ): Promise<MonteCarloResult> {
+  ): Promise<any> {
     const {
       numScenarios = 1000,
       includeCorrelations = true,
-      includeMarketCycles = true,
       randomSeed,
-      confidenceLevel = 95,
+      confidenceLevel = 0.95,
     } = options;
 
-    return this.makeRequest<MonteCarloResult>('/api/v1/simulation/monte-carlo', {
+    return this.makeRequest<any>('/api/v1/simulation/monte-carlo', {
       method: 'POST',
       body: JSON.stringify({
         property_data: propertyData,
-        num_scenarios: numScenarios,
-        include_correlations: includeCorrelations,
-        include_market_cycles: includeMarketCycles,
-        random_seed: randomSeed,
-        confidence_level: confidenceLevel,
+        simulation_count: numScenarios,
+        include_distributions: true,
+        correlation_window_years: 5,
+        percentiles: [5, 10, 25, 50, 75, 90, 95],
+        request_id: undefined,
       }),
     });
   }
@@ -270,17 +268,16 @@ class APIClient {
 
   // Market Data
   async getMarketData(
-    msaCode: string, 
+    msaCode: string,
     options: {
       parameters?: string[];
       startDate?: string;
       endDate?: string;
-      includeForecasts?: boolean;
     } = {}
-  ): Promise<MarketData> {
-    const { parameters, startDate, endDate, includeForecasts } = options;
+  ): Promise<any> {
+    const { parameters, startDate, endDate } = options;
     const queryParams = new URLSearchParams();
-    
+
     if (parameters && parameters.length > 0) {
       queryParams.append('parameters', parameters.join(','));
     }
@@ -290,15 +287,11 @@ class APIClient {
     if (endDate) {
       queryParams.append('end_date', endDate);
     }
-    if (includeForecasts) {
-      queryParams.append('include_forecasts', 'true');
-    }
-    
-    const endpoint = `/api/v1/data/markets/${msaCode}${
-      queryParams.toString() ? `?${queryParams.toString()}` : ''
-    }`;
-    
-    return this.makeRequest<MarketData>(endpoint);
+
+    const endpoint = `/api/v1/data/markets/${msaCode}${queryParams.toString() ? `?${queryParams.toString()}` : ''
+      }`;
+
+    return this.makeRequest<any>(endpoint);
   }
 
   // Get All Available MSAs
@@ -334,7 +327,7 @@ class APIClient {
     }>;
   }> {
     const { startDate, endDate } = options;
-    
+
     return this.makeRequest('/api/v1/data/markets/compare', {
       method: 'POST',
       body: JSON.stringify({
@@ -351,16 +344,16 @@ class APIClient {
     parameter: string,
     msaCode: string,
     options: {
-      horizonMonths?: number;
+      horizonYears?: number;
       confidenceLevel?: number;
       includeHistorical?: boolean;
     } = {}
-  ): Promise<MarketForecast> {
-    const { horizonMonths, confidenceLevel, includeHistorical } = options;
+  ): Promise<any> {
+    const { horizonYears, confidenceLevel, includeHistorical } = options;
     const queryParams = new URLSearchParams();
-    
-    if (horizonMonths) {
-      queryParams.append('horizon_months', horizonMonths.toString());
+
+    if (horizonYears) {
+      queryParams.append('horizon_years', horizonYears.toString());
     }
     if (confidenceLevel) {
       queryParams.append('confidence_level', confidenceLevel.toString());
@@ -368,12 +361,11 @@ class APIClient {
     if (includeHistorical) {
       queryParams.append('include_historical', 'true');
     }
-    
-    const endpoint = `/api/v1/data/forecasts/${parameter}/${msaCode}${
-      queryParams.toString() ? `?${queryParams.toString()}` : ''
-    }`;
-    
-    return this.makeRequest<MarketForecast>(endpoint);
+
+    const endpoint = `/api/v1/data/forecasts/${parameter}/${msaCode}${queryParams.toString() ? `?${queryParams.toString()}` : ''
+      }`;
+
+    return this.makeRequest<any>(endpoint);
   }
 
   // Get Forecasts for Multiple Parameters
@@ -389,7 +381,7 @@ class APIClient {
     forecasts: MarketForecast[];
   }> {
     const { horizonMonths, confidenceLevel } = options;
-    
+
     return this.makeRequest('/api/v1/data/forecasts/multi', {
       method: 'POST',
       body: JSON.stringify({
@@ -444,7 +436,7 @@ class APIClient {
 
   // Export Analysis Results
   async exportAnalysis(
-    analysisId: string, 
+    analysisId: string,
     format: 'pdf' | 'excel'
   ): Promise<Blob> {
     const response = await fetch(`${this.baseURL}/api/v1/analysis/${analysisId}/export/${format}`, {

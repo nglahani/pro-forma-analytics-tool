@@ -9,25 +9,14 @@ from __future__ import annotations
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-import pytest
 from fastapi.testclient import TestClient
 
-from src.presentation.api.main import app
+# Using centralized fixtures from conftest.py
 
 
-@pytest.fixture(scope="module")
-def client() -> TestClient:
-    return TestClient(app)
-
-
-@pytest.fixture(scope="module")
-def valid_api_key() -> str:
-    return "dev_test_key_12345678901234567890123"
-
-
-def test_health_latency_under_1000ms(client: TestClient) -> None:
+def test_health_latency_under_1000ms(api_client: TestClient) -> None:
     start = time.perf_counter()
-    resp = client.get("/api/v1/health")
+    resp = api_client.get("/api/v1/health")
     elapsed_ms = (time.perf_counter() - start) * 1000
     assert resp.status_code == 200
     # Allow generous threshold in CI
@@ -62,12 +51,12 @@ def _minimal_property_request() -> dict:
     }
 
 
-def test_dcf_latency_under_3000ms(client: TestClient, valid_api_key: str) -> None:
+def test_dcf_latency_under_3000ms(api_client: TestClient, valid_api_key: str) -> None:
     headers = {"X-API-Key": valid_api_key}
     payload = _minimal_property_request()
 
     start = time.perf_counter()
-    resp = client.post("/api/v1/analysis/dcf", json=payload, headers=headers)
+    resp = api_client.post("/api/v1/analysis/dcf", json=payload, headers=headers)
     elapsed_ms = (time.perf_counter() - start) * 1000
 
     assert resp.status_code in (200, 422, 500)
@@ -76,13 +65,13 @@ def test_dcf_latency_under_3000ms(client: TestClient, valid_api_key: str) -> Non
 
 
 def test_basic_concurrency_three_dcf_requests(
-    client: TestClient, valid_api_key: str
+    api_client: TestClient, valid_api_key: str
 ) -> None:
     headers = {"X-API-Key": valid_api_key}
     payload = _minimal_property_request()
 
     def call_once() -> int:
-        r = client.post("/api/v1/analysis/dcf", json=payload, headers=headers)
+        r = api_client.post("/api/v1/analysis/dcf", json=payload, headers=headers)
         return r.status_code
 
     start = time.perf_counter()
@@ -97,7 +86,7 @@ def test_basic_concurrency_three_dcf_requests(
 
 
 def test_monte_carlo_latency_under_5000ms(
-    client: TestClient, valid_api_key: str
+    api_client: TestClient, valid_api_key: str
 ) -> None:
     from datetime import date
 
@@ -122,7 +111,9 @@ def test_monte_carlo_latency_under_5000ms(
     }
 
     start = time.perf_counter()
-    resp = client.post("/api/v1/simulation/monte-carlo", json=payload, headers=headers)
+    resp = api_client.post(
+        "/api/v1/simulation/monte-carlo", json=payload, headers=headers
+    )
     elapsed_ms = (time.perf_counter() - start) * 1000
 
     assert resp.status_code in (200, 422, 500)
@@ -137,7 +128,7 @@ def _compute_percentile(sorted_values: list[float], percentile: float) -> float:
 
 
 def test_high_concurrency_dcf_p95_under_4000ms(
-    client: TestClient, valid_api_key: str
+    api_client: TestClient, valid_api_key: str
 ) -> None:
     headers = {"X-API-Key": valid_api_key}
     payload = _minimal_property_request()
@@ -146,7 +137,7 @@ def test_high_concurrency_dcf_p95_under_4000ms(
 
     def call_once() -> float:
         start = time.perf_counter()
-        client.post("/api/v1/analysis/dcf", json=payload, headers=headers)
+        api_client.post("/api/v1/analysis/dcf", json=payload, headers=headers)
         return (time.perf_counter() - start) * 1000
 
     with ThreadPoolExecutor(max_workers=15) as ex:
@@ -162,7 +153,7 @@ def test_high_concurrency_dcf_p95_under_4000ms(
 
 
 def test_concurrency_monte_carlo_p95_under_5000ms(
-    client: TestClient, valid_api_key: str
+    api_client: TestClient, valid_api_key: str
 ) -> None:
     from datetime import date
 
@@ -190,7 +181,7 @@ def test_concurrency_monte_carlo_p95_under_5000ms(
 
     def call_once() -> float:
         start = time.perf_counter()
-        client.post("/api/v1/simulation/monte-carlo", json=payload, headers=headers)
+        api_client.post("/api/v1/simulation/monte-carlo", json=payload, headers=headers)
         return (time.perf_counter() - start) * 1000
 
     with ThreadPoolExecutor(max_workers=10) as ex:

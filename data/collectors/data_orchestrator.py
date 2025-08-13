@@ -95,9 +95,10 @@ class DataOrchestrator:
             if not fred_api_key:
                 try:
                     from config.settings import settings
-                    fred_api_key = settings.api.fred_api_key
+                    # External API keys are exposed via settings.external_apis
+                    fred_api_key = settings.external_apis.fred_api_key
                 except Exception:
-                    pass
+                    fred_api_key = None
             
             if fred_api_key:
                 fred_collector = create_fred_collector(fred_api_key)

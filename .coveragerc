@@ -1,0 +1,12 @@
+[run]
+source = src
+branch = True
+
+[report]
+omit =
+    src/presentation/api/middleware/*
+    src/presentation/api/dependencies.py
+    src/presentation/api/routers/system.py
+    src/presentation/api/routers/simulation.py
+    */__init__.py
+

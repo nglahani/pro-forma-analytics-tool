@@ -296,7 +296,11 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
         error_dict["timestamp"] = error.timestamp.isoformat()
 
     return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=error_dict
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "success": False,
+            "error": error_dict,
+        },
     )
 
 
@@ -340,7 +344,7 @@ async def calculation_error_handler(request: Request, exc: Exception) -> JSONRes
         error_dict["timestamp"] = error.timestamp.isoformat()
 
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=error_dict
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=error_dict
     )
 
 

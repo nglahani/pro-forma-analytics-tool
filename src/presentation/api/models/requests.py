@@ -9,13 +9,20 @@ from datetime import date
 from pathlib import Path
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import AliasChoices, BaseModel, Field, field_validator
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.domain.entities.property_data import SimplifiedPropertyInput
+from src.domain.entities.property_data import (
+    CommercialUnits,
+    InvestorEquityStructure,
+    RenovationInfo,
+    RenovationStatus,
+    ResidentialUnits,
+    SimplifiedPropertyInput,
+)
 
 
 class AnalysisOptions(BaseModel):
@@ -52,11 +59,14 @@ class PropertyAnalysisRequest(BaseModel):
     """Request model for single property DCF analysis."""
 
     property_data: SimplifiedPropertyInput = Field(
-        description="Property information and investment parameters"
+        description="Property information and investment parameters",
+        validation_alias=AliasChoices("property_data", "property"),
     )
 
     options: Optional[AnalysisOptions] = Field(
-        default=None, description="Analysis configuration options"
+        default=None,
+        description="Analysis configuration options",
+        validation_alias=AliasChoices("options", "analysis_options"),
     )
 
     request_id: Optional[str] = Field(
@@ -64,10 +74,115 @@ class PropertyAnalysisRequest(BaseModel):
     )
 
     def __init__(self, **data):
-        """Initialize with default options if not provided."""
+        """Initialize with default options and support legacy/simple payloads.
+
+        Supports two payload formats:
+        - New: { "property_data": { ... }, "options": { ... } }
+        - Legacy: { "property": { ... }, "analysis_options": { ... } }
+        The legacy property shape is converted to SimplifiedPropertyInput.
+        """
+        # Default options
         if "options" not in data or data["options"] is None:
-            data["options"] = AnalysisOptions()
+            # Map legacy alias if provided
+            if "analysis_options" in data and data.get("options") is None:
+                data["options"] = data.get("analysis_options")
+            else:
+                data["options"] = AnalysisOptions()
+
+        # Normalize property payload
+        legacy_prop = None
+        if "property_data" in data:
+            legacy_prop = data.get("property_data")
+        elif "property" in data:
+            legacy_prop = data.get("property")
+
+        if isinstance(legacy_prop, dict):
+            # Determine if this is legacy/simple shape (missing required keys)
+            is_simple = not (
+                "property_id" in legacy_prop
+                and isinstance(legacy_prop.get("residential_units"), dict)
+            )
+            if is_simple:
+                data["property_data"] = self._convert_simple_property(legacy_prop)
+            # Remove legacy alias to avoid confusion
+            if "property" in data:
+                data.pop("property", None)
+
         super().__init__(**data)
+
+    @staticmethod
+    def _convert_simple_property(simple: dict) -> SimplifiedPropertyInput:
+        """Convert legacy/simple property dict to SimplifiedPropertyInput.
+
+        Expected simple format keys:
+        - purchase_price (float)
+        - residential_units (int)
+        - commercial_units (int, optional)
+        - renovation_months (int, optional)
+        - address: { street, city, state, zip_code }
+        - financials: { avg_rent_per_unit, equity_percentage, cash_percentage }
+        """
+        # Extract nested fields safely
+        address = simple.get("address") or {}
+        financials = simple.get("financials") or {}
+
+        residential_units = ResidentialUnits(
+            total_units=int(simple.get("residential_units", 0) or 0),
+            average_rent_per_unit=float(financials.get("avg_rent_per_unit", 0) or 0.0),
+        )
+
+        # Only construct commercial units if both count and rent are positive
+        commercial_units_value = int(simple.get("commercial_units", 0) or 0)
+        commercial_units = None
+        commercial_rent = float(financials.get("commercial_rent_psf", 0) or 0.0)
+        if commercial_units_value > 0 and commercial_rent > 0:
+            commercial_units = CommercialUnits(
+                total_units=commercial_units_value,
+                average_rent_per_unit=commercial_rent,
+            )
+
+        # Renovation info
+        renovation_months = simple.get("renovation_months")
+        renovation_info = RenovationInfo(
+            status=(
+                RenovationStatus.PLANNED
+                if renovation_months
+                else RenovationStatus.NOT_NEEDED
+            ),
+            anticipated_duration_months=(
+                int(renovation_months) if renovation_months else None
+            ),
+        )
+
+        # Equity structure
+        equity_structure = InvestorEquityStructure(
+            investor_equity_share_pct=float(
+                financials.get("equity_percentage", 0) or 0.0
+            ),
+            self_cash_percentage=float(financials.get("cash_percentage", 0) or 0.0),
+        )
+
+        # Build SimplifiedPropertyInput
+        return SimplifiedPropertyInput(
+            property_id=f"API_PROP_{date.today().strftime('%Y%m%d')}",
+            property_name=simple.get("property_name") or "API Property",
+            analysis_date=date.today(),
+            residential_units=residential_units,
+            commercial_units=commercial_units,
+            renovation_info=renovation_info,
+            equity_structure=equity_structure,
+            city=address.get("city"),
+            state=address.get("state"),
+            msa_code=simple.get("msa_code"),
+            purchase_price=float(simple.get("purchase_price", 0) or 0.0),
+            property_address=(
+                f"{address.get('street')}, {address.get('city')}, {address.get('state')} {address.get('zip_code')}"
+                if address.get("street")
+                and address.get("city")
+                and address.get("state")
+                else None
+            ),
+        )
 
 
 class BatchAnalysisRequest(BaseModel):

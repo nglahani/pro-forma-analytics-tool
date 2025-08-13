@@ -6,7 +6,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -49,7 +48,7 @@ const sampleAnalysis: DCFAnalysisResult = {
     {
       year: 1,
       gross_rental_income: 360000,
-      vacancy_allowance: 18000,
+      vacancy_loss: 18000,
       effective_gross_income: 342000,
       operating_expenses: 108000,
       net_operating_income: 234000,
@@ -60,7 +59,7 @@ const sampleAnalysis: DCFAnalysisResult = {
     {
       year: 2,
       gross_rental_income: 378000,
-      vacancy_allowance: 18900,
+      vacancy_loss: 18900,
       effective_gross_income: 359100,
       operating_expenses: 113400,
       net_operating_income: 245700,
@@ -71,7 +70,7 @@ const sampleAnalysis: DCFAnalysisResult = {
     {
       year: 3,
       gross_rental_income: 396900,
-      vacancy_allowance: 19845,
+      vacancy_loss: 19845,
       effective_gross_income: 377055,
       operating_expenses: 119007,
       net_operating_income: 258048,
@@ -82,7 +81,7 @@ const sampleAnalysis: DCFAnalysisResult = {
     {
       year: 4,
       gross_rental_income: 416745,
-      vacancy_allowance: 20837,
+      vacancy_loss: 20837,
       effective_gross_income: 395908,
       operating_expenses: 124957,
       net_operating_income: 270951,
@@ -93,7 +92,7 @@ const sampleAnalysis: DCFAnalysisResult = {
     {
       year: 5,
       gross_rental_income: 437582,
-      vacancy_allowance: 21879,
+      vacancy_loss: 21879,
       effective_gross_income: 415703,
       operating_expenses: 131205,
       net_operating_income: 284498,
@@ -104,7 +103,7 @@ const sampleAnalysis: DCFAnalysisResult = {
     {
       year: 6,
       gross_rental_income: 459461,
-      vacancy_allowance: 22973,
+      vacancy_loss: 22973,
       effective_gross_income: 436488,
       operating_expenses: 137765,
       net_operating_income: 298723,
@@ -116,9 +115,11 @@ const sampleAnalysis: DCFAnalysisResult = {
   initial_numbers: {
     purchase_price: 2500000,
     loan_amount: 1875000,
-    down_payment: 625000,
+    cash_required: 625000,
     closing_costs: 75000,
-    renovation_costs: 175000,
+    renovation_cost: 175000,
+    total_acquisition_cost: 2675000,
+    lender_reserves: 25000,
     total_cash_investment: 875000,
     loan_to_value_ratio: 75.0,
     debt_coverage_ratio: 1.5,
