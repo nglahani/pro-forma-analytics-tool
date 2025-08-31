@@ -209,3 +209,7 @@ nul
 # Data files (uncomment if you don't want to track data)
 # data/
 # Reference_ Docs/ 
+
+# Node modules
+node_modules/
+frontend/node_modules/
