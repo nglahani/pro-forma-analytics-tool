@@ -20,7 +20,7 @@ import {
   CheckCircle,
   Activity
 } from 'lucide-react';
-import { DCFAnalysisResult, InvestmentRecommendation, RiskAssessment } from '@/types/analysis';
+import { DCFAnalysisResult, InvestmentRecommendation, RiskLevel } from '@/types/analysis';
 import { 
   formatCurrency, 
   formatPercentage, 
@@ -42,24 +42,25 @@ export function DCFResultsDashboard({
   onRunMonteCarlos,
   isExporting = false
 }: DCFResultsDashboardProps) {
-  const { financial_metrics, cash_flow_projections, initial_numbers } = analysis;
-  const recommendationStyle = getRecommendationStyle(financial_metrics.investment_recommendation);
+  const { financial_metrics, cash_flows } = analysis;
+  const recommendationStyle = getRecommendationStyle(analysis.investment_recommendation);
 
-  // Calculate summary metrics
-  const totalCashFlow = cash_flow_projections.reduce((sum, cf) => sum + cf.net_cash_flow, 0);
-  const avgAnnualCashFlow = totalCashFlow / cash_flow_projections.length;
-  const cashFlowGrowth = cash_flow_projections.length > 1 ? 
-    ((cash_flow_projections[cash_flow_projections.length - 1].net_cash_flow - cash_flow_projections[0].net_cash_flow) / cash_flow_projections[0].net_cash_flow) * 100 : 0;
+  // Calculate summary metrics - handle optional cash flows
+  const cashFlowData = cash_flows || [];
+  const totalCashFlow = cashFlowData.reduce((sum, cf) => sum + cf.net_cash_flow, 0);
+  const avgAnnualCashFlow = cashFlowData.length > 0 ? totalCashFlow / cashFlowData.length : 0;
+  const cashFlowGrowth = cashFlowData.length > 1 ? 
+    ((cashFlowData[cashFlowData.length - 1].net_cash_flow - cashFlowData[0].net_cash_flow) / cashFlowData[0].net_cash_flow) * 100 : 0;
 
-  const getRiskColor = (risk: RiskAssessment) => {
+  const getRiskColor = (risk: RiskLevel) => {
     switch (risk) {
-      case RiskAssessment.LOW:
+      case RiskLevel.LOW:
         return 'text-green-600 bg-green-50 border-green-200';
-      case RiskAssessment.MODERATE:
+      case RiskLevel.MODERATE:
         return 'text-amber-600 bg-amber-50 border-amber-200';
-      case RiskAssessment.HIGH:
+      case RiskLevel.HIGH:
         return 'text-red-600 bg-red-50 border-red-200';
-      case RiskAssessment.VERY_HIGH:
+      case RiskLevel.VERY_HIGH:
         return 'text-red-700 bg-red-100 border-red-300';
       default:
         return 'text-gray-600 bg-gray-50 border-gray-200';
@@ -88,7 +89,7 @@ export function DCFResultsDashboard({
       amber: 'bg-amber-50 text-amber-600',
     };
 
-    const trendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : null;
+    const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : null;
 
     return (
       <Card>
@@ -103,8 +104,8 @@ export function DCFResultsDashboard({
               </p>
               {subtitle && (
                 <div className="flex items-center mt-2">
-                  {trendIcon && (
-                    <trendIcon className={`h-3 w-3 mr-1 ${
+                  {TrendIcon && (
+                    <TrendIcon className={`h-3 w-3 mr-1 ${
                       trend === 'up' ? 'text-green-600' : 'text-red-600'
                     }`} />
                   )}
@@ -173,8 +174,8 @@ export function DCFResultsDashboard({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${recommendationStyle.bgColor}`}>
-                {financial_metrics.investment_recommendation === InvestmentRecommendation.STRONG_BUY || 
-                 financial_metrics.investment_recommendation === InvestmentRecommendation.BUY ? (
+                {analysis.investment_recommendation === InvestmentRecommendation.STRONG_BUY || 
+                 analysis.investment_recommendation === InvestmentRecommendation.BUY ? (
                   <CheckCircle className={`h-6 w-6 ${recommendationStyle.color}`} />
                 ) : (
                   <AlertTriangle className={`h-6 w-6 ${recommendationStyle.color}`} />
@@ -189,8 +190,8 @@ export function DCFResultsDashboard({
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className={`${getRiskColor(financial_metrics.risk_assessment)} border`}>
-              {financial_metrics.risk_assessment.replace('_', ' ')} Risk
+            <Badge variant="outline" className={`${getRiskColor(financial_metrics.risk_level)} border`}>
+              {financial_metrics.risk_level.replace('_', ' ')} Risk
             </Badge>
           </div>
         </CardContent>
@@ -301,21 +302,21 @@ export function DCFResultsDashboard({
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className={textColors.muted}>Purchase Price:</span>
+                  <span className={textColors.muted}>Total Cash Invested:</span>
                   <span className={`font-medium ${textColors.body}`}>
-                    {formatCurrency(initial_numbers.purchase_price)}
+                    {formatCurrency(financial_metrics.total_cash_invested)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className={textColors.muted}>Loan Amount:</span>
+                  <span className={textColors.muted}>Terminal Value:</span>
                   <span className={`font-medium ${textColors.body}`}>
-                    {formatCurrency(initial_numbers.loan_amount)}
+                    {formatCurrency(financial_metrics.terminal_value)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className={textColors.muted}>Total Investment:</span>
+                  <span className={textColors.muted}>Total Proceeds:</span>
                   <span className={`font-medium ${textColors.body}`}>
-                    {formatCurrency(initial_numbers.total_cash_investment)}
+                    {formatCurrency(financial_metrics.total_proceeds)}
                   </span>
                 </div>
               </div>
@@ -323,13 +324,13 @@ export function DCFResultsDashboard({
                 <div className="flex justify-between">
                   <span className={textColors.muted}>Analysis Period:</span>
                   <span className={`font-medium ${textColors.body}`}>
-                    {cash_flow_projections.length} years
+                    {cashFlowData.length} years
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className={textColors.muted}>Execution Time:</span>
                   <span className={`font-medium ${textColors.body}`}>
-                    {analysis.execution_time_ms}ms
+                    {(analysis.metadata.processing_time_seconds * 1000).toFixed(0)}ms
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -354,7 +355,7 @@ export function DCFResultsDashboard({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {cash_flow_projections.slice(0, 3).map((cf, index) => (
+            {cashFlowData.slice(0, 3).map((cf) => (
               <div key={cf.year} className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className={`text-sm font-medium ${textColors.secondary}`}>
@@ -370,10 +371,10 @@ export function DCFResultsDashboard({
                 />
               </div>
             ))}
-            {cash_flow_projections.length > 3 && (
+            {cashFlowData.length > 3 && (
               <div className="text-center">
                 <Badge variant="outline" className="text-xs">
-                  +{cash_flow_projections.length - 3} more years
+                  +{cashFlowData.length - 3} more years
                 </Badge>
               </div>
             )}

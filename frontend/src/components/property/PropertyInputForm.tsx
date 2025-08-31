@@ -57,11 +57,6 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
     property_id: `prop_${Date.now()}`,
     analysis_date: new Date().toISOString().split('T')[0],
     property_name: '',
-    city: '',
-    state: '',
-    property_address: '',
-    msa_code: '',
-    purchase_price: undefined,
     notes: '',
     residential_units: template.defaultConfig.residential_units || { total_units: 0, average_rent_per_unit: 0 },
     commercial_units: template.defaultConfig.commercial_units,
@@ -70,7 +65,7 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
   });
 
   // Market defaults hook
-  const { data: marketDefaults, loading: loadingDefaults } = useMarketDefaults(formData.msa_code);
+  const { data: marketDefaults, loading: loadingDefaults } = useMarketDefaults();
 
   const totalSteps = 6;
   const currentStepNumber = STEP_CONFIG[currentStep].step;
@@ -92,10 +87,13 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
 
   const handleAddressChange = (addressData: any) => {
     updateFormData({
-      property_address: `${addressData.street}, ${addressData.city}, ${addressData.state} ${addressData.zip_code}`,
-      city: addressData.city,
-      state: addressData.state,
-      msa_code: addressData.msa_code,
+      address: {
+        street: addressData.street,
+        city: addressData.city,
+        state: addressData.state,
+        zip_code: addressData.zip_code,
+        msa_code: addressData.msa_code,
+      },
     });
   };
 
@@ -103,9 +101,14 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
     if (marketDefaults) {
       // Apply market defaults to relevant form fields
       updateFormData({
-        // These would typically be applied to financial parameters
-        // For now, we'll store them in a market_defaults field
-        market_defaults: marketDefaults,
+        // Apply market defaults - for now store as separate field since
+        // these don't fit in the current AnalysisParameters structure
+        // TODO: Add DCF assumptions to the proper interface
+        analysis_parameters: {
+          analysis_period_years: 6,
+          ...formData.analysis_parameters,
+          exit_cap_rate: marketDefaults.cap_rate,
+        },
       });
     }
   };
@@ -245,8 +248,21 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
                 <Input
                   id="purchase_price"
                   type="number"
-                  value={formData.purchase_price || ''}
-                  onChange={(e) => updateFormData({ purchase_price: e.target.value ? Number(e.target.value) : undefined })}
+                  value={formData.financials?.purchase_price || ''}
+                  onChange={(e) => updateFormData({ 
+                    financials: {
+                      down_payment_percentage: 0,
+                      loan_terms: { loan_term_years: 30 },
+                      monthly_rent_per_unit: 0,
+                      other_monthly_income: 0,
+                      monthly_operating_expenses: 0,
+                      annual_property_taxes: 0,
+                      annual_insurance: 0,
+                      capex_percentage: 0,
+                      ...formData.financials,
+                      purchase_price: e.target.value ? Number(e.target.value) : 0
+                    }
+                  })}
                   placeholder="2500000"
                   className={focusRing.input}
                   aria-label="Purchase price in dollars"
@@ -261,10 +277,10 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
             {/* Smart Address Validator */}
             <AddressValidator
               initialAddress={{
-                street: formData.property_address?.split(',')[0] || '',
-                city: formData.city || '',
-                state: formData.state || '',
-                zip_code: ''
+                street: formData.address?.street || '',
+                city: formData.address?.city || '',
+                state: formData.address?.state || '',
+                zip_code: formData.address?.zip_code || ''
               }}
               onAddressChange={handleAddressChange}
               onValidationChange={setIsAddressValid}
@@ -474,8 +490,8 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
               {/* Market Defaults Panel */}
               <div className="lg:col-span-1">
                 <MarketDefaultsPanel
-                  msaCode={formData.msa_code}
-                  msaName={formData.city && formData.state ? `${formData.city}, ${formData.state}` : undefined}
+                  msaCode={formData.address?.msa_code}
+                  msaName={formData.address?.city && formData.address?.state ? `${formData.address.city}, ${formData.address.state}` : undefined}
                   marketDefaults={marketDefaults}
                   loading={loadingDefaults}
                   onApplyDefaults={handleApplyMarketDefaults}
@@ -560,12 +576,12 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500">Location:</span>
-                        <span>{formData.city}, {formData.state}</span>
+                        <span>{formData.address?.city}, {formData.address?.state}</span>
                       </div>
-                      {formData.purchase_price && (
+                      {formData.financials?.purchase_price && (
                         <div className="flex justify-between">
                           <span className="text-gray-500">Purchase Price:</span>
-                          <span>${formData.purchase_price.toLocaleString()}</span>
+                          <span>${formData.financials.purchase_price.toLocaleString()}</span>
                         </div>
                       )}
                     </div>

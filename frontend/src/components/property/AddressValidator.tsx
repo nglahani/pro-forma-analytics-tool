@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -68,8 +68,7 @@ export function AddressValidator({
   // MSA mapping for supported markets
   const supportedMSAs = apiService.getSupportedMSAs();
   
-  const validateAddress = useCallback(
-    debounce(async (addressData: AddressData) => {
+  const validateAddressHandler = useCallback(async (addressData: AddressData) => {
       if (!addressData.street.trim() || !addressData.city.trim() || !addressData.state.trim()) {
         setValidation(null);
         onValidationChange(false);
@@ -84,11 +83,11 @@ export function AddressValidator({
         
         if (result.success && result.data) {
           const validationResult: AddressValidationResult = {
-            is_valid: result.data.is_valid,
-            formatted_address: result.data.formatted_address,
-            msa_code: result.data.msa_code,
-            msa_name: result.data.msa_name,
-            suggestions: result.data.suggestions,
+            is_valid: result.data.isValid,
+            formatted_address: `${addressData.street}, ${addressData.city}, ${addressData.state} ${addressData.zip_code}`,
+            msa_code: result.data.msa_info?.msa_code,
+            msa_name: result.data.msa_info?.name,
+            suggestions: result.data.suggestions?.map(s => `${s.street}, ${s.city}, ${s.state} ${s.zip_code}`),
           };
           
           setValidation(validationResult);
@@ -111,9 +110,11 @@ export function AddressValidator({
       } finally {
         setIsValidating(false);
       }
-    }, 500),
-    [onAddressChange, onValidationChange]
-  );
+    }, [onAddressChange, onValidationChange]);
+
+  const validateAddress = useMemo(() => {
+    return debounce(validateAddressHandler as (...args: unknown[]) => unknown, 500) as (addressData: AddressData) => void;
+  }, [validateAddressHandler]);
 
   const performClientSideValidation = (addressData: AddressData) => {
     const msaCode = apiService.getMSAFromCity(addressData.city, addressData.state);

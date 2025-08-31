@@ -19,7 +19,7 @@ import { MarketDataExplorer } from '@/components/market/MarketDataExplorer';
 import { 
   DCFAnalysisResult, 
   InvestmentRecommendation, 
-  RiskAssessment,
+  RiskLevel,
   MonteCarloResult,
   MarketClassification 
 } from '@/types/analysis';
@@ -30,7 +30,8 @@ const sampleAnalysis: DCFAnalysisResult = {
   property_id: 'DEMO-001',
   analysis_date: new Date().toISOString(),
   success: true,
-  execution_time_ms: 1247,
+  request_id: 'req-demo-001',
+  investment_recommendation: InvestmentRecommendation.STRONG_BUY,
   financial_metrics: {
     npv: 7847901,
     irr: 64.8,
@@ -38,13 +39,12 @@ const sampleAnalysis: DCFAnalysisResult = {
     total_return: 879.2,
     payback_period: 3.2,
     average_annual_return: 28.4,
-    investment_recommendation: InvestmentRecommendation.STRONG_BUY,
-    risk_assessment: RiskAssessment.MODERATE,
+    risk_level: RiskLevel.MODERATE,
     total_cash_invested: 875000,
     total_proceeds: 8570432,
     terminal_value: 6234567,
   },
-  cash_flow_projections: [
+  cash_flows: [
     {
       year: 1,
       gross_rental_income: 360000,
@@ -112,17 +112,30 @@ const sampleAnalysis: DCFAnalysisResult = {
       cumulative_cash_flow: 655920,
     },
   ],
-  initial_numbers: {
-    purchase_price: 2500000,
-    loan_amount: 1875000,
-    cash_required: 625000,
-    closing_costs: 75000,
-    renovation_cost: 175000,
-    total_acquisition_cost: 2675000,
-    lender_reserves: 25000,
-    total_cash_investment: 875000,
-    loan_to_value_ratio: 75.0,
-    debt_coverage_ratio: 1.5,
+  dcf_assumptions: {
+    interest_rate: 0.075,
+    cap_rate: 0.055,
+    vacancy_rate: 0.05,
+    rent_growth_rate: 0.035,
+    expense_growth_rate: 0.025,
+    property_growth_rate: 0.03,
+    ltv_ratio: 0.75,
+    closing_costs_pct: 0.03,
+    lender_reserves_pct: 0.01,
+  },
+  metadata: {
+    processing_time_seconds: 1.247,
+    dcf_engine_version: "1.6.0",
+    analysis_timestamp: new Date().toISOString(),
+    data_sources: {
+      market_data: "FRED Economic Data",
+      property_data: "MSA Property Database"
+    },
+    assumptions_summary: {
+      forecast_horizon: "6 years",
+      monte_carlo_scenarios: "500",
+      confidence_level: "95%"
+    }
   },
 };
 
@@ -341,7 +354,7 @@ export default function DemoAnalysisPage() {
           {/* Cash Flow Projections Tab */}
           <TabsContent value="cashflow" className="space-y-6 mt-6">
             <CashFlowTable
-              projections={sampleAnalysis.cash_flow_projections}
+              projections={sampleAnalysis.cash_flows || []}
               onExport={handleExport}
               isExporting={isExporting}
             />

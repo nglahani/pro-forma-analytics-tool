@@ -351,5 +351,6 @@ export function useMarketData(options: UseMarketDataOptions = {}) {
     // Utils
     getFromCache,
     isCacheValid,
+    generateCacheKey,
   };
 }

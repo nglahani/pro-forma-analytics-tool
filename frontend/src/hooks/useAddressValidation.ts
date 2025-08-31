@@ -87,7 +87,7 @@ export function useAddressValidation() {
 
   // Debounced validation to avoid excessive API calls
   const debouncedValidateAddress = useCallback(
-    debounce(validateAddress, 800),
+    debounce(validateAddress as (...args: unknown[]) => unknown, 800) as (address: Partial<PropertyAddress>) => Promise<void>,
     [validateAddress]
   );
 

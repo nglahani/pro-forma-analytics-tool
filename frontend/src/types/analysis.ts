@@ -18,14 +18,48 @@ export interface DCFAssumptions {
 }
 
 export interface InitialNumbers {
+  property_id: string;
+  scenario_id: string;
+  calculation_date: string; // ISO date string
+  
+  // Purchase Details
   purchase_price: number;
-  renovation_cost: number;
-  total_acquisition_cost: number;
+  closing_cost_amount: number;
+  renovation_capex: number;
+  cost_basis: number;
+  
+  // Financing Calculations  
   loan_amount: number;
-  cash_required: number;
-  lender_reserves: number;
-  closing_costs: number;
-  total_cash_investment: number;
+  annual_interest_expense: number;
+  lender_reserves_amount: number;
+  
+  // Equity Requirements
+  investor_cash_required: number;
+  operator_cash_required: number;
+  total_cash_required: number;
+  
+  // Valuation Metrics
+  after_repair_value: number;
+  initial_cap_rate: number;
+  
+  // Income Structure
+  pre_renovation_annual_rent: number;
+  post_renovation_annual_rent: number;
+  year_1_rental_income: number;
+  
+  // Operating Expenses (Year 1 baseline)
+  property_taxes: number;
+  insurance: number;
+  repairs_maintenance: number;
+  property_management: number;
+  admin_expenses: number;
+  contracting: number;
+  replacement_reserves: number;
+  total_operating_expenses: number;
+  
+  // Investment Structure
+  investor_equity_share: number;
+  preferred_return_rate: number;
 }
 
 export interface CashFlowProjection {
@@ -50,8 +84,7 @@ export interface FinancialMetrics {
   terminal_value: number;
   total_cash_invested: number;
   total_proceeds: number;
-  investment_recommendation: InvestmentRecommendation;
-  risk_assessment: RiskAssessment;
+  risk_level: RiskLevel; // Updated to match backend field name
 }
 
 export enum InvestmentRecommendation {
@@ -62,24 +95,36 @@ export enum InvestmentRecommendation {
   STRONG_SELL = "STRONG_SELL"
 }
 
-export enum RiskAssessment {
+export enum RiskLevel {
   LOW = "LOW",
   MODERATE = "MODERATE", 
   HIGH = "HIGH",
   VERY_HIGH = "VERY_HIGH"
 }
 
+// Keep RiskAssessment as alias for backward compatibility
+export type RiskAssessment = RiskLevel;
+export const RiskAssessment = RiskLevel;
+
+export interface AnalysisMetadata {
+  processing_time_seconds: number;
+  dcf_engine_version: string;
+  analysis_timestamp: string; // datetime from backend
+  data_sources: Record<string, string>;
+  assumptions_summary: Record<string, any>;
+}
+
 export interface DCFAnalysisResult {
-  property_id: string;
-  analysis_id: string;
-  analysis_date: string;
-  assumptions: DCFAssumptions;
-  initial_numbers: InitialNumbers;
-  cash_flow_projections: CashFlowProjection[];
-  financial_metrics: FinancialMetrics;
-  execution_time_ms: number;
   success: boolean;
-  errors?: string[];
+  request_id: string;
+  property_id: string;
+  analysis_date: string; // datetime from backend
+  financial_metrics: FinancialMetrics;
+  cash_flows?: CashFlowProjection[]; // Optional from backend
+  dcf_assumptions: DCFAssumptions;
+  investment_recommendation: InvestmentRecommendation; // Direct field from backend
+  metadata: AnalysisMetadata;
+  monte_carlo_results?: any; // Optional additional results
 }
 
 // Monte Carlo Simulation Types

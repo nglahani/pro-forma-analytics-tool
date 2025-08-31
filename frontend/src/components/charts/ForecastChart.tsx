@@ -180,7 +180,7 @@ export function ForecastChart({
       changePercent,
       avgConfidence,
       uncertainty,
-      trend: changePercent > 1 ? 'increasing' : changePercent < -1 ? 'decreasing' : 'stable',
+      trend: (changePercent > 1 ? 'increasing' : changePercent < -1 ? 'decreasing' : 'stable') as 'increasing' | 'decreasing' | 'stable',
       forecastHorizon: forecastPoints.length,
     };
   }, [data]);

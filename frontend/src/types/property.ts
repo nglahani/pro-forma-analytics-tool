@@ -163,6 +163,25 @@ export interface PropertyValidationErrors {
   [key: string]: any;
 }
 
+// Backend-Compatible Simplified Property Input (matches backend exactly)
+export interface SimplifiedPropertyInputBackend {
+  property_id: string;
+  property_name: string;
+  analysis_date: string; // ISO date string
+  residential_units: ResidentialUnits;
+  renovation_info: RenovationInfo;
+  equity_structure: InvestorEquityStructure;
+  commercial_units?: CommercialUnits;
+  
+  // Optional fields for enhanced analysis (matches backend exactly)
+  city?: string;
+  state?: string;
+  msa_code?: string;
+  purchase_price?: number;
+  property_address?: string;
+  notes?: string;
+}
+
 // Form Step Types for Multi-step Wizard
 export interface PropertyFormStep {
   id: string;
@@ -181,6 +200,11 @@ export interface MarketDataDefaults {
   rent_growth_rate: number;
   expense_growth_rate: number;
   property_growth_rate: number;
+  ltv_ratio: number;
+  management_fee_pct: number;
+  closing_cost_pct: number;
+  lender_reserves_months: number;
+  maintenance_reserve_per_unit: number;
   last_updated: string;
 }
 

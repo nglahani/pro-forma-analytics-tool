@@ -7,6 +7,7 @@ import { renderHook, act } from '@testing-library/react';
 import { useMonteCarloSimulation } from '../useMonteCarloSimulation';
 import { apiClient } from '@/lib/api/client';
 import { useToast } from '@/hooks/useToast';
+import { PropertyType, RenovationStatus } from '@/types/property';
 
 // Mock dependencies
 jest.mock('@/lib/api/client', () => ({
@@ -27,17 +28,57 @@ const mockUseToast = useToast as jest.MockedFunction<typeof useToast>;
 
 // Mock property data
 const mockProperty = {
+  property_id: 'test-property-123',
   property_name: 'Test Property',
-  residential_units: 24,
-  renovation_time_months: 6,
-  commercial_units: 0,
-  investor_equity_share_pct: 75.0,
-  residential_rent_per_unit: 2800,
-  commercial_rent_per_unit: 0,
-  self_cash_percentage: 30.0,
-  city: 'Chicago',
-  state: 'IL',
-  purchase_price: 3500000,
+  property_type: PropertyType.MULTIFAMILY,
+  address: {
+    street: '123 Test Street',
+    city: 'Chicago',
+    state: 'IL',
+    zip_code: '60601',
+    msa_code: 'CHI'
+  },
+  residential_units: {
+    total_units: 24,
+    average_rent_per_unit: 2800,
+    unit_types: 'Studio, 1BR, 2BR'
+  },
+  commercial_units: {
+    total_units: 0,
+    average_rent_per_unit: 0
+  },
+  total_square_feet: 24000,
+  year_built: 2010,
+  renovation_info: {
+    status: RenovationStatus.PLANNED,
+    anticipated_duration_months: 6,
+    estimated_cost: 500000
+  },
+  equity_structure: {
+    investor_equity_share_pct: 75.0,
+    self_cash_percentage: 30.0,
+    number_of_investors: 2
+  },
+  financials: {
+    purchase_price: 3500000,
+    down_payment_percentage: 25,
+    loan_terms: {
+      loan_term_years: 30,
+      loan_to_value_ratio: 0.75
+    },
+    monthly_rent_per_unit: 2800,
+    other_monthly_income: 2000,
+    vacancy_rate: 0.05,
+    monthly_operating_expenses: 15000,
+    annual_property_taxes: 35000,
+    annual_insurance: 12000,
+    capex_percentage: 0.10
+  },
+  analysis_parameters: {
+    analysis_period_years: 6,
+    exit_cap_rate: 0.05
+  },
+  analysis_date: '2024-01-01'
 };
 
 describe('useMonteCarloSimulation', () => {

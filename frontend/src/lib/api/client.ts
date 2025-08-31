@@ -273,9 +273,10 @@ class APIClient {
       parameters?: string[];
       startDate?: string;
       endDate?: string;
+      includeForecasts?: boolean;
     } = {}
   ): Promise<any> {
-    const { parameters, startDate, endDate } = options;
+    const { parameters, startDate, endDate, includeForecasts } = options;
     const queryParams = new URLSearchParams();
 
     if (parameters && parameters.length > 0) {
@@ -286,6 +287,9 @@ class APIClient {
     }
     if (endDate) {
       queryParams.append('end_date', endDate);
+    }
+    if (includeForecasts !== undefined) {
+      queryParams.append('include_forecasts', includeForecasts.toString());
     }
 
     const endpoint = `/api/v1/data/markets/${msaCode}${queryParams.toString() ? `?${queryParams.toString()}` : ''

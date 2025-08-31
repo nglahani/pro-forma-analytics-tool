@@ -8,7 +8,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { useAccessibility, useSkipLinks, useFocusManagement } from '@/components/common/AccessibilityProvider';
+import { useAccessibility } from '@/components/common/AccessibilityProvider';
 import { keyboard } from '@/lib/accessibility';
 
 interface DashboardLayoutProps {
@@ -19,16 +19,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { announce, focusElement } = useAccessibility();
   const mainContentRef = useRef<HTMLElement>(null);
-  const sidebarRef = useRef<HTMLDivElement>(null);
-  
-  // Register skip links
-  useSkipLinks([
-    { id: 'skip-to-main', label: 'Skip to main content', target: 'main-content' },
-    { id: 'skip-to-nav', label: 'Skip to navigation', target: 'sidebar-nav' },
-  ]);
-  
-  // Focus management for sidebar
-  useFocusManagement(sidebarRef, sidebarOpen);
 
   // Handle escape key to close sidebar
   useEffect(() => {
@@ -57,7 +47,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <Sidebar 
-        ref={sidebarRef}
         isOpen={sidebarOpen} 
         onClose={() => handleSidebarToggle(false)} 
       />

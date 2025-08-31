@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { keyboard, screenReader } from '@/lib/accessibility';
 
 interface AccessibilityContextType {
@@ -253,17 +253,22 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
 export function useSkipLinks(links: Array<{ id: string; label: string; target: string }>) {
   const { registerSkipLink, unregisterSkipLink } = useAccessibility();
 
+  // Memoize the links to prevent infinite re-renders
+  const memoizedLinks = useMemo(() => links, [JSON.stringify(links)]);
+
   useEffect(() => {
-    links.forEach(link => {
+    // Register all links
+    memoizedLinks.forEach(link => {
       registerSkipLink(link.id, link.label, link.target);
     });
 
     return () => {
-      links.forEach(link => {
+      // Cleanup: unregister all links
+      memoizedLinks.forEach(link => {
         unregisterSkipLink(link.id);
       });
     };
-  }, [links, registerSkipLink, unregisterSkipLink]);
+  }, [memoizedLinks, registerSkipLink, unregisterSkipLink]);
 }
 
 // Hook for focus management

@@ -6,6 +6,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useAddressValidation } from '../useAddressValidation';
 import { apiService } from '@/lib/api/service';
+import { AddressValidationResult } from '@/types/property';
 
 // Mock the API service
 jest.mock('@/lib/api/service', () => ({
@@ -187,8 +188,8 @@ describe('useAddressValidation', () => {
   });
 
   it('should set validating state during API call', async () => {
-    let resolveValidation: (value: any) => void;
-    const validationPromise = new Promise((resolve) => {
+    let resolveValidation: (value: { success: boolean; data: AddressValidationResult; error: null; } | { success: boolean; data: null; error: string; }) => void;
+    const validationPromise = new Promise<{ success: boolean; data: AddressValidationResult; error: null; } | { success: boolean; data: null; error: string; }>((resolve) => {
       resolveValidation = resolve;
     });
 
@@ -213,7 +214,7 @@ describe('useAddressValidation', () => {
     act(() => {
       resolveValidation!({
         success: true,
-        data: { isValid: true, formattedAddress: '123 Main St, New York, NY', msaInfo: null, suggestions: [] },
+        data: { isValid: true, suggestions: [] },
         error: null,
       });
     });
@@ -248,7 +249,7 @@ describe('useAddressValidation', () => {
     // Now mock a successful response
     mockApiService.validateAddress.mockResolvedValue({
       success: true,
-      data: { isValid: true, formattedAddress: '456 Oak Ave, Boston, MA', msaInfo: null, suggestions: [] },
+      data: { isValid: true, suggestions: [] },
       error: null,
     });
 
@@ -268,8 +269,6 @@ describe('useAddressValidation', () => {
   it('should handle validation result with suggestions', async () => {
     const mockValidationResult = {
       isValid: false,
-      formattedAddress: null,
-      msa_info: null,
       suggestions: [
         { street: '123 Main Street', city: 'New York', state: 'NY', zip_code: '10001', msa_code: 'NYC' },
         { street: '123 Main St', city: 'New York', state: 'NY', zip_code: '10002', msa_code: 'NYC' },
@@ -325,7 +324,7 @@ describe('useAddressValidation', () => {
         street: '123 Michigan Ave',
         city: 'Chicago',
         state: 'IL',
-        zip: '60601',
+        zip_code: '60601',
       });
     });
 

@@ -11,36 +11,28 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
   Line,
   Area,
-  AreaChart,
   ComposedChart,
   ReferenceLine,
   Scatter,
   ScatterChart,
   Cell,
-  BoxPlot,
 } from 'recharts';
 import {
   BarChart3,
-  Activity,
-  TrendingUp,
   Download,
-  Settings,
   Eye,
   EyeOff,
-  Info,
   Target,
 } from 'lucide-react';
-import { formatCurrency, formatPercentage, textColors } from '@/lib/utils';
+import { formatCurrency, formatPercentage } from '@/lib/utils';
 
 export interface DistributionDataPoint {
   value: number;
@@ -49,15 +41,6 @@ export interface DistributionDataPoint {
   label: string;
 }
 
-export interface BoxPlotData {
-  metric: string;
-  min: number;
-  q1: number;
-  median: number;
-  q3: number;
-  max: number;
-  outliers: number[];
-}
 
 interface DistributionChartProps {
   data: number[];
@@ -285,7 +268,7 @@ export function DistributionChart({
         </CardHeader>
         
         <CardContent>
-          <Tabs value={chartType} onValueChange={(value) => setChartType(value as any)}>
+          <Tabs value={chartType} onValueChange={(value) => setChartType(value as 'histogram' | 'density' | 'boxplot' | 'scatter')}>
             <div className="flex items-center justify-between mb-6">
               <TabsList className="grid w-auto grid-cols-4">
                 <TabsTrigger value="histogram">Histogram</TabsTrigger>
@@ -341,7 +324,7 @@ export function DistributionChart({
                     />
                     <Tooltip
                       formatter={(value, name) => {
-                        if (name === 'frequency') return [`${value.toFixed(2)}%`, 'Frequency'];
+                        if (name === 'frequency' && typeof value === 'number') return [`${value.toFixed(2)}%`, 'Frequency'];
                         return [value, name];
                       }}
                       labelFormatter={(label, payload) => {
@@ -396,7 +379,7 @@ export function DistributionChart({
                     />
                     <YAxis label={{ value: 'Density', angle: -90, position: 'insideLeft' }} />
                     <Tooltip
-                      formatter={(value, name) => [`${value.toFixed(3)}`, 'Density']}
+                      formatter={(value, name) => [`${typeof value === 'number' ? value.toFixed(3) : value}`, 'Density']}
                       labelFormatter={(label) => `Value: ${formatValue(label, metric)}`}
                     />
                     <Area

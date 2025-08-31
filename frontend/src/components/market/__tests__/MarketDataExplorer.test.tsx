@@ -280,7 +280,7 @@ describe('MarketDataExplorer Component', () => {
       // Check for tier styling classes
       const primaryBadge = primaryElements[0].closest('span') || primaryElements[0].closest('div');
       expect(primaryBadge).toBeInTheDocument();
-      expect(primaryBadge).toHaveClass(/text-/);
+      expect(primaryBadge).toHaveClass(expect.stringMatching(/text-/));
     });
 
     it('shows different market tiers for different MSAs', async () => {

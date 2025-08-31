@@ -254,7 +254,7 @@ export function useRetryableAPI<T = any>(
           description: 'Displaying offline data while connection is restored.',
         });
         
-        return cached.data as R;
+        return cached.data as unknown as R;
       } else if (offline.fallbackData) {
         setState(prev => ({
           ...prev,
@@ -273,6 +273,7 @@ export function useRetryableAPI<T = any>(
     let lastError: any;
 
     while (attempt <= config.maxRetries) {
+      let timeoutId: NodeJS.Timeout | undefined;
       try {
         // Cancel any previous request
         if (abortControllerRef.current) {
@@ -292,7 +293,7 @@ export function useRetryableAPI<T = any>(
         }));
 
         // Add timeout to abort controller
-        const timeoutId = setTimeout(() => {
+        timeoutId = setTimeout(() => {
           if (abortControllerRef.current) {
             abortControllerRef.current.abort();
           }
@@ -325,7 +326,9 @@ export function useRetryableAPI<T = any>(
 
       } catch (error: any) {
         lastError = error;
-        clearTimeout(timeoutId);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
 
         // Check if we should retry
         const shouldRetry = attempt < config.maxRetries && config.retryCondition(error);
@@ -374,7 +377,7 @@ export function useRetryableAPI<T = any>(
           error: lastError, // Keep the error but show cached data
         }));
 
-        return cached.data as R;
+        return cached.data as unknown as R;
       }
     }
 

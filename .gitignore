@@ -204,6 +204,7 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+nul
 
 # Data files (uncomment if you don't want to track data)
 # data/

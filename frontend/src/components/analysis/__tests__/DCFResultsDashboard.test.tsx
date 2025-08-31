@@ -7,7 +7,7 @@
 
 import { render, screen } from '@testing-library/react';
 import { DCFResultsDashboard } from '../DCFResultsDashboard';
-import { DCFAnalysisResult } from '@/types/analysis';
+import { DCFAnalysisResult, InvestmentRecommendation, RiskLevel } from '@/types/analysis';
 
 // Mock utility functions
 jest.mock('@/lib/utils', () => ({
@@ -28,27 +28,47 @@ jest.mock('@/lib/utils', () => ({
 
 describe('DCFResultsDashboard', () => {
   const mockAnalysisResult: DCFAnalysisResult = {
+    success: true,
+    request_id: 'test_req_001',
     property_id: 'test_prop_001',
     analysis_date: '2025-01-15',
+    investment_recommendation: InvestmentRecommendation.STRONG_BUY,
     financial_metrics: {
-      net_present_value: 2500000,
-      internal_rate_return: 0.18,
+      npv: 2500000,
+      irr: 0.18,
       equity_multiple: 2.5,
+      total_return: 250000,
+      average_annual_return: 0.25,
       payback_period: 4.2,
-      cash_on_cash_return: 0.12,
-      return_on_investment: 0.25,
-      investment_recommendation: 'STRONG_BUY',
-      risk_assessment: 'MODERATE',
+      terminal_value: 1200000,
+      total_cash_invested: 250000,
+      total_proceeds: 500000,
+      risk_level: RiskLevel.MODERATE,
     },
-    initial_numbers: {
-      purchase_price: 1000000,
-      total_cash_required: 250000,
-      loan_amount: 750000,
+    dcf_assumptions: {
+      interest_rate: 0.05,
+      cap_rate: 0.065,
+      vacancy_rate: 0.05,
+      rent_growth_rate: 0.03,
+      expense_growth_rate: 0.025,
+      property_growth_rate: 0.03,
+      ltv_ratio: 0.75,
+      closing_costs_pct: 0.03,
+      lender_reserves_pct: 0.01,
     },
-    cash_flow_projections: [
+    metadata: {
+      processing_time_seconds: 1.2,
+      dcf_engine_version: "1.6.0",
+      analysis_timestamp: "2025-01-15T10:00:00Z",
+      data_sources: { "market_data": "test" },
+      assumptions_summary: { "test": "data" }
+    },
+    cash_flows: [
       {
         year: 1,
         gross_rental_income: 180000,
+        vacancy_loss: 9000,
+        effective_gross_income: 171000,
         operating_expenses: 54000,
         net_operating_income: 126000,
         debt_service: 48000,
@@ -58,6 +78,8 @@ describe('DCFResultsDashboard', () => {
       {
         year: 2,
         gross_rental_income: 186000,
+        vacancy_loss: 9300,
+        effective_gross_income: 176700,
         operating_expenses: 55800,
         net_operating_income: 130200,
         debt_service: 48000,
@@ -133,10 +155,10 @@ describe('DCFResultsDashboard', () => {
   it('handles SELL recommendation with appropriate styling', () => {
     const sellResult = {
       ...mockAnalysisResult,
-      investment_recommendation: {
-        ...mockAnalysisResult.investment_recommendation,
-        recommendation: 'SELL' as const,
-        risk_level: 'HIGH' as const,
+      investment_recommendation: InvestmentRecommendation.SELL,
+      financial_metrics: {
+        ...mockAnalysisResult.financial_metrics,
+        risk_level: RiskLevel.HIGH,
       },
     };
 
@@ -191,12 +213,9 @@ describe('DCFResultsDashboard', () => {
       ...mockAnalysisResult,
       financial_metrics: {
         ...mockAnalysisResult.financial_metrics,
-        net_present_value: -500000,
+        npv: -500000,
       },
-      investment_recommendation: {
-        ...mockAnalysisResult.investment_recommendation,
-        recommendation: 'STRONG_SELL' as const,
-      },
+      investment_recommendation: InvestmentRecommendation.STRONG_SELL,
     };
 
     render(<DCFResultsDashboard analysis={negativeResult} />);

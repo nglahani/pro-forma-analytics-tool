@@ -14,6 +14,7 @@ export * from './api';
 // Re-export commonly used types for convenience
 export type {
   SimplifiedPropertyInput,
+  SimplifiedPropertyInputBackend,
   PropertyTemplate,
   MSAInfo
 } from './property';

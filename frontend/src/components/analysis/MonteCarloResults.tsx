@@ -48,7 +48,7 @@ export function MonteCarloResults({
   onExport, 
   isRunning = false 
 }: MonteCarloResultsProps) {
-  const [selectedMetric, setSelectedMetric] = useState<'npv' | 'irr' | 'cashflow'>('npv');
+  const [selectedMetric, setSelectedMetric] = useState<'npv' | 'irr' | 'total_cash_flow'>('npv');
 
   
   const percentiles = results.percentiles;
@@ -62,12 +62,12 @@ export function MonteCarloResults({
     scenario: index + 1,
     npv: scenario.npv,
     irr: scenario.irr,
-    cashflow: scenario.total_cash_flow,
+    total_cash_flow: scenario.total_cash_flow,
     risk_score: scenario.risk_score,
   }));
 
   // Create histogram data for selected metric
-  const createHistogramData = (metric: 'npv' | 'irr' | 'cashflow') => {
+  const createHistogramData = (metric: 'npv' | 'irr' | 'total_cash_flow') => {
     const values = distributionData.map(d => d[metric]);
     const min = Math.min(...values);
     const max = Math.max(...values);
@@ -90,10 +90,10 @@ export function MonteCarloResults({
     return histogram;
   };
 
-  const formatValue = (value: number, metric: 'npv' | 'irr' | 'cashflow') => {
+  const formatValue = (value: number, metric: 'npv' | 'irr' | 'total_cash_flow') => {
     switch (metric) {
       case 'npv':
-      case 'cashflow':
+      case 'total_cash_flow':
         return formatCurrency(value, { compact: true });
       case 'irr':
         return formatPercentage(value / 100);
@@ -102,13 +102,13 @@ export function MonteCarloResults({
     }
   };
 
-  const getMetricLabel = (metric: 'npv' | 'irr' | 'cashflow') => {
+  const getMetricLabel = (metric: 'npv' | 'irr' | 'total_cash_flow') => {
     switch (metric) {
       case 'npv':
         return 'Net Present Value';
       case 'irr':
         return 'Internal Rate of Return';
-      case 'cashflow':
+      case 'total_cash_flow':
         return 'Total Cash Flow';
     }
   };
@@ -286,7 +286,7 @@ export function MonteCarloResults({
                   </CardDescription>
                 </div>
                 <div className="flex space-x-2">
-                  {(['npv', 'irr', 'cashflow'] as const).map((metric) => (
+                  {(['npv', 'irr', 'total_cash_flow'] as const).map((metric) => (
                     <Badge
                       key={metric}
                       variant={selectedMetric === metric ? "default" : "outline"}
@@ -315,7 +315,7 @@ export function MonteCarloResults({
                       label={{ value: 'Probability (%)', angle: -90, position: 'insideLeft' }}
                     />
                     <Tooltip 
-                      formatter={(value, name) => [`${value.toFixed(1)}%`, 'Probability']}
+                      formatter={(value) => [`${typeof value === 'number' ? value.toFixed(1) : value}%`, 'Probability']}
                       labelFormatter={(label) => `Range: ${formatValue(label, selectedMetric)}`}
                     />
                     <Bar 
@@ -510,7 +510,6 @@ export function MonteCarloResults({
           <ScenarioAnalysisCharts
             distribution={distribution}
             selectedMetric={selectedMetric}
-            onMetricChange={setSelectedMetric}
           />
         </TabsContent>
       </Tabs>

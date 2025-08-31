@@ -37,6 +37,7 @@ const FALLBACK_DEFAULTS: MarketDataDefaults = {
   lender_reserves_months: 3.0,
   management_fee_pct: 0.080,
   maintenance_reserve_per_unit: 600,
+  last_updated: new Date().toISOString(),
 };
 
 export function useMarketDefaults(): MarketDefaultsReturn {

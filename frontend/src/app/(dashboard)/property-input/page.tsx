@@ -39,10 +39,12 @@ export default function PropertyInputPage() {
 
   const handleFormSubmit = async (propertyData: SimplifiedPropertyInput) => {
     // Auto-derive MSA code if city and state are provided
-    if (propertyData.city && propertyData.state && !propertyData.msa_code) {
-      const msaCode = apiService.getMSAFromCity(propertyData.city, propertyData.state);
-      if (msaCode) {
-        propertyData.msa_code = msaCode;
+    const city = propertyData.address?.city;
+    const state = propertyData.address?.state;
+    if (city && state && !propertyData.address?.msa_code) {
+      const msaCode = apiService.getMSAFromCity(city, state);
+      if (msaCode && propertyData.address) {
+        propertyData.address.msa_code = msaCode;
       }
     }
 

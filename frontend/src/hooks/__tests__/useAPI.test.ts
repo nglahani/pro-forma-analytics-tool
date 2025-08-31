@@ -34,17 +34,45 @@ const mockApiService = apiService as jest.Mocked<typeof apiService>;
 
 // Test data
 const mockProperty: SimplifiedPropertyInput = {
+  property_id: 'test-123',
   property_name: 'Test Property',
-  residential_units: 24,
-  renovation_time_months: 6,
-  commercial_units: 0,
-  investor_equity_share_pct: 75.0,
-  residential_rent_per_unit: 2800,
-  commercial_rent_per_unit: 0,
-  self_cash_percentage: 30.0,
-  city: 'Chicago',
-  state: 'IL',
-  purchase_price: 3500000
+  property_type: 'residential' as any,
+  address: {
+    street: '123 Main St',
+    city: 'New York',
+    state: 'NY',
+    zip_code: '10001'
+  },
+  residential_units: {
+    total_units: 24,
+    average_rent_per_unit: 2800
+  },
+  commercial_units: {
+    total_units: 0,
+    average_rent_per_unit: 0
+  },
+  total_square_feet: 1000,
+  year_built: 2020,
+  renovation_info: { status: 'NOT_NEEDED' as any },
+  equity_structure: { 
+    investor_equity_share_pct: 75.0,
+    self_cash_percentage: 30.0 
+  },
+  financials: {
+    purchase_price: 0,
+    down_payment_percentage: 0,
+    loan_terms: { loan_term_years: 30 },
+    monthly_rent_per_unit: 0,
+    other_monthly_income: 0,
+    monthly_operating_expenses: 0,
+    annual_property_taxes: 0,
+    annual_insurance: 0,
+    capex_percentage: 0
+  },
+  analysis_parameters: {
+    analysis_period_years: 6
+  },
+  analysis_date: '2024-01-01'
 };
 
 const mockDCFResponse = {
@@ -67,7 +95,18 @@ describe('useAPI Hook', () => {
 
   describe('useHealthCheck', () => {
     it('should handle successful health check', async () => {
-      const mockResponse = { success: true, data: { status: 'healthy' }, error: null };
+      const mockResponse = { 
+        success: true, 
+        data: { 
+          status: 'healthy' as const, 
+          timestamp: '2023-01-01T00:00:00Z',
+          version: '1.0.0',
+          environment: 'test',
+          uptime_seconds: 3600,
+          dependencies: {}
+        }, 
+        error: null 
+      };
       mockApiService.checkHealth.mockResolvedValue(mockResponse);
 
       const { result } = renderHook(() => useHealthCheck());
@@ -128,7 +167,18 @@ describe('useAPI Hook', () => {
     });
 
     it('should reset state correctly', async () => {
-      const mockResponse = { success: true, data: { status: 'healthy' }, error: null };
+      const mockResponse = { 
+        success: true, 
+        data: { 
+          status: 'healthy' as const, 
+          timestamp: '2023-01-01T00:00:00Z',
+          version: '1.0.0',
+          environment: 'test',
+          uptime_seconds: 3600,
+          dependencies: {}
+        }, 
+        error: null 
+      };
       mockApiService.checkHealth.mockResolvedValue(mockResponse);
 
       const { result } = renderHook(() => useHealthCheck());
@@ -149,8 +199,8 @@ describe('useAPI Hook', () => {
     });
 
     it('should set loading state during execution', async () => {
-      let resolvePromise: (value: any) => void;
-      const promise = new Promise(resolve => { resolvePromise = resolve; });
+      let resolvePromise: (value: { success: boolean; data: any; error: string | null; }) => void;
+      const promise = new Promise<{ success: boolean; data: any; error: string | null; }>(resolve => { resolvePromise = resolve; });
       mockApiService.checkHealth.mockReturnValue(promise);
 
       const { result } = renderHook(() => useHealthCheck());
@@ -300,7 +350,11 @@ describe('useAPI Hook', () => {
     it('should handle system configuration retrieval', async () => {
       const configResponse = { 
         success: true, 
-        data: { version: '1.0.0', features: [] }, 
+        data: { 
+          database_info: {},
+          api_settings: {},
+          forecast_settings: {}
+        }, 
         error: null 
       };
       mockApiService.getSystemConfig.mockResolvedValue(configResponse);
@@ -320,8 +374,27 @@ describe('useAPI Hook', () => {
     it('should handle multiple API calls independently', async () => {
       const { result } = renderHook(() => useMultipleAPICalls());
 
-      const healthResponse = { success: true, data: { status: 'healthy' }, error: null };
-      const configResponse = { success: true, data: { version: '1.0.0' }, error: null };
+      const healthResponse = { 
+        success: true, 
+        data: { 
+          status: 'healthy' as const, 
+          timestamp: '2023-01-01T00:00:00Z',
+          version: '1.0.0',
+          environment: 'test',
+          uptime_seconds: 3600,
+          dependencies: {}
+        }, 
+        error: null 
+      };
+      const configResponse = { 
+        success: true, 
+        data: { 
+          database_info: {},
+          api_settings: {},
+          forecast_settings: {}
+        }, 
+        error: null 
+      };
 
       mockApiService.checkHealth.mockResolvedValue(healthResponse);
       mockApiService.getSystemConfig.mockResolvedValue(configResponse);
@@ -343,8 +416,8 @@ describe('useAPI Hook', () => {
     it('should track loading states correctly', async () => {
       const { result } = renderHook(() => useMultipleAPICalls());
 
-      let resolvePromise: (value: any) => void;
-      const promise = new Promise(resolve => { resolvePromise = resolve; });
+      let resolvePromise: (value: { success: boolean; data: unknown; error: string | null; }) => void;
+      const promise = new Promise<{ success: boolean; data: unknown; error: string | null; }>(resolve => { resolvePromise = resolve; });
       
       act(() => {
         result.current.executeCall('test', () => promise);
