@@ -6,15 +6,12 @@ Tests cover all major functionality including initialization, data loading,
 model fitting, validation, forecasting, and visualization.
 """
 
-from datetime import date, datetime
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
-import numpy as np
 import pandas as pd
 import pytest
 
-from core.exceptions import DataNotFoundError, ForecastError, ValidationError
+from core.exceptions import ValidationError
 from forecasting.prophet_engine import (
     PROPHET_AVAILABLE,
     ProFormaProphetEngine,
