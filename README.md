@@ -131,12 +131,39 @@ Each simulation incorporates economic correlations between variables, ensuring r
 - SQLite 3.x
 - Git (for CI/CD integration)
 
-### Setup
-```bash
-# Clone the repository
-git clone https://github.com/nglahani/pro-forma-analytics-tool.git
-cd pro-forma-analytics-tool
+### Setup (Docker-First Development)
 
+**🚀 Quick Start (Recommended)**
+```bash
+# Clone repository outside OneDrive for optimal performance
+git clone https://github.com/nglahani/pro-forma-analytics-tool.git C:\Development\pro-forma-analytics-tool
+cd C:\Development\pro-forma-analytics-tool
+
+# Start Docker Desktop, then run setup script
+scripts\dev-setup.bat  # Windows
+# OR
+./scripts/dev-setup.sh  # Linux/macOS
+
+# Access the application
+# Frontend: http://localhost:3000
+# Backend:  http://localhost:8000
+```
+
+**📋 Manual Docker Setup**
+```bash
+# Build and start development environment
+docker-compose build
+docker-compose up -d
+
+# View logs and monitor services
+docker-compose logs -f
+
+# Stop development environment
+docker-compose down
+```
+
+**🔧 Native Setup (Alternative)**
+```bash
 # Create virtual environment (Python 3.10-3.11 supported)
 python -m venv venv
 source venv/bin/activate  # Windows: venv\\Scripts\\activate
@@ -148,10 +175,21 @@ pip install -r requirements.txt
 # Initialize production-grade databases (2,174+ data points)
 python data_manager.py setup
 
-# Verify installation - run comprehensive validation
+# Start backend
+python -m uvicorn src.presentation.api.main:app --reload
+
+# In another terminal, start frontend
+cd frontend
+npm install
+npm run dev
+```
+
+**✅ Verify Installation**
+```bash
+# Test complete workflow
 python demo_end_to_end_workflow.py
 
-# Run full test suite to validate installation
+# Run full test suite
 pytest tests/ -v --cov=src --cov=core --cov=monte_carlo
 ```
 

@@ -1,0 +1,34 @@
+# Docker ignore for frontend container
+# Exclude files that shouldn't be copied during build
+
+# Dependencies (will be installed in container)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts (will be generated in container)
+.next/
+.next-safe/
+out/
+dist/
+build/
+
+# Development and testing
+.git/
+.env.local
+.env.*.local
+coverage/
+.nyc_output/
+
+# IDE and system files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OneDrive related
+.onedriveignore

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest tests/ --co -q)",
+      "Bash(npm test:*)",
+      "Bash(python:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(black:*)",
+      "Bash(isort:*)",
+      "Bash(flake8:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run type-check:*)",
+      "Bash(find:*)",
+      "Bash(rm:*)",
+      "Bash(npx tsc:*)",
+      "Bash(bandit:*)",
+      "Bash(npm ci:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install)",
+      "Bash(npm audit:*)",
+      "Bash(timeout 5 sleep 5)",
+      "Bash(curl:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(npm run dev:*)",
+      "Bash(set DISABLE_SWC=1)",
+      "Bash(set TURBOPACK=0)",
+      "Bash(npm run:*)",
+      "Read(/C:\\Users\\nlaha\\OneDrive\\Documents\\Personal\\Real Estate\\pro-forma-analytics-tool/**)",
+      "Bash(docker:*)",
+      "Bash(dir:*)",
+      "Bash(xcopy:*)",
+      "Bash(robocopy:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,0 +1,30 @@
+# Frontend Development Container
+# Optimized for hot reload and development workflow
+
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies for better performance
+RUN apk add --no-cache curl git
+
+# Install dependencies first for better Docker layer caching
+# This will be copied by docker-compose, but we set up the structure
+COPY frontend/package*.json ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm ci
+
+# Source code will be mounted via volume in docker-compose
+# Build artifacts will be in anonymous volume (.next directory)
+
+# Expose development port
+EXPOSE 3000
+
+# Health check for container monitoring
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000 || exit 1
+
+# Development command with hot reload
+CMD ["npm", "run", "dev"]

@@ -1,0 +1,30 @@
+# OneDrive exclusion file - folders and files to never sync
+# This prevents file locking issues with build artifacts
+
+# Next.js build artifacts - exclude entire build directory from OneDrive
+.next-safe/
+out/
+build/
+
+# Node.js dependencies
+node_modules/
+
+# Temporary files and logs
+*.tmp
+*.log
+npm-debug.log*
+yarn-debug.log*
+.pnpm-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# TypeScript build info
+*.tsbuildinfo

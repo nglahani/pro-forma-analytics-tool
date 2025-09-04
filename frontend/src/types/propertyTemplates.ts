@@ -10,7 +10,7 @@ export interface PropertyTemplate {
   name: string;
   description: string;
   icon: string;
-  category: 'residential' | 'commercial' | 'mixed-use' | 'retail';
+  category: 'residential' | 'mixed-use' | 'single-family';
   
   // Default configuration values
   defaultConfig: {
@@ -75,32 +75,32 @@ export const PROPERTY_TEMPLATES: PropertyTemplate[] = [
     }
   },
   {
-    id: 'commercial-office',
-    name: 'Commercial Office',
-    description: 'Office buildings and business centers',
-    icon: '🏪',
-    category: 'commercial',
+    id: 'single-family-residential',
+    name: 'Single Family Residential',
+    description: 'Single family homes, townhouses, and duplexes',
+    icon: '🏠',
+    category: 'single-family',
     defaultConfig: {
-      commercial_units: {
-        total_units: 8,
-        average_rent_per_unit: 42000,
-        average_square_feet_per_unit: 1200
+      residential_units: {
+        total_units: 1,
+        average_rent_per_unit: 3200,
+        average_square_feet_per_unit: 1800
       },
       renovation_info: {
         status: RenovationStatus.PLANNED,
-        anticipated_duration_months: 4,
-        estimated_cost: 100000
+        anticipated_duration_months: 3,
+        estimated_cost: 75000
       },
       equity_structure: {
-        investor_equity_share_pct: 30,
+        investor_equity_share_pct: 20,
         self_cash_percentage: 75
       }
     },
     formConfig: {
-      showCommercialUnits: true,
-      showResidentialUnits: false,
-      requiredFields: ['property_name', 'commercial_units', 'renovation_info', 'equity_structure'],
-      optionalFields: ['residential_units', 'purchase_price', 'property_address', 'notes']
+      showCommercialUnits: false,
+      showResidentialUnits: true,
+      requiredFields: ['property_name', 'residential_units', 'renovation_info', 'equity_structure'],
+      optionalFields: ['commercial_units', 'purchase_price', 'property_address', 'notes']
     }
   },
   {
@@ -135,35 +135,6 @@ export const PROPERTY_TEMPLATES: PropertyTemplate[] = [
       showResidentialUnits: true,
       requiredFields: ['property_name', 'residential_units', 'commercial_units', 'renovation_info', 'equity_structure'],
       optionalFields: ['purchase_price', 'property_address', 'notes']
-    }
-  },
-  {
-    id: 'retail-shopping',
-    name: 'Retail & Shopping',
-    description: 'Strip malls, shopping centers, and retail spaces',
-    icon: '🛍️',
-    category: 'retail',
-    defaultConfig: {
-      commercial_units: {
-        total_units: 6,
-        average_rent_per_unit: 37500,
-        average_square_feet_per_unit: 1500
-      },
-      renovation_info: {
-        status: RenovationStatus.PLANNED,
-        anticipated_duration_months: 3,
-        estimated_cost: 120000
-      },
-      equity_structure: {
-        investor_equity_share_pct: 35,
-        self_cash_percentage: 70
-      }
-    },
-    formConfig: {
-      showCommercialUnits: true,
-      showResidentialUnits: false,
-      requiredFields: ['property_name', 'commercial_units', 'renovation_info', 'equity_structure'],
-      optionalFields: ['residential_units', 'purchase_price', 'property_address', 'notes']
     }
   }
 ];

@@ -34,16 +34,10 @@ interface NavigationItem {
 
 const navigation: NavigationItem[] = [
   {
-    name: 'Dashboard',
+    name: 'Home',
     href: '/',
     icon: Home,
     description: 'Overview and quick actions'
-  },
-  {
-    name: 'Property Analysis',
-    href: '/analysis',
-    icon: Calculator,
-    description: 'DCF analysis and financial modeling'
   },
   {
     name: 'Properties',
@@ -59,16 +53,22 @@ const navigation: NavigationItem[] = [
     badge: 'New'
   },
   {
-    name: 'Market Data',
+    name: 'Financial Forecasts',
+    href: '/analysis',
+    icon: Calculator,
+    description: 'DCF analysis and financial modeling'
+  },
+  {
+    name: 'Risk Analysis',
+    href: '/monte-carlo',
+    icon: BarChart3,
+    description: 'Monte Carlo simulations and risk modeling'
+  },
+  {
+    name: 'Market Insights',
     href: '/market-data',
     icon: TrendingUp,
     description: 'Market trends and forecasts'
-  },
-  {
-    name: 'Monte Carlo',
-    href: '/monte-carlo',
-    icon: BarChart3,
-    description: 'Risk analysis and simulations'
   }
 ];
 

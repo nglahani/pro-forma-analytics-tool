@@ -1,0 +1,71 @@
+# Docker Compose Development Environment
+# Complete OneDrive-safe development stack
+
+version: '3.8'
+
+services:
+  frontend:
+    container_name: proforma-frontend-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # Source code with cached mount for better performance
+      - ./frontend:/app:cached
+      # Prevent node_modules from being overridden by host
+      - /app/node_modules
+      # Prevent build artifacts from being synced to host
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+      - WATCHPACK_POLLING=false  # Container-native file watching
+      - CHOKIDAR_USEPOLLING=false
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_DEV_API_KEY=dev_test_key_12345678901234567890123
+    networks:
+      - proforma-dev-network
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  backend:
+    container_name: proforma-backend-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.backend.dev
+    ports:
+      - "8000:8000"
+    volumes:
+      # Source code with cached mount
+      - ./src:/app/src:cached
+      - ./config:/app/config:cached
+      - ./core:/app/core:cached
+      - ./monte_carlo:/app/monte_carlo:cached
+      - ./forecasting:/app/forecasting:cached
+      # Database persistence (host volume)
+      - ./data:/app/data
+      # Requirements for development
+      - ./requirements.txt:/app/requirements.txt:cached
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - PRO_FORMA_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    networks:
+      - proforma-dev-network
+    restart: unless-stopped
+
+networks:
+  proforma-dev-network:
+    driver: bridge
+    name: proforma-dev-network
+
+# Development-specific volumes for better performance
+volumes:
+  frontend_node_modules:
+    driver: local
+  frontend_next_build:
+    driver: local

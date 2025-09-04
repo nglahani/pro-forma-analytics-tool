@@ -1,0 +1,13 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/auth/register/page": "app/auth/register/page.js",
+  "/page": "app/page.js",
+  "/(dashboard)/analysis/demo/page": "app/(dashboard)/analysis/demo/page.js",
+  "/(dashboard)/market-data/page": "app/(dashboard)/market-data/page.js",
+  "/(dashboard)/property-input/page": "app/(dashboard)/property-input/page.js",
+  "/(dashboard)/monte-carlo/page": "app/(dashboard)/monte-carlo/page.js",
+  "/(dashboard)/properties/page": "app/(dashboard)/properties/page.js",
+  "/(dashboard)/analysis/page": "app/(dashboard)/analysis/page.js"
+}

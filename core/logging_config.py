@@ -6,8 +6,8 @@ Centralized logging setup for the pro forma analytics tool.
 
 import logging
 import logging.handlers
-import sys
 import platform
+import sys
 from pathlib import Path
 
 
@@ -54,16 +54,13 @@ def setup_logging(
     # File handler - use simple FileHandler for Windows to avoid file locking issues
     if platform.system() == "Windows":
         # Use simple FileHandler to avoid Windows file locking issues with rotation
-        file_handler = logging.FileHandler(
-            log_path / f"{name}.log",
-            encoding="utf-8"
-        )
+        file_handler = logging.FileHandler(log_path / f"{name}.log", encoding="utf-8")
     else:
         # Use RotatingFileHandler for Unix/Linux systems
         file_handler = logging.handlers.RotatingFileHandler(
             log_path / f"{name}.log", maxBytes=max_bytes, backupCount=backup_count
         )
-    
+
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(detailed_formatter)
     logger.addHandler(file_handler)
