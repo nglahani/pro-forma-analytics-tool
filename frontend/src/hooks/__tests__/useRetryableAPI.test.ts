@@ -386,7 +386,7 @@ describe('useRetryableAPI Hook', () => {
         try {
           await result.current.executeCall(mockApiFunction, 'test-key');
         } catch (error) {
-          expect(error.message).toBe('No internet connection and no cached data available');
+          expect((error as Error).message).toBe('No internet connection and no cached data available');
         }
       });
     });
@@ -407,7 +407,7 @@ describe('useRetryableAPI Hook', () => {
         try {
           await result.current.executeCall(mockApiFunction, 'test-key');
         } catch (error) {
-          expect(error.message).toBe('No internet connection and no cached data available');
+          expect((error as Error).message).toBe('No internet connection and no cached data available');
         }
       });
     });
@@ -477,8 +477,9 @@ describe('useRetryableAPI Hook', () => {
 
       act(() => {
         // Simulate connection change event
-        if (window.navigator.connection) {
-          window.navigator.connection.dispatchEvent?.(new Event('change'));
+        const nav = window.navigator as any;
+        if (nav.connection) {
+          nav.connection.dispatchEvent?.(new Event('change'));
         }
       });
 

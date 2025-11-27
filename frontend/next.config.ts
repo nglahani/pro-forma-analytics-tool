@@ -11,15 +11,10 @@ const nextConfig: NextConfig = {
   
   experimental: {
     optimizePackageImports: ['recharts', '@radix-ui/react-dialog', 'lucide-react'],
-    // Reduce file system operations for OneDrive
-    turbo: {
-      rules: {
-        '*.{js,jsx,ts,tsx}': {
-          loaders: ['swc-loader'],
-        },
-      },
-    },
   },
+
+  // Acknowledge turbopack but use webpack for OneDrive compatibility
+  turbopack: {},
   
   // Configure webpack for OneDrive compatibility
   webpack: (config, { dev, isServer }) => {
@@ -52,10 +47,7 @@ const nextConfig: NextConfig = {
     
     return config;
   },
-  eslint: {
-    // For MVP, allow build with warnings
-    ignoreDuringBuilds: true,
-  },
+  // Note: eslint configuration moved to .eslintrc for Next.js 16 compatibility
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production'
   },

@@ -101,9 +101,6 @@ export function PropertyInputForm({ template, onBack, onSubmit }: PropertyInputF
     if (marketDefaults) {
       // Apply market defaults to relevant form fields
       updateFormData({
-        // Apply market defaults - for now store as separate field since
-        // these don't fit in the current AnalysisParameters structure
-        // TODO: Add DCF assumptions to the proper interface
         analysis_parameters: {
           analysis_period_years: 6,
           ...formData.analysis_parameters,

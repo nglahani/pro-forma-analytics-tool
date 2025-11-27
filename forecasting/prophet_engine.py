@@ -3,7 +3,8 @@
 Prophet Forecasting Engine
 
 Implements Meta's Prophet time series forecasting for the 11 pro forma metrics.
-Generates forecasts with uncertainty intervals and automatic trend/seasonality detection.
+Generates forecasts with uncertainty intervals and automatic
+trend/seasonality detection.
 """
 
 import warnings
@@ -95,7 +96,8 @@ class ProphetForecaster:
 
             if not data_points:
                 raise ValueError(
-                    f"No historical data found for {self.parameter_name} in {self.geographic_code}"
+                    f"No historical data found for {self.parameter_name} in "
+                    f"{self.geographic_code}"
                 )
 
             # Convert to pandas DataFrame in Prophet format (ds, y)
@@ -110,10 +112,12 @@ class ProphetForecaster:
             self.historical_data = df[["ds", "y"]]
 
             print(
-                f"Loaded {len(self.historical_data)} data points for {self.parameter_name} ({self.geographic_code})"
+                f"Loaded {len(self.historical_data)} data points for "
+                f"{self.parameter_name} ({self.geographic_code})"
             )
             print(
-                f"Date range: {self.historical_data['ds'].min().strftime('%Y-%m-%d')} to {self.historical_data['ds'].max().strftime('%Y-%m-%d')}"
+                f"Date range: {self.historical_data['ds'].min().strftime('%Y-%m-%d')} "
+                f"to {self.historical_data['ds'].max().strftime('%Y-%m-%d')}"
             )
 
             return self.historical_data
@@ -155,7 +159,7 @@ class ProphetForecaster:
             # Fit the model
             self.fitted_model.fit(self.historical_data)
 
-            print(f"Fitted Prophet model successfully")
+            print("Fitted Prophet model successfully")
 
         except Exception as e:
             raise Exception(f"Failed to fit Prophet model: {str(e)}")
@@ -340,7 +344,8 @@ class ProphetForecaster:
 
         # Formatting
         plt.title(
-            f"Prophet Forecast: {forecast_result.parameter_name} ({forecast_result.geographic_code})",
+            f"Prophet Forecast: {forecast_result.parameter_name} "
+            f"({forecast_result.geographic_code})",
             fontsize=16,
             fontweight="bold",
         )
@@ -355,7 +360,11 @@ class ProphetForecaster:
         plt.xticks(rotation=45)
 
         # Add model info
-        info_text = f"MAPE: {forecast_result.model_performance['mape']:.2f}%\\nTrend: {forecast_result.trend_info['overall_trend']}\\nData Points: {forecast_result.historical_data_points}"
+        info_text = (
+            f"MAPE: {forecast_result.model_performance['mape']:.2f}%\\n"
+            f"Trend: {forecast_result.trend_info['overall_trend']}\\n"
+            f"Data Points: {forecast_result.historical_data_points}"
+        )
         plt.text(
             0.02,
             0.98,
@@ -412,7 +421,7 @@ class ProphetForecaster:
         ):
             print(f"  {date}: {value:.4f}")
 
-        print(f"\nModel Performance:")
+        print("\nModel Performance:")
         print(f"  MAPE: {forecast_result.model_performance['mape']:.2f}%")
         print(f"  RMSE: {forecast_result.model_performance['rmse']:.4f}")
         print(f"  Trend: {forecast_result.trend_info['overall_trend']}")
@@ -431,7 +440,7 @@ class ProphetForecaster:
                 trend_info=forecast_result.trend_info,
                 historical_data_points=forecast_result.historical_data_points,
             )
-            print(f"Forecast saved to database")
+            print("Forecast saved to database")
         except Exception as e:
             print(f"Warning: Failed to save forecast to database: {e}")
 
@@ -442,8 +451,8 @@ class ProphetForecaster:
                 plots_dir = Path("forecast_plots")
                 plots_dir.mkdir(exist_ok=True)
                 save_plot_path = (
-                    plots_dir
-                    / f"{self.parameter_name}_{self.geographic_code}_prophet_forecast.png"
+                    plots_dir / f"{self.parameter_name}_{self.geographic_code}_"
+                    f"prophet_forecast.png"
                 )
 
             self.plot_forecast(forecast_result, str(save_plot_path))
@@ -553,7 +562,8 @@ class ProFormaProphetEngine:
                 monte_carlo_inputs[metric_name] = value
             else:
                 print(
-                    f"Warning: {metric_name} forecast doesn't have {target_year} years of data"
+                    f"Warning: {metric_name} forecast doesn't have {target_year} "
+                    f"years of data"
                 )
 
         return monte_carlo_inputs

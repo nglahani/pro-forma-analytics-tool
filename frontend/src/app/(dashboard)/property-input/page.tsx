@@ -5,15 +5,17 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PropertyTemplateSelector } from '@/components/property/PropertyTemplateSelector';
 import { PropertyInputForm } from '@/components/property/PropertyInputForm';
+import { AnalysisResultsModal } from '@/components/analysis/AnalysisResultsModal';
 import { PropertyTemplate } from '@/types/propertyTemplates';
 import { SimplifiedPropertyInput } from '@/types/property';
 import { useDCFAnalysis } from '@/hooks/useAPI';
 import { apiService } from '@/lib/api/service';
+import { useToast } from '@/hooks/useToast';
 
 type PageState = 'template-selection' | 'property-form' | 'success';
 
@@ -21,7 +23,9 @@ export default function PropertyInputPage() {
   const [pageState, setPageState] = useState<PageState>('template-selection');
   const [selectedTemplate, setSelectedTemplate] = useState<PropertyTemplate | null>(null);
   const [submittedProperty, setSubmittedProperty] = useState<SimplifiedPropertyInput | null>(null);
+  const [showResultsModal, setShowResultsModal] = useState(false);
   const dcfAnalysis = useDCFAnalysis();
+  const { toast } = useToast();
 
   const handleTemplateSelect = (template: PropertyTemplate) => {
     setSelectedTemplate(template);
@@ -120,34 +124,76 @@ export default function PropertyInputPage() {
     setPageState('template-selection');
   };
 
+  // Show results modal when analysis completes successfully
+  useEffect(() => {
+    if (dcfAnalysis.data && dcfAnalysis.data.financial_metrics) {
+      setShowResultsModal(true);
+      toast({
+        title: 'Analysis Complete',
+        description: 'DCF analysis completed successfully',
+      });
+    }
+  }, [dcfAnalysis.data, toast]);
+
+  // Show error toast when analysis fails
+  useEffect(() => {
+    if (dcfAnalysis.error) {
+      toast({
+        title: 'Analysis Failed',
+        description: dcfAnalysis.error,
+        variant: 'destructive',
+      });
+    }
+  }, [dcfAnalysis.error, toast]);
+
   const handleRunAnalysis = async () => {
     if (submittedProperty) {
       console.log('Starting DCF Analysis with data:', JSON.stringify(submittedProperty, null, 2));
-      console.log('DCF Analysis hook state before execution:', {
-        loading: dcfAnalysis.loading,
-        error: dcfAnalysis.error,
-        data: dcfAnalysis.data
-      });
-      
+
       try {
         await dcfAnalysis.execute(submittedProperty);
         console.log('DCF Analysis completed:', {
           loading: dcfAnalysis.loading,
           error: dcfAnalysis.error,
-          data: dcfAnalysis.data
+          hasData: !!dcfAnalysis.data,
+          hasFinancialMetrics: !!(dcfAnalysis.data?.financial_metrics),
+          financialMetrics: dcfAnalysis.data?.financial_metrics
         });
-        
+
         // Update local storage with analysis results
-        if (dcfAnalysis.data && dcfAnalysis.data.success && dcfAnalysis.data.data) {
+        if (dcfAnalysis.data && dcfAnalysis.data.financial_metrics) {
           try {
             const savedProperties = JSON.parse(localStorage.getItem('savedProperties') || '[]');
             const propertyIndex = savedProperties.findIndex((p: any) => p.property_id === submittedProperty.property_id);
+
             if (propertyIndex >= 0) {
+              // Update existing property
               savedProperties[propertyIndex].status = 'analyzed';
-              savedProperties[propertyIndex].analysis_results = dcfAnalysis.data.data;
+              savedProperties[propertyIndex].analysis_results = dcfAnalysis.data;
               savedProperties[propertyIndex].analyzedAt = new Date().toISOString();
+              // Store flattened metrics for easy access
+              savedProperties[propertyIndex].npv = dcfAnalysis.data.financial_metrics.npv;
+              savedProperties[propertyIndex].irr = dcfAnalysis.data.financial_metrics.irr;
+              savedProperties[propertyIndex].equity_multiple = dcfAnalysis.data.financial_metrics.equity_multiple;
+              savedProperties[propertyIndex].recommendation = dcfAnalysis.data.investment_recommendation;
               localStorage.setItem('savedProperties', JSON.stringify(savedProperties));
-              console.log('Analysis results saved to local storage');
+              console.log('Analysis results saved to local storage:', savedProperties[propertyIndex]);
+            } else {
+              // Property not found - add it with analysis results
+              console.log('Property not found in localStorage, adding with analysis results');
+              const newProperty = {
+                ...submittedProperty,
+                status: 'analyzed',
+                analysis_results: dcfAnalysis.data,
+                analyzedAt: new Date().toISOString(),
+                npv: dcfAnalysis.data.financial_metrics.npv,
+                irr: dcfAnalysis.data.financial_metrics.irr,
+                equity_multiple: dcfAnalysis.data.financial_metrics.equity_multiple,
+                recommendation: dcfAnalysis.data.investment_recommendation
+              };
+              savedProperties.push(newProperty);
+              localStorage.setItem('savedProperties', JSON.stringify(savedProperties));
+              console.log('New property with analysis added to local storage:', newProperty);
             }
           } catch (error) {
             console.warn('Could not save analysis results to local storage:', error);
@@ -158,6 +204,11 @@ export default function PropertyInputPage() {
       }
     } else {
       console.error('No submitted property data available for DCF analysis');
+      toast({
+        title: 'No Property Data',
+        description: 'Please submit property data before running analysis',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -217,7 +268,7 @@ export default function PropertyInputPage() {
             </Card>
 
             {/* DCF Analysis Results */}
-            {dcfAnalysis.data && (
+            {dcfAnalysis.data && dcfAnalysis.data.financial_metrics && (
               <Card className="border-green-200 bg-green-50">
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold text-green-900 mb-4">
@@ -227,25 +278,25 @@ export default function PropertyInputPage() {
                     <div>
                       <p className="text-green-600 font-medium">NPV</p>
                       <p className="text-green-900 text-lg font-bold">
-                        ${dcfAnalysis.data.npv.toLocaleString()}
+                        ${dcfAnalysis.data.financial_metrics.npv.toLocaleString()}
                       </p>
                     </div>
                     <div>
                       <p className="text-green-600 font-medium">IRR</p>
                       <p className="text-green-900 text-lg font-bold">
-                        {(dcfAnalysis.data.irr * 100).toFixed(1)}%
+                        {(dcfAnalysis.data.financial_metrics.irr * 100).toFixed(1)}%
                       </p>
                     </div>
                     <div>
                       <p className="text-green-600 font-medium">Equity Multiple</p>
                       <p className="text-green-900 text-lg font-bold">
-                        {dcfAnalysis.data.equity_multiple.toFixed(2)}x
+                        {dcfAnalysis.data.financial_metrics.equity_multiple.toFixed(2)}x
                       </p>
                     </div>
                     <div>
                       <p className="text-green-600 font-medium">Recommendation</p>
                       <p className="text-green-900 text-lg font-bold">
-                        {dcfAnalysis.data.investment_recommendation.replace('_', ' ')}
+                        {dcfAnalysis.data.investment_recommendation.replace(/_/g, ' ')}
                       </p>
                     </div>
                   </div>
@@ -345,6 +396,28 @@ export default function PropertyInputPage() {
         {/* Page Content */}
         {renderPageContent()}
       </div>
+
+      {/* Analysis Results Modal */}
+      <AnalysisResultsModal
+        isOpen={showResultsModal}
+        onClose={() => setShowResultsModal(false)}
+        propertyName={submittedProperty?.property_name || 'Property'}
+        financialMetrics={dcfAnalysis.data?.financial_metrics || null}
+        investmentRecommendation={dcfAnalysis.data?.investment_recommendation || null}
+        metadata={{
+          processing_time_seconds: dcfAnalysis.data?.analysis_metadata?.processing_time_seconds || dcfAnalysis.data?.metadata?.processing_time_seconds,
+          analysis_timestamp: dcfAnalysis.data?.analysis_metadata?.analysis_timestamp || dcfAnalysis.data?.metadata?.analysis_timestamp,
+          data_sources: dcfAnalysis.data?.analysis_metadata?.data_sources || dcfAnalysis.data?.metadata?.data_sources,
+        }}
+        onViewDetails={() => {
+          setShowResultsModal(false);
+          window.open('/analysis', '_blank');
+        }}
+        onRunAnother={() => {
+          setShowResultsModal(false);
+          handleStartOver();
+        }}
+      />
     </div>
   );
 }

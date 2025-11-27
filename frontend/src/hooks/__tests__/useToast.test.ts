@@ -48,7 +48,8 @@ describe('useToast', () => {
   it('should generate unique IDs for toasts', () => {
     const { result } = renderHook(() => useToast());
 
-    let toast1Id: string, toast2Id: string;
+    let toast1Id: string = '';
+    let toast2Id: string = '';
 
     act(() => {
       const toast1 = result.current.toast({ title: 'Toast 1' });
@@ -159,7 +160,6 @@ describe('useToast', () => {
       // Since there's no direct update method exposed, we test through dismiss/add cycle
       result.current.dismiss(toastId);
       result.current.toast({
-        id: toastId,
         title: 'Updated Title',
         description: 'Updated Description',
       });

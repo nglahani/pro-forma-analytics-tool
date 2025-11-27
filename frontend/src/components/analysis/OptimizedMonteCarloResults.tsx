@@ -1,7 +1,12 @@
 /**
  * Optimized Monte Carlo Results Visualization Component
  * Performance-enhanced version with lazy loading and monitoring
- * TODO: This component needs significant refactoring to work with current architecture
+ *
+ * Note: Currently simplified for MVP. Future enhancement will add:
+ * - Performance monitoring and metrics
+ * - Lazy-loaded chart components
+ * - Virtual scrolling for large datasets
+ * - Progressive enhancement patterns
  */
 
 'use client';

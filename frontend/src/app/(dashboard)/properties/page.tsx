@@ -8,10 +8,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Search, ExternalLink } from 'lucide-react';
+import { Building2, Search, ExternalLink, RefreshCw, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useEffect, useState } from 'react';
-import { apiService } from '@/lib/api/service';
+import { useRouter } from 'next/navigation';
+import { useAnalysisHistory } from '@/hooks/useAPI';
+import { formatCurrency, formatPercentage, formatTimestamp } from '@/lib/utils/formatters';
 
 // Mock data for demonstration - replace with actual API call
 const mockProperties = [
@@ -48,83 +50,123 @@ const mockProperties = [
 ];
 
 export default function PropertiesPage() {
+  const router = useRouter();
   const [properties, setProperties] = useState(mockProperties);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const analysisHistory = useAnalysisHistory();
 
-  // Fetch analysis history on component mount
+  // Load properties from localStorage and API
   useEffect(() => {
-    const fetchAnalysisHistory = async () => {
-      setLoading(true);
-      setError(null);
-      
+    const loadProperties = async () => {
+      // First, load from localStorage
       try {
-        // First try to get data from local storage
         const savedProperties = JSON.parse(localStorage.getItem('savedProperties') || '[]');
-        
-        if (savedProperties.length > 0) {
-          const localData = savedProperties.map((prop: any, index: number) => ({
-            id: prop.property_id || `local_${index}`,
-            address: prop.property_address || prop.property_name || 'Unknown Property',
-            type: prop.commercial_units ? 'Mixed-Use' : 'Residential',
-            units: (prop.residential_units?.total_units || 0) + (prop.commercial_units?.total_units || 0),
-            analyzedDate: prop.savedAt ? new Date(prop.savedAt).toLocaleDateString() : new Date().toLocaleDateString(),
-            npv: 0, // Will be populated after analysis
-            irr: 0.0, // Will be populated after analysis
-            status: prop.status === 'analyzed' ? 'Completed' : 'Saved'
-          }));
-          setProperties([...localData, ...mockProperties]);
-        } else {
-          console.log('No saved properties in local storage');
-        }
 
-        // Also try to fetch from API
-        const response = await apiService.getAnalysisHistory(20);
-        if (response.success && response.data && response.data.length > 0) {
-          const transformedData = response.data.map((analysis: any) => ({
-            id: analysis.analysis_id || analysis.property_id,
-            address: analysis.property_address || `Property ${analysis.property_id}`,
-            type: analysis.property_type || 'Multifamily',
-            units: analysis.total_units || 0,
-            analyzedDate: analysis.analysis_date ? new Date(analysis.analysis_date).toLocaleDateString() : 'Unknown',
-            npv: Math.round(analysis.npv || 0),
-            irr: analysis.irr ? parseFloat((analysis.irr * 100).toFixed(1)) : 0.0,
-            status: 'Completed'
-          }));
-          
-          // Merge with local storage data, avoiding duplicates
-          setProperties(prevProps => {
-            const combined = [...prevProps];
-            transformedData.forEach(apiProp => {
-              if (!combined.find(p => p.id === apiProp.id)) {
-                combined.push(apiProp);
-              }
-            });
-            return combined;
-          });
+        if (savedProperties.length > 0) {
+          const localData = savedProperties
+            .filter((prop: any) => prop.status === 'analyzed') // Only show analyzed properties
+            .map((prop: any, index: number) => ({
+              id: prop.property_id || `local_${index}`,
+              address: prop.property_address || prop.property_name || 'Unknown Property',
+              type: prop.commercial_units?.total_units > 0 ? 'Mixed-Use' : 'Residential',
+              units: (prop.residential_units?.total_units || 0) + (prop.commercial_units?.total_units || 0),
+              analyzedDate: prop.analyzedAt || prop.savedAt || new Date().toISOString(),
+              npv: prop.npv || 0,
+              irr: prop.irr || 0,
+              equity_multiple: prop.equity_multiple || 0,
+              recommendation: prop.recommendation || 'HOLD',
+              status: 'Completed',
+              rawData: prop, // Store raw data for viewing details
+            }));
+
+          setProperties(localData);
+        } else {
+          setProperties([]);
         }
-      } catch (err) {
-        console.log('Error fetching analysis history, using available data:', err);
-        // Don't overwrite existing properties on error
-      } finally {
-        setLoading(false);
+      } catch (error) {
+        console.error('Failed to load from localStorage:', error);
+        setProperties([]);
+      }
+
+      // Then, try to fetch from API
+      try {
+        await analysisHistory.execute(20);
+      } catch (error) {
+        console.warn('Failed to fetch from API, using localStorage only:', error);
       }
     };
 
-    fetchAnalysisHistory();
+    loadProperties();
   }, []);
+
+  // Merge API data with localStorage when API fetch completes
+  useEffect(() => {
+    if (analysisHistory.data && Array.isArray(analysisHistory.data) && analysisHistory.data.length > 0) {
+      console.log('API analysis history received:', analysisHistory.data.length, 'analyses');
+
+      const apiData = analysisHistory.data.map((analysis: any) => ({
+        id: analysis.request_id || analysis.property_id,
+        address: analysis.property_address || `Property ${analysis.property_id}`,
+        type: 'Multifamily',
+        units: 0,
+        analyzedDate: analysis.analysis_date || analysis.analysis_timestamp,
+        npv: analysis.financial_metrics?.npv || 0,
+        irr: analysis.financial_metrics?.irr || 0,
+        equity_multiple: analysis.financial_metrics?.equity_multiple || 0,
+        recommendation: analysis.investment_recommendation || 'HOLD',
+        status: 'Completed',
+        rawData: analysis,
+      }));
+
+      // Merge API data with existing localStorage data, avoiding duplicates
+      setProperties(prevProps => {
+        const combined = [...prevProps];
+        apiData.forEach(apiProp => {
+          if (!combined.find(p => p.id === apiProp.id)) {
+            combined.push(apiProp);
+          }
+        });
+        return combined;
+      });
+    }
+  }, [analysisHistory.data]);
+
+  // Filter properties based on search query
+  const filteredProperties = properties.filter(prop =>
+    prop.address.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleRefresh = async () => {
+    await analysisHistory.execute(20);
+  };
 
   return (
     <div className="p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Properties
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Reference list of previously analyzed properties
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Properties
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Reference list of previously analyzed properties
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={handleRefresh}
+              disabled={analysisHistory.loading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${analysisHistory.loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+            <Button onClick={() => router.push('/property-input')}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Property
+            </Button>
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -133,6 +175,8 @@ export default function PropertiesPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               placeholder="Search by address..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
             />
           </div>
@@ -143,11 +187,11 @@ export default function PropertiesPage() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Building2 className="h-5 w-5" />
-              Analyzed Properties ({properties.length})
+              Analyzed Properties ({filteredProperties.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? (
+            {analysisHistory.loading && properties.length === 0 ? (
               <div className="text-center py-12">
                 <Building2 className="mx-auto h-12 w-12 text-gray-400 animate-pulse" />
                 <h3 className="mt-4 text-sm font-medium text-gray-900">
@@ -157,7 +201,7 @@ export default function PropertiesPage() {
                   Fetching your analysis history
                 </p>
               </div>
-            ) : properties.length === 0 ? (
+            ) : filteredProperties.length === 0 && properties.length === 0 ? (
               <div className="text-center py-12">
                 <Building2 className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-4 text-sm font-medium text-gray-900">
@@ -166,13 +210,31 @@ export default function PropertiesPage() {
                 <p className="mt-2 text-sm text-gray-500">
                   Properties will appear here after running DCF analysis
                 </p>
+                <Button
+                  className="mt-4"
+                  onClick={() => router.push('/property-input')}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Analyze Your First Property
+                </Button>
+              </div>
+            ) : filteredProperties.length === 0 ? (
+              <div className="text-center py-12">
+                <Search className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-4 text-sm font-medium text-gray-900">
+                  No properties match your search
+                </h3>
+                <p className="mt-2 text-sm text-gray-500">
+                  Try a different search term
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
-                {properties.map((property) => (
+                {filteredProperties.map((property) => (
                   <div
                     key={property.id}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => console.log('View property:', property.id)}
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
@@ -180,21 +242,29 @@ export default function PropertiesPage() {
                           {property.address}
                         </h3>
                         <Badge variant="outline">{property.type}</Badge>
-                        <Badge variant="outline">{property.units} units</Badge>
+                        {property.units > 0 && (
+                          <Badge variant="outline">{property.units} units</Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span>Analyzed: {property.analyzedDate}</span>
-                        <span>NPV: ${property.npv.toLocaleString()}</span>
-                        <span>IRR: {property.irr}%</span>
+                        <span>{formatTimestamp(property.analyzedDate, 'short')}</span>
+                        <span>NPV: {formatCurrency(property.npv)}</span>
+                        <span>IRR: {formatPercentage(property.irr)}</span>
+                        {property.equity_multiple > 0 && (
+                          <span>Equity: {property.equity_multiple.toFixed(2)}x</span>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge 
-                        variant={property.status === 'Completed' ? 'success' : 'warning'}
+                      <Badge
+                        variant={property.status === 'Completed' ? 'default' : 'secondary'}
                       >
                         {property.status}
                       </Badge>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={(e) => {
+                        e.stopPropagation();
+                        window.open('/analysis', '_blank');
+                      }}>
                         <ExternalLink className="h-4 w-4" />
                       </Button>
                     </div>

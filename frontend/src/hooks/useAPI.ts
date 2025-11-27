@@ -119,6 +119,12 @@ export function useSystemConfig() {
   return useAPICall(apiService.getSystemConfig.bind(apiService));
 }
 
+export function useAnalysisHistory() {
+  return useAPICall((limit?: number) =>
+    apiService.getAnalysisHistory(limit)
+  );
+}
+
 // Utility hook for multiple API calls
 export function useMultipleAPICalls() {
   const [states, setStates] = useState<Record<string, APIState<unknown>>>({});

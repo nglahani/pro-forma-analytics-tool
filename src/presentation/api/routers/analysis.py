@@ -10,8 +10,10 @@ import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Union
 
 from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import JSONResponse
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent.parent.parent.parent
@@ -38,6 +40,11 @@ from src.presentation.api.models.responses import (
 )
 
 logger = get_logger(__name__)
+
+# In-memory cache for analysis history (MVP - replace with database persistence later)
+# Store up to 100 recent analyses, ordered by timestamp (newest first)
+_analysis_history_cache = []
+_MAX_HISTORY_SIZE = 100
 
 # Create analysis router
 router = APIRouter(
@@ -154,7 +161,7 @@ async def single_property_dcf_analysis(
     request: Request,
     analysis_request: PropertyAnalysisRequest,
     _: bool = Depends(require_permission("read")),
-) -> DCFAnalysisResponse:
+) -> Union[DCFAnalysisResponse, JSONResponse]:
     """
     Perform complete DCF analysis on a single property with institutional-grade methodology.
 
@@ -227,7 +234,7 @@ async def single_property_dcf_analysis(
                 "property_id": analysis_request.property_data.property_id,
                 "city": analysis_request.property_data.city,
                 "state": analysis_request.property_data.state,
-                "monte_carlo_simulations": analysis_request.options.monte_carlo_simulations,
+                "monte_carlo_simulations": analysis_request.options.monte_carlo_simulations if analysis_request.options else 500,
             }
         },
     )
@@ -292,11 +299,11 @@ async def single_property_dcf_analysis(
         ):
             mc = monte_carlo.run_simulation(
                 property_id=analysis_request.property_data.property_id,
-                scenario_count=analysis_request.options.monte_carlo_simulations,
+                scenario_count=analysis_request.options.monte_carlo_simulations if analysis_request.options else 500,
             )
 
             # Extract minimal fields for response compatibility
-            def _safe_json_primitive(value):
+            def _safe_json_primitive(value: Any) -> Any:
                 try:
                     # Accept basic primitives
                     if isinstance(value, (str, int, float, bool)) or value is None:
@@ -319,7 +326,7 @@ async def single_property_dcf_analysis(
         processing_time = time.time() - start_time
 
         # Create analysis metadata
-        _ = AnalysisMetadata(
+        analysis_metadata = AnalysisMetadata(
             processing_time_seconds=round(processing_time, 3),
             analysis_timestamp=datetime.now(timezone.utc),
             data_sources={
@@ -330,19 +337,19 @@ async def single_property_dcf_analysis(
             assumptions_summary={
                 "interest_rate": getattr(dcf_assumptions, "interest_rate", "N/A"),
                 "cap_rate": getattr(dcf_assumptions, "cap_rate", "N/A"),
-                "forecast_horizon": analysis_request.options.forecast_horizon_years,
-                "monte_carlo_runs": analysis_request.options.monte_carlo_simulations,
+                "forecast_horizon": analysis_request.options.forecast_horizon_years if analysis_request.options else 5,
+                "monte_carlo_runs": analysis_request.options.monte_carlo_simulations if analysis_request.options else 500,
             },
         )
 
         # Create response
         # Ensure dataclass-typed fields are only included if real objects, not mocks
-        _ = cash_flows if cash_flows.__class__.__module__ != "unittest.mock" else None
+        validated_cash_flows = cash_flows if cash_flows.__class__.__module__ != "unittest.mock" else None
         from src.domain.entities.dcf_assumptions import DCFAssumptions
 
         if dcf_assumptions.__class__.__module__ == "unittest.mock":
             # Create minimal valid DCFAssumptions to satisfy schema in unit tests
-            _ = DCFAssumptions(
+            validated_dcf_assumptions = DCFAssumptions(
                 scenario_id=f"API_SCENARIO_{request_id}",
                 msa_code=(
                     getattr(analysis_request.property_data, "msa_code", None) or "35620"
@@ -371,7 +378,7 @@ async def single_property_dcf_analysis(
                 ),
             )
         else:
-            _ = dcf_assumptions
+            validated_dcf_assumptions = dcf_assumptions
 
         # Normalize recommendation
         rec_input = getattr(financial_metrics, "investment_recommendation", None)
@@ -392,7 +399,7 @@ async def single_property_dcf_analysis(
             rec_value = None
 
         # Build response payload (bypass response_model to avoid Mock serialization issues in tests)
-        def _safe_primitive(obj):
+        def _safe_primitive(obj: Any) -> Any:
             try:
                 if isinstance(obj, (str, int, float, bool)) or obj is None:
                     return obj
@@ -430,7 +437,7 @@ async def single_property_dcf_analysis(
             "cash_flows": (
                 cash_flows.to_dict()
                 if (
-                    analysis_request.options.detailed_cash_flows
+                    analysis_request.options.detailed_cash_flows if analysis_request.options else False
                     and hasattr(cash_flows, "to_dict")
                     and not _is_mock(cash_flows)
                 )
@@ -452,8 +459,8 @@ async def single_property_dcf_analysis(
                     "monte_carlo": "Custom Simulation Engine",
                 },
                 "assumptions_summary": {
-                    "forecast_horizon": analysis_request.options.forecast_horizon_years,
-                    "monte_carlo_runs": analysis_request.options.monte_carlo_simulations,
+                    "forecast_horizon": analysis_request.options.forecast_horizon_years if analysis_request.options else 5,
+                    "monte_carlo_runs": analysis_request.options.monte_carlo_simulations if analysis_request.options else 500,
                 },
             },
         }
@@ -502,6 +509,14 @@ async def single_property_dcf_analysis(
             },
         )
 
+        # Store in history cache (MVP - in-memory only)
+        global _analysis_history_cache
+        _analysis_history_cache.insert(0, response_data.copy())  # Insert at beginning (newest first)
+        if len(_analysis_history_cache) > _MAX_HISTORY_SIZE:
+            _analysis_history_cache = _analysis_history_cache[:_MAX_HISTORY_SIZE]  # Keep only most recent
+
+        logger.debug(f"Analysis {request_id} added to history cache (total: {len(_analysis_history_cache)})")
+
         from fastapi.responses import JSONResponse
 
         # Return minimal primitive payload; all values are basic JSON types
@@ -538,6 +553,84 @@ async def single_property_dcf_analysis(
                 },
             },
         )
+
+
+@router.get(
+    "/history",
+    status_code=status.HTTP_200_OK,
+    summary="Get Analysis History",
+    description="""
+    **Retrieve recent DCF analysis history.**
+
+    Returns a list of previously performed DCF analyses, ordered by most recent first.
+    This is an MVP endpoint using in-memory storage - analyses are not persisted across server restarts.
+
+    **Query Parameters:**
+    - `limit`: Maximum number of results to return (default: 20, max: 100)
+
+    **Returns:**
+    List of DCF analysis results with financial metrics and metadata.
+
+    **Note:** This endpoint uses in-memory caching and will be empty after server restart.
+    Future versions will persist to database for permanent storage.
+    """,
+    responses={
+        200: {
+            "description": "List of analysis results",
+            "content": {
+                "application/json": {
+                    "example": [
+                        {
+                            "success": True,
+                            "request_id": "req_123",
+                            "property_id": "PROP_001",
+                            "analysis_date": "2025-11-03T12:00:00Z",
+                            "financial_metrics": {
+                                "npv": 1250000,
+                                "irr": 0.125,
+                                "equity_multiple": 2.5
+                            },
+                            "investment_recommendation": "STRONG_BUY"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+)
+async def get_analysis_history(
+    limit: int = 20,
+    _: bool = Depends(require_permission("read")),
+) -> JSONResponse:
+    """
+    Get recent DCF analysis history from in-memory cache.
+
+    Args:
+        limit: Maximum number of results to return (default 20, max 100)
+
+    Returns:
+        JSON list of recent DCF analysis results
+    """
+    # Validate and cap limit
+    limit = max(1, min(limit, 100))
+
+    # Return most recent analyses up to limit
+    global _analysis_history_cache
+    results = _analysis_history_cache[:limit]
+
+    logger.info(
+        f"Retrieved {len(results)} analyses from history cache (requested: {limit}, total: {len(_analysis_history_cache)})",
+        extra={
+            "structured_data": {
+                "event": "analysis_history_retrieved",
+                "requested_limit": limit,
+                "returned_count": len(results),
+                "cache_size": len(_analysis_history_cache)
+            }
+        }
+    )
+
+    return JSONResponse(status_code=200, content=results)
 
 
 async def process_single_property_async(

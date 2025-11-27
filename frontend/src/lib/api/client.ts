@@ -85,15 +85,22 @@ export interface HealthCheckResponse {
 class APIClient {
   private baseURL: string;
   private apiKey: string;
+  private readonly DEV_API_KEY = 'dev_test_key_12345678901234567890123';
 
   constructor() {
     // Use environment variable or fallback to localhost for development
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    this.apiKey = '';
+    // Set demo API key by default for development
+    this.apiKey = this.DEV_API_KEY;
   }
 
   setApiKey(apiKey: string) {
-    this.apiKey = apiKey;
+    // In development, always use the dev key
+    if (process.env.NODE_ENV === 'development') {
+      this.apiKey = this.DEV_API_KEY;
+    } else {
+      this.apiKey = apiKey;
+    }
   }
 
   private async makeRequest<T>(
@@ -102,11 +109,16 @@ class APIClient {
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
 
+    // Always use dev key in development mode
+    const effectiveApiKey = process.env.NODE_ENV === 'development'
+      ? this.DEV_API_KEY
+      : this.apiKey;
+
     const config: RequestInit = {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': this.apiKey,
+        'X-API-Key': effectiveApiKey,
         ...options.headers,
       },
     };

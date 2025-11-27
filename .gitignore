@@ -213,3 +213,18 @@ nul
 # Node modules
 node_modules/
 frontend/node_modules/
+
+# Next.js build artifacts
+.next/
+.next-safe/
+frontend/.next/
+frontend/.next-safe/
+frontend/.next-build/
+frontend/out/
+
+# TypeScript build info
+*.tsbuildinfo
+frontend/*.tsbuildinfo
+
+# Frontend coverage
+frontend/coverage/

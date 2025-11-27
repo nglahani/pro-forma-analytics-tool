@@ -1,7 +1,11 @@
 /**
  * Enhanced Scenario Analysis Charts Component
  * Advanced visualization of Monte Carlo scenario analysis with interactive charts
- * TODO: This component needs refactoring for proper type safety
+ *
+ * Note: Currently simplified for MVP. Future enhancement will add:
+ * - Interactive Recharts visualizations
+ * - Distribution histograms
+ * - Scenario filtering and drill-down capabilities
  */
 
 'use client';

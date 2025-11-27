@@ -13,7 +13,7 @@ A modern React/Next.js dashboard for real estate financial analysis, providing a
 
 ## Tech Stack
 
-- **Next.js 15** with App Router and TypeScript
+- **Next.js 16** with App Router and TypeScript
 - **Tailwind CSS** for styling with custom design system
 - **Radix UI** components for accessibility
 - **Recharts** for financial data visualization
@@ -39,7 +39,7 @@ A modern React/Next.js dashboard for real estate financial analysis, providing a
 2. **Configure environment:**
    ```bash
    cp .env.example .env.local
-   # Edit .env.local with your FastAPI backend URL
+   # Edit .env.local with your configuration (see Environment Variables below)
    ```
 
 3. **Start development server:**
@@ -91,6 +91,82 @@ The frontend integrates with the FastAPI backend through:
 - **Batch Analysis**: `/api/v1/analysis/batch`
 
 See `src/types/api.ts` for complete API interface definitions.
+
+## Environment Variables
+
+The frontend uses environment variables prefixed with `NEXT_PUBLIC_` to expose them to the browser. Configure these in `.env.local` (not committed to Git).
+
+### Required Variables
+
+| Variable | Description | Default | Example |
+|----------|-------------|---------|---------|
+| `NEXT_PUBLIC_API_URL` | FastAPI backend base URL | `http://localhost:8000` | `https://api.example.com` |
+| `NEXT_PUBLIC_DEV_API_KEY` | Development API key | `dev_test_key_12345678901234567890123` | See backend for key generation |
+
+### Optional Variables
+
+| Variable | Description | Default | Example |
+|----------|-------------|---------|---------|
+| `NEXT_PUBLIC_WS_URL` | WebSocket URL for real-time updates | `ws://localhost:8000` | `wss://api.example.com` |
+| `NEXT_PUBLIC_ENV` | Environment name | `development` | `production`, `staging` |
+| `NEXT_PUBLIC_APP_NAME` | Application display name | `Pro Forma Analytics` | Custom branding |
+| `NEXT_PUBLIC_APP_VERSION` | Application version | `1.0.0` | Semantic version |
+| `NEXT_PUBLIC_ENABLE_MONTE_CARLO` | Enable Monte Carlo features | `true` | `false` to disable |
+| `NEXT_PUBLIC_ENABLE_BATCH_ANALYSIS` | Enable batch analysis | `false` | `true` to enable |
+| `NEXT_PUBLIC_ENABLE_MARKET_DATA` | Enable market data features | `true` | `false` to disable |
+
+### Development Notes
+
+- **API Key**: In development mode, the frontend automatically uses the dev API key. In production, implement proper authentication.
+- **API URL**: When deploying, update `NEXT_PUBLIC_API_URL` to your production backend URL.
+- **Feature Flags**: Use the `ENABLE_*` flags to control feature availability during development.
+
+### Example `.env.local`
+
+```bash
+# Backend Configuration
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_WS_URL=ws://localhost:8000
+
+# Environment
+NEXT_PUBLIC_ENV=development
+
+# Application Settings
+NEXT_PUBLIC_APP_NAME="Pro Forma Analytics"
+NEXT_PUBLIC_APP_VERSION=1.0.0
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_MONTE_CARLO=true
+NEXT_PUBLIC_ENABLE_BATCH_ANALYSIS=false
+NEXT_PUBLIC_ENABLE_MARKET_DATA=true
+
+# Development API Key (DO NOT use in production)
+NEXT_PUBLIC_DEV_API_KEY=dev_test_key_12345678901234567890123
+```
+
+## Testing
+
+### Run Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+```
+
+### Type Checking
+
+```bash
+# Check TypeScript types without building
+npm run type-check
+```
+
+Current test coverage: 30%+ with comprehensive component testing.
 
 ## License
 

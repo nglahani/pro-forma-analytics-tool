@@ -1,7 +1,8 @@
 """
 Pro-Forma Analytics Tool - Clean Architecture Implementation
 
-This package implements a complete real estate DCF analysis engine following Clean Architecture principles.
+This package implements a complete real estate DCF analysis engine following
+Clean Architecture principles.
 """
 
 __version__ = "1.6.0"

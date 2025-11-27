@@ -1,0 +1,32 @@
+{
+  "property_data": {
+    "property_id": "TEST_001",
+    "property_name": "Test Property NYC",
+    "analysis_date": "2025-11-05",
+    "city": "New York",
+    "state": "NY",
+    "msa_code": "35620",
+    "purchase_price": 3500000,
+    "residential_units": {
+      "total_units": 24,
+      "average_rent_per_unit": 2800
+    },
+    "commercial_units": {
+      "total_units": 2,
+      "average_rent_per_unit": 5000
+    },
+    "renovation_info": {
+      "status": "not_needed",
+      "anticipated_duration_months": 0
+    },
+    "equity_structure": {
+      "investor_equity_share_pct": 75.0,
+      "self_cash_percentage": 25.0
+    }
+  },
+  "options": {
+    "monte_carlo_simulations": 500,
+    "forecast_horizon_years": 6,
+    "detailed_cash_flows": true
+  }
+}

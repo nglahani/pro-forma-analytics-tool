@@ -139,6 +139,10 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
         if request.url.path in self.exclude_paths:
             return await call_next(request)
 
+        # Skip authentication for OPTIONS requests (CORS preflight)
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
         # Extract API key from header
         api_key = request.headers.get(settings.api.api_key_header)
 

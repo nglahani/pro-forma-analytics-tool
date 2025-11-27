@@ -2,12 +2,8 @@
   "version": 1,
   "config": {
     "env": {},
-    "eslint": {
-      "ignoreDuringBuilds": true
-    },
     "typescript": {
-      "ignoreBuildErrors": false,
-      "tsconfigPath": "tsconfig.json"
+      "ignoreBuildErrors": false
     },
     "typedRoutes": false,
     "distDir": ".next-safe",
@@ -37,7 +33,6 @@
         3840
       ],
       "imageSizes": [
-        16,
         32,
         48,
         64,
@@ -51,14 +46,25 @@
       "loaderFile": "",
       "domains": [],
       "disableStaticImages": false,
-      "minimumCacheTTL": 60,
+      "minimumCacheTTL": 14400,
       "formats": [
         "image/webp"
       ],
+      "maximumRedirects": 3,
+      "dangerouslyAllowLocalIP": false,
       "dangerouslyAllowSVG": false,
       "contentSecurityPolicy": "script-src 'none'; frame-src 'none'; sandbox;",
       "contentDispositionType": "attachment",
+      "localPatterns": [
+        {
+          "pathname": "**",
+          "search": ""
+        }
+      ],
       "remotePatterns": [],
+      "qualities": [
+        75
+      ],
       "unoptimized": false
     },
     "devIndicators": {
@@ -68,17 +74,12 @@
       "maxInactiveAge": 60000,
       "pagesBufferLength": 5
     },
-    "amp": {
-      "canonicalBase": ""
-    },
     "basePath": "",
     "sassOptions": {},
     "trailingSlash": false,
     "i18n": null,
     "productionBrowserSourceMaps": false,
     "excludeDefaultMomentLocales": true,
-    "serverRuntimeConfig": {},
-    "publicRuntimeConfig": {},
     "reactProductionProfiling": false,
     "reactStrictMode": null,
     "reactMaxHeadersLength": 6000,
@@ -100,46 +101,47 @@
       }
     },
     "outputFileTracingRoot": "C:\\Development\\pro-forma-analytics-tool\\frontend",
+    "cacheComponents": false,
+    "cacheLife": {
+      "default": {
+        "stale": 300,
+        "revalidate": 900,
+        "expire": 4294967294
+      },
+      "seconds": {
+        "stale": 30,
+        "revalidate": 1,
+        "expire": 60
+      },
+      "minutes": {
+        "stale": 300,
+        "revalidate": 60,
+        "expire": 3600
+      },
+      "hours": {
+        "stale": 300,
+        "revalidate": 3600,
+        "expire": 86400
+      },
+      "days": {
+        "stale": 300,
+        "revalidate": 86400,
+        "expire": 604800
+      },
+      "weeks": {
+        "stale": 300,
+        "revalidate": 604800,
+        "expire": 2592000
+      },
+      "max": {
+        "stale": 300,
+        "revalidate": 2592000,
+        "expire": 31536000
+      }
+    },
+    "cacheHandlers": {},
     "experimental": {
       "useSkewCookie": false,
-      "cacheLife": {
-        "default": {
-          "stale": 300,
-          "revalidate": 900,
-          "expire": 4294967294
-        },
-        "seconds": {
-          "stale": 30,
-          "revalidate": 1,
-          "expire": 60
-        },
-        "minutes": {
-          "stale": 300,
-          "revalidate": 60,
-          "expire": 3600
-        },
-        "hours": {
-          "stale": 300,
-          "revalidate": 3600,
-          "expire": 86400
-        },
-        "days": {
-          "stale": 300,
-          "revalidate": 86400,
-          "expire": 604800
-        },
-        "weeks": {
-          "stale": 300,
-          "revalidate": 604800,
-          "expire": 2592000
-        },
-        "max": {
-          "stale": 300,
-          "revalidate": 2592000,
-          "expire": 4294967294
-        }
-      },
-      "cacheHandlers": {},
       "cssChunking": true,
       "multiZoneDraftMode": false,
       "appNavFailHandling": false,
@@ -148,14 +150,13 @@
       "serverSourceMaps": false,
       "linkNoTouchStart": false,
       "caseSensitiveRoutes": false,
-      "clientSegmentCache": false,
-      "clientParamParsing": false,
+      "clientSegmentCache": true,
       "dynamicOnHover": false,
       "preloadEntriesOnStart": true,
       "clientRouterFilter": true,
       "clientRouterFilterRedirects": false,
       "fetchCacheKeyPrefix": "",
-      "middlewarePrefetch": "flexible",
+      "proxyPrefetch": "flexible",
       "optimisticClientCache": true,
       "manualClientBasePath": false,
       "cpus": 17,
@@ -179,15 +180,6 @@
       "swcTraceProfiling": false,
       "forceSwcTransforms": false,
       "largePageDataBytes": 128000,
-      "turbo": {
-        "rules": {
-          "*.{js,jsx,ts,tsx}": {
-            "loaders": [
-              "swc-loader"
-            ]
-          }
-        }
-      },
       "typedEnv": false,
       "parallelServerCompiles": false,
       "parallelServerBuildTraces": false,
@@ -196,23 +188,25 @@
       "webpackMemoryOptimizations": false,
       "optimizeServerReact": true,
       "viewTransition": false,
-      "routerBFCache": false,
       "removeUncaughtErrorAndRejectionListeners": false,
       "validateRSCRequestHeaders": false,
       "staleTimes": {
         "dynamic": 0,
         "static": 300
       },
+      "reactDebugChannel": false,
       "serverComponentsHmrCache": true,
       "staticGenerationMaxConcurrency": 8,
       "staticGenerationMinPagesPerWorker": 25,
-      "cacheComponents": false,
       "inlineCss": false,
       "useCache": false,
       "globalNotFound": false,
-      "devtoolSegmentExplorer": true,
       "browserDebugInfoInTerminal": false,
-      "optimizeRouterScrolling": false,
+      "lockDistDir": true,
+      "isolatedDevBuild": true,
+      "proxyClientMaxBodySize": 10485760,
+      "hideLogsAfterAbort": false,
+      "mcpServer": true,
       "optimizePackageImports": [
         "recharts",
         "@radix-ui/react-dialog",
@@ -304,15 +298,9 @@
       ]
     },
     "turbopack": {
-      "rules": {
-        "*.{js,jsx,ts,tsx}": {
-          "loaders": [
-            "swc-loader"
-          ]
-        }
-      },
       "root": "C:\\Development\\pro-forma-analytics-tool\\frontend"
     },
+    "distDirRoot": ".next-safe",
     "_originalRewrites": {
       "beforeFiles": [],
       "afterFiles": [
@@ -334,11 +322,8 @@
     ".next-safe\\server\\functions-config-manifest.json",
     ".next-safe\\server\\middleware-manifest.json",
     ".next-safe\\server\\middleware-build-manifest.js",
-    ".next-safe\\server\\middleware-react-loadable-manifest.js",
-    ".next-safe\\react-loadable-manifest.json",
     ".next-safe\\server\\app-paths-manifest.json",
     ".next-safe\\app-path-routes-manifest.json",
-    ".next-safe\\app-build-manifest.json",
     ".next-safe\\server\\server-reference-manifest.js",
     ".next-safe\\server\\server-reference-manifest.json",
     ".next-safe\\BUILD_ID",
@@ -346,7 +331,5 @@
     ".next-safe\\server\\next-font-manifest.json",
     ".next-safe\\required-server-files.json"
   ],
-  "ignore": [
-    "node_modules\\next\\dist\\compiled\\@ampproject\\toolbox-optimizer\\**\\*"
-  ]
+  "ignore": []
 }

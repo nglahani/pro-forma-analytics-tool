@@ -1,13 +1,14 @@
 {
-  "/_not-found/page": "/_not-found",
-  "/favicon.ico/route": "/favicon.ico",
-  "/auth/login/page": "/auth/login",
-  "/auth/register/page": "/auth/register",
-  "/page": "/",
   "/(dashboard)/analysis/demo/page": "/analysis/demo",
+  "/(dashboard)/analysis/page": "/analysis",
   "/(dashboard)/market-data/page": "/market-data",
-  "/(dashboard)/property-input/page": "/property-input",
   "/(dashboard)/monte-carlo/page": "/monte-carlo",
   "/(dashboard)/properties/page": "/properties",
-  "/(dashboard)/analysis/page": "/analysis"
+  "/(dashboard)/property-input/page": "/property-input",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/auth/login/page": "/auth/login",
+  "/auth/register/page": "/auth/register",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/"
 }

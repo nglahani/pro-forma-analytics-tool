@@ -3,5 +3,14 @@
     "x-nextjs-stale-time": "300",
     "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/(dashboard)/layout,_N_T_/(dashboard)/analysis/layout,_N_T_/(dashboard)/analysis/demo/layout,_N_T_/(dashboard)/analysis/demo/page,_N_T_/analysis/demo"
-  }
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/!KGRhc2hib2FyZCk/analysis/demo/__PAGE__",
+    "/!KGRhc2hib2FyZCk/analysis/demo",
+    "/!KGRhc2hib2FyZCk/analysis",
+    "/!KGRhc2hib2FyZCk",
+    "/_index"
+  ]
 }

@@ -395,14 +395,15 @@ scripts\validate-linux.bat
 - **Edge Case Coverage**: 40+ comprehensive error scenario tests
 - **Docker Integration**: Linux compatibility validation with containerized testing
 
-### Test Coverage (v1.6)
-- **Test Methods**: 260+ comprehensive test methods across all layers
+### Test Coverage (v1.6.1)
+- **Test Methods**: 369 comprehensive test methods across all layers
 - **Unit Tests**: Domain entities, application services, infrastructure components, presentation layer
-- **Integration Tests**: Complete end-to-end DCF workflow validation
+- **Integration Tests**: Complete end-to-end DCF workflow validation  
 - **Performance Tests**: IRR calculation optimization (<0.01ms) and memory profiling
 - **Edge Case Tests**: 40+ boundary condition and error scenario tests
-- **Overall Coverage**: 80% actual coverage with enhanced quality focus on core business logic
-- **Core Business Logic**: 224 tests passing for application and integration layers (99.2% success rate)
+- **Overall Coverage**: 85.88% actual coverage exceeding target of 82%
+- **Test Files**: 29 test files covering 132 Python source files
+- **Success Rate**: 364 tests passing, 5 skipped (98.6% success rate)
 
 ## Development (Clean Architecture)
 
